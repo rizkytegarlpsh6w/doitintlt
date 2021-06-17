@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+	<groupId>com.gitee.l0km</groupId>
+	<artifactId>dtalk</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>dtalk</name>
+	<url>https://gitee.com/l0km</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
+		<common-java.version>1.1.7</common-java.version>
+	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.12</version>
+				<scope>test</scope>
+			</dependency>
+			<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.7.25</version>
+			</dependency>
+			<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12 -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>1.7.25</version>
+			</dependency>
+			<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>20.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-enforcer-plugin</artifactId>
+										<versionRange>[1.0.0,)</versionRange>
+										<goals>
+											<goal>enforce</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+				<!-- 跳过测试 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.18.1</version>
+					<configuration>
+						<skipTests>true</skipTests>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.0.1</version>
+					<executions>
+						<execution>
+							<id>sources</id>
+							<goals>
+								<goal>jar</goal>
+								<goal>test-jar</goal>
+							</goals>
+							<phase>package</phase>
+						</execution>
+					</executions>
+					<configuration>
+						<!-- 指定生成source.jar时不将resource打包 -->
+						<excludeResources>true</excludeResources>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+
+		</plugins>
+	</build>
+	<modules>
+		<module>dtalk-base</module>
+	</modules>
+	<licenses>
+		<license>
+			<name>The 2-Clause BSD License</name>
+			<url>https://gitee.com/l0km/dtalk/tree/master/LICENSE</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>guyadong</name>
+			<email>10km0811@sohu.com</email>
+			<url>https://gitee.com/l0km</url>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:https://gitee.com/l0km/dtalk.git</connection>
+		<developerConnection>scm:git:https://gitee.com/l0km/dtalk.git</developerConnection>
+		<url>https://gitee.com/l0km/dtalk</url>
+	</scm>
+</project>
