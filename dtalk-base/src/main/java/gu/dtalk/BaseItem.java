@@ -17,7 +17,7 @@ public abstract class BaseItem implements IItem{
 	public IMenu getParent() {
 		return parent;
 	}
-	public void setParent(IMenu parent) {
+	void setParent(IMenu parent) {
 		this.parent = parent;
 	}
 }

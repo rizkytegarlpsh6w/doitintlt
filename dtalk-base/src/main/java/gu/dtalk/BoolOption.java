@@ -3,8 +3,8 @@ package gu.dtalk;
 import java.util.regex.Pattern;
 
 public abstract class BoolOption extends BaseOption<Boolean> {
-	private static final Pattern PATTERN_TRUE = Pattern.compile("yes|1|on|true", Pattern.CASE_INSENSITIVE);
-	private static final Pattern PATTERN_FALSE = Pattern.compile("no|0|off|false", Pattern.CASE_INSENSITIVE);
+	private static final Pattern PATTERN_TRUE = Pattern.compile("^(yes|1|on|true)$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern PATTERN_FALSE = Pattern.compile("^(no|0|off|false)$", Pattern.CASE_INSENSITIVE);
 	public BoolOption() {
 	}
 
