@@ -21,13 +21,6 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.google.android/android -->
-		<dependency>
-			<groupId>com.google.android</groupId>
-			<artifactId>android</artifactId>
-			<version>4.1.1.4</version>
-			<scope>provided</scope>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -38,6 +31,15 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>common-base</artifactId>
 			<version>${common-java.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.gitee.l0km</groupId>
+			<artifactId>simplemq</artifactId>
+			<version>${simplemq.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
 		</dependency>
 	</dependencies>
 	<build>

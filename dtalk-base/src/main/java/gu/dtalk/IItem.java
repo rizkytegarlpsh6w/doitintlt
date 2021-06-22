@@ -5,6 +5,8 @@ public interface IItem {
 
 	boolean isContainer();
 	
+	boolean isDisable();
+	
 	String getDescription();
 	
 	IMenu getParent();

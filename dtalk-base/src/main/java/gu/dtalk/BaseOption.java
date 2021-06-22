@@ -1,11 +1,20 @@
 package gu.dtalk;
 
-public abstract class BaseOption<T> extends BaseItem implements IOption,StringTransformer<T> {
+import java.lang.reflect.Type;
+
+import com.alibaba.fastjson.JSON;
+import static com.google.common.base.Preconditions.*;
+
+public abstract class BaseOption<T> extends BaseItem implements IOption {
 	protected T optionValue;
 	protected T defaultValue;
+	protected final Type type;
 
-	public BaseOption() {
+	public BaseOption(Type type) {
+		super();
+		this.type = checkNotNull(type);
 	}
+
 	@Override
 	public boolean isReadOnly() {
 		return false;
@@ -14,27 +23,22 @@ public abstract class BaseOption<T> extends BaseItem implements IOption,StringTr
 	public final boolean isContainer() {
 		return false;
 	}
-
-	@Override
-	public String getDescription() {
-		return "";
+	public static final boolean isValid(String value,Type type) {
+		try{
+			return null == JSON.parseObject(value, type);
+		}catch (Exception e) {
+			return false;
+		}
 	}
 	@Override
 	public final boolean isValid(String value) {
-		try{
-			fromString(value);
-			return true;
-		}catch (TransformException e) {
-			return false;
-		}
+		return isValid(value, type);
 	}
 
 	@Override
 	public final String getValue() {
 		try{
-			return	toString(optionValue);
-		}catch (TransformException e) {
-			return e.getMessage();
+			return	JSON.toJSONString(optionValue);
 		}catch (Exception e) {
 			return "ERROR VALUE";
 		}
@@ -42,7 +46,7 @@ public abstract class BaseOption<T> extends BaseItem implements IOption,StringTr
 	@Override
 	public boolean setValue(String value) {
 		try{
-			optionValue =	fromString(value);
+			optionValue =	JSON.parseObject(value, type);
 			return true;
 		}catch (Exception e) {
 			return false;
@@ -51,12 +55,14 @@ public abstract class BaseOption<T> extends BaseItem implements IOption,StringTr
 	@Override
 	public final String getDefaultValue() {
 		try{
-			return toString(defaultValue);
-		}catch (TransformException e) {
-			return e.getMessage();
+			return JSON.toJSONString(defaultValue);
 		}catch (Exception e) {
 			return "ERROR DEFAUTL VALUE";
 		}
 	}
-	
+	@Override
+	public Object getObjectValue(){
+		return optionValue;
+	}
+
 }
