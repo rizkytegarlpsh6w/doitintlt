@@ -7,5 +7,5 @@ public interface IOption extends IItem {
 	boolean setValue(String value);
 	String getValue();
 	String getDefaultValue();
-	Object getObjectValue();
+	<V>V getObjectValue();
 }

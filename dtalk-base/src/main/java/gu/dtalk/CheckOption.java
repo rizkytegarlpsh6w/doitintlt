@@ -4,15 +4,31 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import static com.google.common.base.Preconditions.*;
 public class CheckOption<E> extends BaseOption<Set<Integer>> {
+	@JSONField(serialize = false,deserialize = false)
+	private final Predicate<Set<Integer>> checkValidator = new Predicate<Set<Integer>>() {
 
+		@Override
+		public boolean apply(Set<Integer> input) {
+			boolean findInvalid = Iterables.tryFind(CheckOption.this.optionValue, new Predicate<Integer>() {
+				@Override
+				public boolean apply(Integer input) {
+					return input < 0 || input >= options.size();
+				}
+			}).isPresent();
+			return !findInvalid;
+		}
+	};
 	private final LinkedHashMap<E, String> options = new LinkedHashMap<>();
 	public CheckOption() {
 		super(new TypeReference<Integer>() {}.getType());
+		setValidator(checkValidator);
 	}
 
 	public void addOption(E opt,String desc){
@@ -24,25 +40,10 @@ public class CheckOption<E> extends BaseOption<Set<Integer>> {
 		return OptionType.MULTICHECK;
 	}
 
-	protected boolean isValueElemnt(Integer index){
-		return index > 0 && index < options.size();
-	}
 	@Override
-	public boolean setValue(String value) {
-		super.setValue(value);
-		if(optionValue!=null){
-			boolean findInvalid = Iterables.tryFind(optionValue, new Predicate<Integer>() {
-				@Override
-				public boolean apply(Integer input) {
-					return !isValueElemnt(input);
-				}
-			}).isPresent();
-			if(findInvalid){
-				optionValue = null;
-			}
-			return !findInvalid;
-		}
-		return false;
+	public synchronized void setValidator(Predicate<Set<Integer>> validator) {
+		super.setValidator(Predicates.and(checkValidator, validator));
 	}
+
 
 }
