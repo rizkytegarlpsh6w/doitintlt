@@ -10,8 +10,8 @@ import com.google.common.base.Predicates;
 import static com.google.common.base.Preconditions.*;
 
 public abstract class BaseOption<T> extends BaseItem implements IOption {
-	protected T optionValue;
-	protected T defaultValue;
+	private T optionValue;
+	private T defaultValue;
 	@JSONField(serialize = false,deserialize = false)
 	protected final Type type;
 	@JSONField(serialize = false,deserialize = false)
@@ -49,11 +49,7 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 
 	@Override
 	public final String getValue() {
-		try{
-			return	JSON.toJSONString(optionValue);
-		}catch (Exception e) {
-			return "ERROR VALUE";
-		}
+		return	JSON.toJSONString(getObjectValue());
 	}
 	@Override
 	public boolean setValue(String value) {
@@ -67,17 +63,17 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 	}
 	@Override
 	public final String getDefaultValue() {
-		try{
-			return JSON.toJSONString(defaultValue);
-		}catch (Exception e) {
-			return "ERROR DEFAUTL VALUE";
-		}
+		return JSON.toJSONString(defaultValue);
 	}
+	public void setDefaultValue(T defaultValue) {
+		this.defaultValue = defaultValue;		
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	@JSONField(serialize = false,deserialize = false)
 	public <V>V getObjectValue(){
-		return (V)optionValue;
+		return (V)((null == optionValue) ? defaultValue : optionValue);
 	}
 
 	public synchronized void setValidator(Predicate<T> validator) {

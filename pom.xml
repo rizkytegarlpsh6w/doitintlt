@@ -112,6 +112,7 @@
 	</build>
 	<modules>
 		<module>dtalk-base</module>
+		<module>dtalk-engine</module>
 	</modules>
 	<licenses>
 		<license>

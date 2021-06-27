@@ -1,6 +1,10 @@
 package gu.dtalk;
 
-import java.util.List;
+public interface IMenu  extends IItem{
 
-public interface IMenu  extends IItem,List<IItem>{
+	IItem getItem(int index);
+
+	boolean isEmpty();
+
+	int size();
 }

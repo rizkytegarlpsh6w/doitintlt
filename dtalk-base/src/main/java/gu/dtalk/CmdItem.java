@@ -48,6 +48,7 @@ public class CmdItem extends BaseItem implements ICmd {
 		this.cmdAdapter = cmdAdapter;
 		return this;
 	}
+	@Override
 	public final void runCmd(){
 		if(cmdAdapter !=null){
 			// 将 parameter 转为 Map<String, Object>

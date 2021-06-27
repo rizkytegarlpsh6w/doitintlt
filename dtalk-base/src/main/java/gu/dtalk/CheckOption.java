@@ -15,11 +15,11 @@ public class CheckOption<E> extends BaseOption<Set<Integer>> {
 	private final Predicate<Set<Integer>> checkValidator = new Predicate<Set<Integer>>() {
 
 		@Override
-		public boolean apply(Set<Integer> input) {
-			boolean findInvalid = Iterables.tryFind(CheckOption.this.optionValue, new Predicate<Integer>() {
+		public boolean apply(Set<Integer> set) {
+			boolean findInvalid = Iterables.tryFind(set, new Predicate<Integer>() {
 				@Override
-				public boolean apply(Integer input) {
-					return input < 0 || input >= options.size();
+				public boolean apply(Integer index) {
+					return index < 0 || index >= options.size();
 				}
 			}).isPresent();
 			return !findInvalid;

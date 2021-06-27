@@ -6,4 +6,6 @@ public interface ICmd extends IItem {
 
 	List<IOption> getParameters();
 
+	void runCmd();
+
 }

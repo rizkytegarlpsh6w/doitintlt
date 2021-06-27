@@ -34,16 +34,15 @@ public class SwitchOption<E> extends CheckOption<E> {
 
 	@Override
 	public boolean setValue(String value) {
-		super.setValue(value);
-		if(optionValue==null){
+		if(!super.setValue(value)){
 			if(isValidString(value, elementType)){
 				@SuppressWarnings("unchecked")
 				List<E> one = Lists.newArrayList((E)JSON.parseObject(value, elementType));
 				return super.setValue(JSON.toJSONString(one));
 			}
+			return false;
 		}
-		optionValue = null;
-		return false;
+		return true;
 	}
 	@Override
 	public synchronized void setValidator(Predicate<Set<Integer>> validator) {
