@@ -77,6 +77,9 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 		return (V)((null == optionValue) ? defaultValue : optionValue);
 	}
 
+	public void setObjectValue(T value){
+		this.optionValue = value;
+	}
 	public synchronized void setValidator(Predicate<T> validator) {
 		if(validator!=null){
 			this.valueValidator = validator;
@@ -90,6 +93,11 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 
 	public void setReqiured(boolean reqiured) {
 		this.reqiured = reqiured;
+	}
+
+	@Override
+	public final ItemType getCatalog() {
+		return ItemType.OPTION;
 	}
 
 }

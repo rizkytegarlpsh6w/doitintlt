@@ -97,4 +97,8 @@ public class CmdItem extends BaseItem implements ICmd {
 			return null;
 		}
 	}
+	@Override
+	public final ItemType getCatalog() {
+		return ItemType.CMD;
+	}
 }

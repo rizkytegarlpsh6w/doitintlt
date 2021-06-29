@@ -92,4 +92,8 @@ public class MenuItem extends BaseItem implements IMenu {
 		});
 		return found.isPresent()? found.get():null;
 	}
+	@Override
+	public final ItemType getCatalog() {
+		return ItemType.MENU;
+	}
 }

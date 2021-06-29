@@ -1,6 +1,9 @@
 package gu.dtalk;
 
 public interface IItem {
+	
+	ItemType getCatalog();
+	
 	String getName();
 
 	boolean isContainer();
