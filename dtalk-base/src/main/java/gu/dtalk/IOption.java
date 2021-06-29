@@ -8,4 +8,5 @@ public interface IOption extends IItem {
 	String getValue();
 	String getDefaultValue();
 	<V>V getObjectValue();
+	boolean isReqiured();
 }

@@ -1,7 +1,5 @@
 package gu.dtalk;
 
-import com.alibaba.fastjson.JSON;
-
 public interface IItem {
 	String getName();
 
@@ -11,7 +9,7 @@ public interface IItem {
 	
 	String getDescription();
 	
-	IMenu getParent();
+	IItem getParent();
 
 	String getUiName();
 

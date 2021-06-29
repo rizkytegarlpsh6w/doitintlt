@@ -8,7 +8,10 @@ import java.util.Map;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import gu.simplemq.IMessageAdapter;
 
@@ -22,7 +25,7 @@ public class CmdItem extends BaseItem implements ICmd {
 
 	@Override
 	public final boolean isContainer() {
-		return false;
+		return true;
 	}
 	@Override
 	public List<IOption> getParameters(){
@@ -32,12 +35,21 @@ public class CmdItem extends BaseItem implements ICmd {
 		if(null != parameters){
 			this.parameters.clear();
 			this.parameters.addAll(parameters);
+			for(IOption param:parameters){
+				((BaseItem)param).setParent(this);
+			}
 		}
 		return this;
 	}
 	public CmdItem addParameters(IOption ... parameter){
-		if(null != parameter){
-			parameters.addAll(Arrays.asList(parameter));
+		return addParameters(Arrays.asList(parameter));
+	}
+	public CmdItem addParameters(Collection<IOption> parameters){
+		if(null != parameters){
+			parameters.addAll(parameters);
+			for(IOption param:parameters){
+				((BaseItem)param).setParent(this);
+			}
 		}
 		return this;
 	}
@@ -64,6 +76,25 @@ public class CmdItem extends BaseItem implements ICmd {
 				}
 			});
 			cmdAdapter.onSubscribe(objParams);
+		}
+	}
+	@Override
+	public IOption getParameter(final String name){
+		Optional<IOption> found = Iterables.tryFind(parameters, new Predicate<IOption>() {
+			@Override
+			public boolean apply(IOption input) {
+				return input.getName().equals(name);
+			}
+		});
+		return found.isPresent()? found.get():null;
+	}
+
+	@Override
+	public IOption getParameter(int index) {
+		try{
+			return parameters.get(index);
+		}catch (IndexOutOfBoundsException e) {
+			return null;
 		}
 	}
 }

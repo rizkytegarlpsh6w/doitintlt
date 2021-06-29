@@ -10,8 +10,10 @@ public abstract class BaseItem implements IItem{
 	private String name;
 	private String uiName;
 	@JSONField(serialize = false,deserialize = false)
-	private IMenu parent;
+	private IItem parent;
 	private boolean disable=false;
+	@JSONField(deserialize = false)
+	private String description = "";
 	public BaseItem() {
 	}
 	@Override
@@ -27,10 +29,11 @@ public abstract class BaseItem implements IItem{
 		this.name = checkNotNull(name);
 	}
 	@Override
-	public IMenu getParent() {
+	public IItem getParent() {
 		return parent;
 	}
-	void setParent(IMenu parent) {
+	void setParent(IItem parent) {
+		checkArgument(parent ==null || parent.isContainer());
 		this.parent = parent;
 	}
 	@Override
@@ -39,7 +42,10 @@ public abstract class BaseItem implements IItem{
 	}
 	@Override
 	public String getDescription() {
-		return "";
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	public void setDisable(boolean disable) {
 		this.disable = disable;

@@ -12,6 +12,7 @@ import static com.google.common.base.Preconditions.*;
 public abstract class BaseOption<T> extends BaseItem implements IOption {
 	private T optionValue;
 	private T defaultValue;
+	private boolean reqiured;
 	@JSONField(serialize = false,deserialize = false)
 	protected final Type type;
 	@JSONField(serialize = false,deserialize = false)
@@ -82,5 +83,13 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 		}
 	}
 
+	@Override
+	public boolean isReqiured() {
+		return reqiured;
+	}
+
+	public void setReqiured(boolean reqiured) {
+		this.reqiured = reqiured;
+	}
 
 }

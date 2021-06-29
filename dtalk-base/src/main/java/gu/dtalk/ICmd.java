@@ -8,4 +8,8 @@ public interface ICmd extends IItem {
 
 	void runCmd();
 
+	IOption getParameter(String name);
+
+	IOption getParameter(int index);
+
 }

@@ -14,4 +14,12 @@ public class IItemAdapter implements IMessageAdapter<IItem>{
 		
 	}
 
+	public IItem getRoot() {
+		return root;
+	}
+
+	public void setRoot(IItem root) {
+		this.root = root;
+	}
+
 }
