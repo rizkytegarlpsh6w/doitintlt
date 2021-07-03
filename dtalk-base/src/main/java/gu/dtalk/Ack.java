@@ -1,4 +1,4 @@
-package gu.dtalk.engine;
+package gu.dtalk;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;

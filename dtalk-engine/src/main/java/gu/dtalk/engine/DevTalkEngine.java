@@ -3,10 +3,11 @@ package gu.dtalk.engine;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 
-import gu.dtalk.BaseOption;
+import gu.dtalk.Ack;
 import gu.dtalk.ICmd;
 import gu.dtalk.IItem;
 import gu.dtalk.IMenu;
+import gu.dtalk.IOption;
 import gu.dtalk.ItemType;
 import gu.dtalk.RootMenu;
 import gu.simplemq.Channel;
@@ -29,7 +30,9 @@ public class DevTalkEngine implements IMessageAdapter<JSONObject>{
 		ackPublisher = RedisFactory.getPublisher(pool);
 	}
 
-	@SuppressWarnings("unchecked")
+	/** 
+	 * 响应菜单命令
+	 */
 	@Override
 	public void onSubscribe(JSONObject jsonObject) throws SmqUnsubscribeException {
 		Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK);
@@ -43,15 +46,20 @@ public class DevTalkEngine implements IMessageAdapter<JSONObject>{
 			}else{				
 				switch(found.getCatalog()){
 				case OPTION:{
-					Object v = ((BaseOption<Object>)item).getObjectValue();
-					((BaseOption<Object>)found).setObjectValue(v);
+					// 设置参数
+					Object v = ((IOption)item).getValue();
+					if(!((IOption)found).setValue(v)){
+						ack.setStatus(Ack.Status.ERROR).setErrorMessage("INVALID VALUE");
+					}
 					break;
 				}
 				case CMD:{
+					// 执行命令
 					((ICmd)found).runCmd();
 					break;
 				}
 				case MENU:{
+					//  输出当前菜单
 					ack.setValue(found);
 					break;
 				}
@@ -63,10 +71,11 @@ public class DevTalkEngine implements IMessageAdapter<JSONObject>{
 		}catch(Exception e){
 			ack.setStatus(Ack.Status.ERROR).setErrorMessage(e.getMessage());
 		}
+		// 向ack频道发送返回值消息
 		ackPublisher.publish(ackChannel, ack);
 	}
 
-	public IItem getRoot() {
+	public IMenu getRoot() {
 		return root;
 	}
 

@@ -37,49 +37,27 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 			return false;
 		}
 	}
+
 	@Override
-	public final boolean isValid(String value) {
-		if(isValidString(value, type)){
-			if(valueValidator != null){
-				T v = JSON.parseObject(value, type);
-				return valueValidator.apply(v);
-			}
+	public final Object getValue() {
+		return	optionValue;
+	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean setValue(Object value) {
+		if(valueValidator.apply((T) value)){
+			optionValue = (T) value;
 		}
 		return false;
 	}
-
 	@Override
-	public final String getValue() {
-		return	JSON.toJSONString(getObjectValue());
-	}
-	@Override
-	public boolean setValue(String value) {
-		try{
-			T  v =	JSON.parseObject(value, type);
-			optionValue = valueValidator.apply(v) ? v : null;
-			return true;
-		}catch (Exception e) {
-			return false;
-		}
-	}
-	@Override
-	public final String getDefaultValue() {
-		return JSON.toJSONString(defaultValue);
+	public final Object getDefaultValue() {
+		return defaultValue;
 	}
 	public void setDefaultValue(T defaultValue) {
 		this.defaultValue = defaultValue;		
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	@JSONField(serialize = false,deserialize = false)
-	public <V>V getObjectValue(){
-		return (V)((null == optionValue) ? defaultValue : optionValue);
-	}
-
-	public void setObjectValue(T value){
-		this.optionValue = value;
-	}
 	public synchronized void setValidator(Predicate<T> validator) {
 		if(validator!=null){
 			this.valueValidator = validator;

@@ -1,18 +1,12 @@
 package gu.dtalk;
 
-import java.lang.reflect.Type;
-import java.util.List;
 import java.util.Set;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.Lists;
 
 public class SwitchOption<E> extends CheckOption<E> {
-	private final Type elementType;
 	@JSONField(serialize = false,deserialize = false)
 	private final Predicate<Set<Integer>> switchValidator = new Predicate<Set<Integer>>() {
 
@@ -23,7 +17,6 @@ public class SwitchOption<E> extends CheckOption<E> {
 	};
 	public SwitchOption() {
 		super();
-		elementType =new TypeReference<E>() {}.getType();
 		setValidator(switchValidator);
 	}
 
@@ -32,18 +25,6 @@ public class SwitchOption<E> extends CheckOption<E> {
 		return OptionType.SWITCH;
 	}
 
-	@Override
-	public boolean setValue(String value) {
-		if(!super.setValue(value)){
-			if(isValidString(value, elementType)){
-				@SuppressWarnings("unchecked")
-				List<E> one = Lists.newArrayList((E)JSON.parseObject(value, elementType));
-				return super.setValue(JSON.toJSONString(one));
-			}
-			return false;
-		}
-		return true;
-	}
 	@Override
 	public synchronized void setValidator(Predicate<Set<Integer>> validator) {
 

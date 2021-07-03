@@ -72,7 +72,7 @@ public class CmdItem extends BaseItem implements ICmd {
 			Map<String, Object> objParams = Maps.transformValues(m, new Function<IOption, Object>() {
 				@Override
 				public Object apply(IOption input) {
-					return input.getObjectValue();
+					return input.getValue();
 				}
 			});
 			cmdAdapter.onSubscribe(objParams);
