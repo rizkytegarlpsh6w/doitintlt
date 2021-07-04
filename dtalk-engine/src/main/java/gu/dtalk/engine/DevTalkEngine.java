@@ -43,7 +43,7 @@ public class DevTalkEngine implements IMessageAdapter<JSONObject>{
 				ack.setStatus(Ack.Status.ERROR).setErrorMessage("UNSUPPORTED ITEM");
 			}if(found.isDisable()){
 				ack.setStatus(Ack.Status.ERROR).setErrorMessage("DISABLE ITEM");
-			}else{				
+			}else{
 				switch(found.getCatalog()){
 				case OPTION:{
 					// 设置参数
