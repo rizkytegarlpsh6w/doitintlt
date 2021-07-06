@@ -45,8 +45,10 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean setValue(Object value) {
-		if(valueValidator.apply((T) value)){
-			optionValue = (T) value;
+		if(!isDisable() && !isReadOnly()){
+			if(valueValidator.apply((T) value)){
+				optionValue = (T) value;
+			}
 		}
 		return false;
 	}

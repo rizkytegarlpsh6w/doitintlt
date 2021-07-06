@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public enum OptionType {
+	AUTO,
 	/** 字符串  */STRING,
 	/** 整数     */INTEGER,
 	/** 浮点数 */FLOAT,

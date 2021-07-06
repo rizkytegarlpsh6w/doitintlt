@@ -3,6 +3,7 @@ package gu.dtalk;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -14,6 +15,11 @@ public abstract class BaseItem implements IItem{
 	private boolean disable=false;
 	@JSONField(deserialize = false)
 	private String description = "";
+	/**
+	 * 保留关键字
+	 */
+	public static final ImmutableSet<String> RESERV_ENAMES =
+			ImmutableSet.of(Items.QUIT_NAME,"exit");
 	public BaseItem() {
 	}
 	@Override
@@ -26,6 +32,8 @@ public abstract class BaseItem implements IItem{
 	public void setName(String name) {
 		checkArgument(!Strings.isNullOrEmpty(name) && name.matches("^\\w+$"),
 				"invalid option name '%s',allow character:[a-zA-Z0-9_],not space char allowed",name);
+		// 不允许使用保留字做名字
+		checkArgument(!RESERV_ENAMES.contains(name),"the name %s is reserved word",name);
 		this.name = checkNotNull(name);
 	}
 	@Override

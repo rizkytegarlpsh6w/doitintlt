@@ -34,12 +34,9 @@ public class MenuItem extends BaseItem implements IMenu {
 		return this;
 	}
 	public MenuItem addChilds(IItem ... childs){
-		if(null != childs){
-			items.addAll(Arrays.asList(childs));
-		}
-		return this;
+		return addChilds(Arrays.asList(childs));
 	}
-	public MenuItem addParameters(Collection<IItem> childs){
+	public MenuItem addChilds(Collection<IItem> childs){
 		if(null != childs){
 			childs.addAll(childs);
 			for(IItem param:childs){

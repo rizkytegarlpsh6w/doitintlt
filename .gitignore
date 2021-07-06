@@ -4,7 +4,9 @@
 *.jar
 *.war
 *.ear
+*.log
 target/
 .settings/
 .classpath
 .project
+/dtalk-engine/log
