@@ -1,7 +1,6 @@
 package gu.dtalk.engine;
 
 import com.alibaba.fastjson.JSONObject;
-
 import gu.simplemq.IMessageAdapter;
 
 public interface ItemAdapter extends IMessageAdapter<JSONObject> {
@@ -10,4 +9,8 @@ public interface ItemAdapter extends IMessageAdapter<JSONObject> {
 	 * @return
 	 */
 	public long getLastHit();
+
+	String getAckChannel();
+
+	void setAckChannel(String ackChannelName);
 }

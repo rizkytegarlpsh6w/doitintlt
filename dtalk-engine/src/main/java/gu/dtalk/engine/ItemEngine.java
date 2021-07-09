@@ -32,15 +32,11 @@ import static com.google.common.base.Preconditions.*;
 public class ItemEngine implements ItemAdapter{
 	private IMenu root = new RootMenu(); 
 	private IPublisher ackPublisher;
-	private final Channel<Ack<Object>> ackChannel;
+	private Channel<Ack<Object>> ackChannel;
 	private HeartbeatProber prober;
 	private long lasthit;
-	public ItemEngine(String ackChannelName,JedisPoolLazy pool) {
-		ackChannel = new Channel<Ack<Object>>(
-				ackChannelName,
-				new TypeReference<Ack<Object>>() {}.getType());
+	public ItemEngine(JedisPoolLazy pool) {
 		ackPublisher = RedisFactory.getPublisher(pool);
-
 	}
 
 	
@@ -97,7 +93,9 @@ public class ItemEngine implements ItemAdapter{
 			ack.setStatus(Ack.Status.ERROR).setErrorMessage(e.getMessage());
 		}
 		// 向ack频道发送返回值消息
-		ackPublisher.publish(ackChannel, ack);
+		if(ackChannel != null){
+			ackPublisher.publish(ackChannel, ack);
+		}
 	}
 
 	public IMenu getRoot() {
@@ -119,5 +117,14 @@ public class ItemEngine implements ItemAdapter{
 		return lasthit;
 	}
 
-
+	@Override
+	public void setAckChannel(String name){
+		ackChannel = new Channel<Ack<Object>>(
+				name,
+				new TypeReference<Ack<Object>>() {}.getType());	
+	}
+	@Override
+	public String getAckChannel(){
+		return ackChannel == null ? null : ackChannel.name;
+	}
 }

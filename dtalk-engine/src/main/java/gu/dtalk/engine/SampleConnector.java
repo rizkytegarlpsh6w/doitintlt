@@ -25,11 +25,11 @@ import static gu.dtalk.CommonConstant.*;
 import static com.google.common.base.Preconditions.*;
 
 /**
- * 管理端连接控制器
+ * 管理端连接控制器简单实现
  * @author guyadong
  *
  */
-public class Connector implements IMessageAdapter<ConnectReq> {
+public class SampleConnector implements IMessageAdapter<ConnectReq> {
 	private static class SingletonTimer{
 		private static final Timer instnace = new Timer(true);
 	}
@@ -62,7 +62,7 @@ public class Connector implements IMessageAdapter<ConnectReq> {
 		return itor.next();
 	}
 	
-	public Connector(JedisPoolLazy pool) {
+	public SampleConnector(JedisPoolLazy pool) {
 		ackPublisher = RedisFactory.getPublisher(pool);
 		subscriber = RedisFactory.getSubscriber(pool);
 		
@@ -84,6 +84,9 @@ public class Connector implements IMessageAdapter<ConnectReq> {
 		}, 0, timerPeriod);
 
 	}
+	private String getAckChannel(ConnectReq req){
+		return req.mac + ACK_SUFFIX;
+	}
 	/** 
 	 * 处理来自管理端的连接请求<br>
 	 * 如果连接密码不匹配或其他管理端已经连接返回错误信息,否则返回随机生成的管理操作频道名。
@@ -94,11 +97,12 @@ public class Connector implements IMessageAdapter<ConnectReq> {
 		Ack<String> ack = new Ack<String>().setStatus(Ack.Status.OK);
 		try{
 			String admPwd = DEVINFO_PROVIDER.getPassword();
+			checkArgument(!Strings.isNullOrEmpty(req.mac),"NULL REQUEST MAC ADDRESS");
 			checkArgument(!Strings.isNullOrEmpty(req.pwd),"NULL REQUEST PASSWORD");
 			checkArgument(!Strings.isNullOrEmpty(admPwd),"NULL ADMIN PASSWORD");
 			byte[] pwdmd5 = FaceUtilits.getMD5(admPwd.getBytes());
 
-			checkState(Arrays.equals(req.pwd.toLowerCase().getBytes(), pwdmd5),"INVALID PASSWORD");
+			checkState(Arrays.equals(req.pwd.toLowerCase().getBytes(), pwdmd5),"INVALID REQUEST PASSWORD");
 			checkState(curconnect ==null || curconnect.mac.equals(req.mac),"ANOTHER CLIENT LOCKED");
 			// 密码匹配则发送工作频道名
 			if(workChannel == null){
@@ -108,27 +112,26 @@ public class Connector implements IMessageAdapter<ConnectReq> {
 			}
 
 			ack.setValue(workChannel);
-			if(null == subscriber.getChannel(workChannel)){
+			if(null == subscriber.getChannel(workChannel)){				
 				Channel<JSONObject> c = new Channel<JSONObject> (workChannel,JSONObject.class,itemAdapter);
+				itemAdapter.setAckChannel(getAckChannel(req));
 				subscriber.register(c);
-				System.currentTimeMillis();
 			}
 		}catch(Exception e){
 			ack.setStatus(Ack.Status.ERROR).setErrorMessage(e.getMessage());
 		}
 		// 向响应频道发送响应消息
-		String channelName = req.mac + ACK_SUFFIX;
 		Channel<Ack<String>> channel = new Channel<Ack<String>>(
-				channelName,
+				getAckChannel(req),
 				new TypeReference<Ack<String>>() {}.getType());
 		ackPublisher.publish(channel, ack);
 	}
 
-	public Connector setItemAdapter(ItemAdapter adapter) {
+	public SampleConnector setItemAdapter(ItemAdapter adapter) {
 		this.itemAdapter = adapter;
 		return this;
 	}
-	public Connector setTimer(Timer timer) {
+	public SampleConnector setTimer(Timer timer) {
 		if(timer != null){
 			this.timer = timer;
 		}
@@ -140,14 +143,14 @@ public class Connector implements IMessageAdapter<ConnectReq> {
 	 * @param idleTimeLimit
 	 * @return
 	 */
-	public Connector setIdleTimeLimit(long idleTimeLimit) {
+	public SampleConnector setIdleTimeLimit(long idleTimeLimit) {
 		if(idleTimeLimit >0){
 			this.idleTimeLimit = idleTimeLimit;
 		}
 		return this;
 	}
 
-	public Connector setTimerPeriod(long timerPeriod) {
+	public SampleConnector setTimerPeriod(long timerPeriod) {
 		if(timerPeriod > 0){
 		this.timerPeriod = timerPeriod;
 		}
