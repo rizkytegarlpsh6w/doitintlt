@@ -1,5 +1,7 @@
 package gu.dtalk;
 
+import java.util.List;
+
 public interface IItem {
 	
 	ItemType getCatalog();
@@ -13,8 +15,17 @@ public interface IItem {
 	String getDescription();
 	
 	IItem getParent();
-
+	
+	List<IItem> getChilds();
+	
 	String getUiName();
 
 	String json();
+
+	void setPath(String path);
+
+	String getPath();
+	
+	IItem getChildByPath(String name);
+
 }

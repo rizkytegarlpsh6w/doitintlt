@@ -52,40 +52,33 @@ public class ItemEngine implements ItemAdapter{
 		Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK);
 		try{
 			IItem item = ItemType.parseItem(jsonObject);
-			IItem found = root.recursiveFind(item.getName());
-			if(null == found){
-				throw new IllegalStateException("UNSUPPORTED ITEM");
-			}if(found.isDisable()){
-				throw new IllegalStateException("DISABLE ITEM");
-			}else{
-				switch(found.getCatalog()){
-				case OPTION:{
-					IOption option = (IOption)found;
-					// 设置参数
-					if(option.isReadOnly()){
-						throw new IllegalStateException("READONLY VALUE");
-					}else{
-						Object v = ((IOption)item).getValue();
-						if(!option.setValue(v)){
-							throw new IllegalStateException("INVALID VALUE");
-						}
-					}
-					break;
-				}
-				case CMD:{
-					// 执行命令
-					((ICmd)found).runCmd();
-					break;
-				}
-				case MENU:{
-					//  输出当前菜单
-					ack.setValue(found);
-					break;
-				}
-				default:
-					throw new IllegalStateException("UNSUPPORTED CATALOG");
-				}
+			IItem found = root.getChildByPath(item.getPath());
+			checkArgument(null != found,"UNSUPPORTED ITEM");
+			checkArgument(!found.isDisable(),"DISABLE ITEM");
+
+			switch(found.getCatalog()){
+			case OPTION:{
+				IOption option = (IOption)found;
+				// 设置参数
+				checkState(!option.isReadOnly(),"READONLY VALUE");
+				Object v = ((IOption)item).getValue();
+				checkState(option.setValue(v),"INVALID VALUE");
+				break;
 			}
+			case CMD:{
+				// 执行命令
+				((ICmd)found).runCmd();
+				break;
+			}
+			case MENU:{
+				//  输出当前菜单
+				ack.setValue(found);
+				break;
+			}
+			default:
+				throw new IllegalStateException("UNSUPPORTED CATALOG");
+			}
+
 		}catch(SmqUnsubscribeException e){
 			ack.setErrorMessage("DISCONNECT");
 			throw e;

@@ -1,6 +1,8 @@
 package gu.dtalk;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.List;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -78,6 +80,11 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 	@Override
 	public final ItemType getCatalog() {
 		return ItemType.OPTION;
+	}
+
+	@Override
+	public final List<IItem> getChilds() {
+		return Collections.emptyList();
 	}
 
 }

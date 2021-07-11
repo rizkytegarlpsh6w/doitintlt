@@ -2,15 +2,21 @@ package gu.dtalk;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.google.common.base.Function;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class MenuItem extends BaseItem implements IMenu {
-	final List<IItem> items = new LinkedList<>();
+	private final LinkedHashMap<String,IItem> items = new LinkedHashMap<>();
 	public MenuItem() {
 	}
 
@@ -21,28 +27,26 @@ public class MenuItem extends BaseItem implements IMenu {
 
 	@Override
 	public List<IItem> getChilds(){
-		return items;
+		return Lists.newArrayList(items.values());
 	}
 	public MenuItem setChilds(Collection<IItem> childs){
-		if(null != childs){
-			this.items.clear();
-			this.items.addAll(childs);
-			for(IItem param:childs){
-				((BaseItem)param).setParent(this);
-			}
-		}
-		return this;
+		this.items.clear();
+		return addChilds(childs);
 	}
 	public MenuItem addChilds(IItem ... childs){
 		return addChilds(Arrays.asList(childs));
 	}
 	public MenuItem addChilds(Collection<IItem> childs){
-		if(null != childs){
-			childs.addAll(childs);
-			for(IItem param:childs){
-				((BaseItem)param).setParent(this);
-			}
+		childs = MoreObjects.firstNonNull(childs, Collections.<IItem>emptyList());
+		for(IItem param:childs){
+			((BaseItem)param).setParent(this);
 		}
+		ImmutableMap<String, IItem> m = Maps.uniqueIndex(childs, new Function<IItem,String>(){
+			@Override
+			public String apply(IItem input) {
+				return input.getName();
+			}});
+		items.putAll(m);	
 		return this;
 	}
 	@Override
@@ -54,40 +58,31 @@ public class MenuItem extends BaseItem implements IMenu {
 		return items.isEmpty();
 	}
 	@Override
-	public IItem getChild(int index) {
-		return items.get(index);
-	}
-	@Override
 	public IItem getChild(final String name){
-		Optional<IItem> found = Iterables.tryFind(items, new Predicate<IItem>() {
-			@Override
-			public boolean apply(IItem input) {
-				return input.getName().equals(name);
-			}
-		});
-		return found.isPresent()? found.get():null;
+		return items.get(name);
 	}
 	@Override
-	public IItem recursiveFind(final String name){
+	public IItem getChildByPath(String input){
+		input = normalizePath(input);
+		if(input.startsWith(getPath())){
+			String[] nodes = input.substring(getPath().length()).split("/");
+			IItem next = this;
+			for(final String node:nodes){
+				Optional<IItem> find = Iterables.tryFind(next.getChilds(),new Predicate<IItem>() {
 
-		IItem item = getChild(name);
-		if(items!=null){
-			return item;
-		}
-		Optional<IItem> found = Iterables.tryFind(items, new Predicate<IItem>() {
-			@Override
-			public boolean apply(IItem input) {
-				if(input instanceof MenuItem){
-					IItem tmp = ((MenuItem)input).recursiveFind(name);
-					return tmp != null;
-				}else if(input instanceof ICmd){
-					IOption tmp = ((ICmd)input).getParameter(name);
-					return tmp != null;
+					@Override
+					public boolean apply(IItem input) {
+						return input.getName().equals(node);
+					}
+				});
+				if(!find.isPresent()){
+					return null;
 				}
-				return input.getName().equals(name);
+				next = find.get();
 			}
-		});
-		return found.isPresent()? found.get():null;
+			return next;
+		}
+		return null;
 	}
 	@Override
 	public final ItemType getCatalog() {

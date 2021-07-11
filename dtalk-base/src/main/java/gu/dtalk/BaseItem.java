@@ -2,16 +2,23 @@ package gu.dtalk;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 import static com.google.common.base.Preconditions.*;
+
+import java.util.Stack;
 
 public abstract class BaseItem implements IItem{
 	private String name;
 	private String uiName;
 	@JSONField(serialize = false,deserialize = false)
 	private IItem parent;
+	private String path = null;
 	private boolean disable=false;
 	@JSONField(deserialize = false)
 	private String description = "";
@@ -30,6 +37,7 @@ public abstract class BaseItem implements IItem{
 	 * @param name 允许的字符[a-zA-Z0-9_],不允许有空格
 	 */
 	public void setName(String name) {
+		name = MoreObjects.firstNonNull(name, "").trim();
 		checkArgument(!Strings.isNullOrEmpty(name) && name.matches("^\\w+$"),
 				"invalid option name '%s',allow character:[a-zA-Z0-9_],not space char allowed",name);
 		// 不允许使用保留字做名字
@@ -43,6 +51,51 @@ public abstract class BaseItem implements IItem{
 	void setParent(IItem parent) {
 		checkArgument(parent ==null || parent.isContainer());
 		this.parent = parent;
+		this.path = createPath();
+	}
+	/**
+	 * 生成能对象在菜单中全路径名
+	 * @return
+	 */
+	private String createPath(){
+		Stack<String> stack = new Stack<>();
+		for(BaseItem item = this;item.parent !=null;item = (BaseItem) item.parent){
+			stack.push(parent.getName());			
+		}
+		StringBuffer buffer = new StringBuffer("/");
+		while(!stack.isEmpty()){
+			buffer.append(stack.pop()).append("/");
+		}
+		buffer.append(name);
+		return buffer.toString();
+	}
+	/**
+	 * 路径名归一化,以'/'开始，不以'/'结尾
+	 * @param path
+	 * @return
+	 */
+	protected String normalizePath(String path){
+		path = MoreObjects.firstNonNull(path, "").trim();
+		if(path.length()>1 ){
+			if(!path.startsWith("/")){
+				path = "/" + path;
+			}
+			if(path.endsWith("/")){
+				path = path.substring(0, path.length()-1);					
+			}
+		}
+		return path;
+	}
+	@Override
+	public String getPath() {
+		if(path == null){
+			path = createPath();
+		}
+		return path;
+	}
+	@Override
+	public void setPath(String path) {
+		this.path = normalizePath(path);
 	}
 	@Override
 	public boolean isDisable() {
@@ -73,5 +126,50 @@ public abstract class BaseItem implements IItem{
 	public String toString() {
 		return json();
 	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof BaseItem))
+			return false;
+		BaseItem other = (BaseItem) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		return true;
+	}
+	@Override
+	public IItem getChildByPath(String input){
+		input = normalizePath(input);
+		if(input.startsWith(getPath())){
+			String[] nodes = input.substring(getPath().length()).split("/");
+			IItem next = this;
+			for(final String node:nodes){
+				Optional<IItem> find = Iterables.tryFind(next.getChilds(),new Predicate<IItem>() {
 
+					@Override
+					public boolean apply(IItem input) {
+						return input.getName().equals(node);
+					}
+				});
+				if(!find.isPresent()){
+					return null;
+				}
+				next = find.get();
+			}
+			return next;
+		}
+		return null;
+	}
 }

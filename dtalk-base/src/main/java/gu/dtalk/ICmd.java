@@ -10,6 +10,4 @@ public interface ICmd extends IItem {
 
 	IOption getParameter(String name);
 
-	IOption getParameter(int index);
-
 }
