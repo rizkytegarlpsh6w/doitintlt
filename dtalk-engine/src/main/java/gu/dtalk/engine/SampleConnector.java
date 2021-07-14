@@ -74,7 +74,7 @@ public class SampleConnector implements IMessageAdapter<ConnectReq> {
 				Channel<?> c = subscriber.getChannel(workChannel);
 				if(null != c){
 					ItemAdapter adapter = (ItemAdapter) c.getAdapter();
-					long lasthit = adapter.getLastHit();
+					long lasthit = adapter.lastHitTime();
 					if(System.currentTimeMillis() - lasthit > idleTimeLimit){
 						subscriber.unregister(workChannel);
 						workChannel = null;
@@ -131,6 +131,12 @@ public class SampleConnector implements IMessageAdapter<ConnectReq> {
 		this.itemAdapter = adapter;
 		return this;
 	}
+	/**
+	 * 设置执行定时时任的{@link Timer}实例,如果不指定则使用内置的{@link Timer}实例，
+	 * 内置实例会在JVM结束自动cancel<br>
+	 * @param timer
+	 * @return
+	 */
 	public SampleConnector setTimer(Timer timer) {
 		if(timer != null){
 			this.timer = timer;
@@ -150,6 +156,11 @@ public class SampleConnector implements IMessageAdapter<ConnectReq> {
 		return this;
 	}
 
+	/**
+	 * 设置定义检查连接的任务时间间隔(毫秒)
+	 * @param timerPeriod
+	 * @return
+	 */
 	public SampleConnector setTimerPeriod(long timerPeriod) {
 		if(timerPeriod > 0){
 		this.timerPeriod = timerPeriod;

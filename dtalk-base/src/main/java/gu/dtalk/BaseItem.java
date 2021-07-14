@@ -2,16 +2,15 @@ package gu.dtalk;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 import static com.google.common.base.Preconditions.*;
 
-import java.util.Stack;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class BaseItem implements IItem{
 	private String name;
@@ -22,11 +21,6 @@ public abstract class BaseItem implements IItem{
 	private boolean disable=false;
 	@JSONField(deserialize = false)
 	private String description = "";
-	/**
-	 * 保留关键字
-	 */
-	public static final ImmutableSet<String> RESERV_ENAMES =
-			ImmutableSet.of(Items.QUIT_NAME,"exit");
 	public BaseItem() {
 	}
 	@Override
@@ -38,10 +32,10 @@ public abstract class BaseItem implements IItem{
 	 */
 	public void setName(String name) {
 		name = MoreObjects.firstNonNull(name, "").trim();
-		checkArgument(!Strings.isNullOrEmpty(name) && name.matches("^\\w+$"),
-				"invalid option name '%s',allow character:[a-zA-Z0-9_],not space char allowed",name);
+		checkArgument(!Strings.isNullOrEmpty(name) && name.matches("^[a-zA-Z]\\w+$"),
+				"invalid option name '%s',allow character:[a-zA-Z0-9_],not space char allowed,start with alphabet",name);
 		// 不允许使用保留字做名字
-		checkArgument(!RESERV_ENAMES.contains(name),"the name %s is reserved word",name);
+		checkArgument(!CommonConstant.RESERV_ENAMES.contains(name),"the name %s is reserved word",name);
 		this.name = checkNotNull(name);
 	}
 	@Override
@@ -51,30 +45,30 @@ public abstract class BaseItem implements IItem{
 	void setParent(IItem parent) {
 		checkArgument(parent ==null || parent.isContainer());
 		this.parent = parent;
-		this.path = createPath();
+		this.path = createPath(false);
 	}
 	/**
 	 * 生成能对象在菜单中全路径名
+	 * @param indexInstead 是否用索引值代替名字
 	 * @return
 	 */
-	private String createPath(){
-		Stack<String> stack = new Stack<>();
+	private String createPath(boolean indexInstead){
+		List<String> list = new ArrayList<>();
 		for(BaseItem item = this;item.parent !=null;item = (BaseItem) item.parent){
-			stack.push(parent.getName());			
+			if(indexInstead){
+				list.add(Integer.toString(parent.getChilds().indexOf(item)));
+			}else{
+				list.add(parent.getName());
+			}
 		}
-		StringBuffer buffer = new StringBuffer("/");
-		while(!stack.isEmpty()){
-			buffer.append(stack.pop()).append("/");
-		}
-		buffer.append(name);
-		return buffer.toString();
+		return "/"+Joiner.on('/').join(Lists.reverse(list)) + "/" + name;
 	}
 	/**
 	 * 路径名归一化,以'/'开始，不以'/'结尾
 	 * @param path
 	 * @return
 	 */
-	protected String normalizePath(String path){
+	private String normalizePath(String path){
 		path = MoreObjects.firstNonNull(path, "").trim();
 		if(path.length()>1 ){
 			if(!path.startsWith("/")){
@@ -89,7 +83,7 @@ public abstract class BaseItem implements IItem{
 	@Override
 	public String getPath() {
 		if(path == null){
-			path = createPath();
+			path = createPath(false);
 		}
 		return path;
 	}
@@ -151,25 +145,32 @@ public abstract class BaseItem implements IItem{
 	}
 	@Override
 	public IItem getChildByPath(String input){
-		input = normalizePath(input);
-		if(input.startsWith(getPath())){
-			String[] nodes = input.substring(getPath().length()).split("/");
-			IItem next = this;
-			for(final String node:nodes){
-				Optional<IItem> find = Iterables.tryFind(next.getChilds(),new Predicate<IItem>() {
-
-					@Override
-					public boolean apply(IItem input) {
-						return input.getName().equals(node);
-					}
-				});
-				if(!find.isPresent()){
+		input = MoreObjects.firstNonNull(input, "").trim();
+		String relpath = input;
+		if(input.startsWith("/")){
+			if(input.startsWith(getPath())){
+				relpath = input.substring(getPath().length());
+			}else{
+				String inxpath = createPath(true); 
+				if(input.startsWith(inxpath)){
+					relpath = input.substring(inxpath.length());
+				}else{
 					return null;
 				}
-				next = find.get();
 			}
-			return next;
 		}
-		return null;
+		if(relpath.isEmpty()){
+			return null;
+		}
+		String[] nodes = relpath.split("/");
+		IItem child = this;
+		for(String node:nodes){
+			child = child.getChild(node);
+			if(child == null){
+				return null;
+			}
+		}
+		return child;
+	
 	}
 }

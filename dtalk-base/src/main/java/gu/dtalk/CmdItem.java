@@ -86,4 +86,9 @@ public class CmdItem extends BaseItem implements ICmd {
 	public List<IItem> getChilds() {
 		return ImmutableList.<IItem>copyOf(parameters.values());
 	}
+
+	@Override
+	public IItem getChild(String name) {
+		return getParameter(name);
+	}
 }

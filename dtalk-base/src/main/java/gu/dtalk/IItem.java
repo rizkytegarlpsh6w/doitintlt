@@ -18,6 +18,8 @@ public interface IItem {
 	
 	List<IItem> getChilds();
 	
+	IItem getChild(String name);
+
 	String getUiName();
 
 	String json();

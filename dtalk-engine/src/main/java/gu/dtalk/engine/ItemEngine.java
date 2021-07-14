@@ -2,7 +2,7 @@ package gu.dtalk.engine;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-
+import com.google.common.base.MoreObjects;
 import gu.dtalk.Ack;
 import gu.dtalk.CmdItem;
 import gu.dtalk.ICmd;
@@ -20,6 +20,7 @@ import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
 
 import static com.google.common.base.Preconditions.*;
+import static gu.dtalk.CommonConstant.*;
 
 /**
  * 消息驱动的菜单引擎，根据收到的请求执行对应的动作<br>
@@ -33,7 +34,10 @@ public class ItemEngine implements ItemAdapter{
 	private IMenu root = new RootMenu(); 
 	private IPublisher ackPublisher;
 	private Channel<Ack<Object>> ackChannel;
-	private HeartbeatProber prober;
+	private IItem currentLevel;
+	/**
+	 * 最近一次操作的时间戳
+	 */
 	private long lasthit;
 	public ItemEngine(JedisPoolLazy pool) {
 		ackPublisher = RedisFactory.getPublisher(pool);
@@ -46,13 +50,19 @@ public class ItemEngine implements ItemAdapter{
 	@Override
 	public void onSubscribe(JSONObject jsonObject) throws SmqUnsubscribeException {
 		lasthit = System.currentTimeMillis();
-		if(prober != null){
-			prober.hit(System.currentTimeMillis());
-		}
 		Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK);
 		try{
-			IItem item = ItemType.parseItem(jsonObject);
-			IItem found = root.getChildByPath(item.getPath());
+			IItem req = ItemType.parseItem(jsonObject);
+			IItem found = null;
+			if(currentLevel != null){
+				found = currentLevel.getChild(req.getName());
+				if(found == null){
+					found = currentLevel.getChild(req.getPath());
+				}
+			}
+			if(found == null){
+				found = root.getChildByPath(req.getPath());
+			}
 			checkArgument(null != found,"UNSUPPORTED ITEM");
 			checkArgument(!found.isDisable(),"DISABLE ITEM");
 
@@ -61,18 +71,28 @@ public class ItemEngine implements ItemAdapter{
 				IOption option = (IOption)found;
 				// 设置参数
 				checkState(!option.isReadOnly(),"READONLY VALUE");
-				Object v = ((IOption)item).getValue();
+				Object v = ((IOption)req).getValue();
 				checkState(option.setValue(v),"INVALID VALUE");
 				break;
 			}
 			case CMD:{
-				// 执行命令
-				((ICmd)found).runCmd();
+				if(Items.isBack(found)){
+					//  输出上一级菜单
+					currentLevel = MoreObjects.firstNonNull(found.getParent(),root);
+					ack.setValue(currentLevel);
+				}else if(Items.isQuit(found)){
+					// 取消频道订阅,中断连接
+					throw new SmqUnsubscribeException(true);
+				}else{
+					// 执行命令
+					((ICmd)found).runCmd();
+				}
 				break;
 			}
 			case MENU:{
 				//  输出当前菜单
-				ack.setValue(found);
+				currentLevel = found;
+				ack.setValue(currentLevel);
 				break;
 			}
 			default:
@@ -91,22 +111,22 @@ public class ItemEngine implements ItemAdapter{
 		}
 	}
 
+	@Override
 	public IMenu getRoot() {
 		return root;
 	}
 
 	public void setRoot(IMenu root) {
 		this.root = checkNotNull(root);
-		// 自动添加退出命令
-		if(this.root.getChild(Items.QUIT_NAME)!=null){
+		// 自动添加退出命令在最后
+		if(this.root.getChild(QUIT_NAME)!=null){
 			CmdItem quit = Items.makeQuit();
-			MenuItem rootMenu = (MenuItem)root;
-			rootMenu.addChilds(quit);
+			((MenuItem)root).addChilds(quit);
 		}
 	}
 
 	@Override
-	public long getLastHit() {
+	public long lastHitTime() {
 		return lasthit;
 	}
 

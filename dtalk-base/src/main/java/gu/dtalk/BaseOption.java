@@ -87,4 +87,9 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 		return Collections.emptyList();
 	}
 
+	@Override
+	public IItem getChild(String name) {
+		return null;
+	}
+
 }

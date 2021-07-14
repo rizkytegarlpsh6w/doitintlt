@@ -1,22 +1,25 @@
 package gu.dtalk;
 
-import java.util.Map;
-
-import gu.simplemq.IMessageAdapter;
-import gu.simplemq.exceptions.SmqUnsubscribeException;
+import static gu.dtalk.CommonConstant.*;
 
 public class Items {
-	public static final String QUIT_NAME="quit";
 	public static CmdItem makeQuit(){
-		CmdItem quit = new CmdItem();
-		quit.setName(QUIT_NAME);
-		quit.setCmdAdapter(new IMessageAdapter<Map<String,Object>>() {
-			
-			@Override
-			public void onSubscribe(Map<String, Object> t) throws SmqUnsubscribeException {
-				throw new SmqUnsubscribeException(true);
-			}
-		});
-		return quit;
+		CmdItem item = new CmdItem();
+		item.setName(QUIT_NAME);
+		return item;
+	}
+	public static CmdItem makeBack(){
+		CmdItem item = new CmdItem();
+		item.setName(BACK_NAME);
+		return item;
+	}
+	public static boolean isBack(IItem item){
+		return (item instanceof IItem) && BACK_NAME.equals(item.getName());
+	}
+	public static boolean isRoot(IItem item){
+		return (item instanceof IItem) && null == item.getParent();
+	}
+	public static boolean isQuit(IItem item){
+		return (item instanceof IItem) && QUIT_NAME.equals(item.getName());
 	}
 }
