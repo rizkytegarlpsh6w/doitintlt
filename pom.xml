@@ -113,6 +113,7 @@
 	<modules>
 		<module>dtalk-base</module>
 		<module>dtalk-engine</module>
+		<module>dtalk-client</module>
 	</modules>
 	<licenses>
 		<license>

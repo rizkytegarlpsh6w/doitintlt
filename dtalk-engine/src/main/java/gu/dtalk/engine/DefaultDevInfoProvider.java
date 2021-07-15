@@ -22,7 +22,8 @@ public class DefaultDevInfoProvider implements DeviceInfoProvider {
 
 	@Override
 	public String getPassword() {
-		return FaceUtilits.toHex(mac);
+		// 返回mac地址后4位做默认密码
+		return FaceUtilits.toHex(mac).substring(8);
 	}
 
 	@Override

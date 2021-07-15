@@ -39,6 +39,7 @@ public class ItemEngine implements ItemAdapter{
 	 * 最近一次操作的时间戳
 	 */
 	private long lasthit;
+	private Channel<MenuItem> menuChannel;
 	public ItemEngine(JedisPoolLazy pool) {
 		ackPublisher = RedisFactory.getPublisher(pool);
 	}
@@ -90,10 +91,10 @@ public class ItemEngine implements ItemAdapter{
 				break;
 			}
 			case MENU:{
-				//  输出当前菜单
+				//  输出当前菜单后直接返回
 				currentLevel = found;
-				ack.setValue(currentLevel);
-				break;
+				ackPublisher.publish(menuChannel, (MenuItem)currentLevel);
+				return;
 			}
 			default:
 				throw new IllegalStateException("UNSUPPORTED CATALOG");
@@ -134,7 +135,10 @@ public class ItemEngine implements ItemAdapter{
 	public void setAckChannel(String name){
 		ackChannel = new Channel<Ack<Object>>(
 				name,
-				new TypeReference<Ack<Object>>() {}.getType());	
+				new TypeReference<Ack<Object>>() {}.getType());
+		menuChannel = new Channel<MenuItem>(
+				name,
+				MenuItem.class);	
 	}
 	@Override
 	public String getAckChannel(){

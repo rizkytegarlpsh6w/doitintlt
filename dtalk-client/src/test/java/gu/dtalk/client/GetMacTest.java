@@ -1,4 +1,4 @@
-package gu.dtalk;
+package gu.dtalk.client;
 
 import java.io.IOException;
 import java.net.InetAddress;

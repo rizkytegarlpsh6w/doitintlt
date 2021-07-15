@@ -11,6 +11,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.Strings;
 
 import gu.dtalk.Ack;
+import gu.dtalk.CommonUtils;
 import gu.dtalk.ConnectReq;
 import gu.dtalk.DeviceInfoProvider;
 import gu.simplemq.Channel;
@@ -84,9 +85,6 @@ public class SampleConnector implements IMessageAdapter<ConnectReq> {
 		}, 0, timerPeriod);
 
 	}
-	private String getAckChannel(ConnectReq req){
-		return req.mac + ACK_SUFFIX;
-	}
 	/** 
 	 * 处理来自管理端的连接请求<br>
 	 * 如果连接密码不匹配或其他管理端已经连接返回错误信息,否则返回随机生成的管理操作频道名。
@@ -114,7 +112,7 @@ public class SampleConnector implements IMessageAdapter<ConnectReq> {
 			ack.setValue(workChannel);
 			if(null == subscriber.getChannel(workChannel)){				
 				Channel<JSONObject> c = new Channel<JSONObject> (workChannel,JSONObject.class,itemAdapter);
-				itemAdapter.setAckChannel(getAckChannel(req));
+				itemAdapter.setAckChannel(CommonUtils.getAckChannel(req.mac));
 				subscriber.register(c);
 			}
 		}catch(Exception e){
@@ -122,7 +120,7 @@ public class SampleConnector implements IMessageAdapter<ConnectReq> {
 		}
 		// 向响应频道发送响应消息
 		Channel<Ack<String>> channel = new Channel<Ack<String>>(
-				getAckChannel(req),
+				CommonUtils.getAckChannel(req.mac),
 				new TypeReference<Ack<String>>() {}.getType());
 		ackPublisher.publish(channel, ack);
 	}
