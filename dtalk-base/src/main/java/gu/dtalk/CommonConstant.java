@@ -22,4 +22,8 @@ public class CommonConstant {
 	
 	public static final String REDIS_HOST=Protocol.DEFAULT_HOST;
 	public static final int REDIS_PORT = Protocol.DEFAULT_PORT;
+	/**
+	 * MAC地址匹配表达表达式，'00:00:7f:2a:39:4A','00e8992730FF'都允许
+	 */
+	public static final String MAC_REG = "([\\da-fA-F]{2}:?){6}";
 }

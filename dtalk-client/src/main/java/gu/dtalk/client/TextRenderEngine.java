@@ -26,6 +26,7 @@ public class TextRenderEngine implements IMessageAdapter<JSONObject>{
 	public static final String OPTION_FIELD_VALUE="value";
 	private IItem currentLevel;
 	private IMenu root;
+	private long lastResp;
 	private TextRender render = new TextRender();
 	public TextRenderEngine() {
 	}
@@ -43,6 +44,7 @@ public class TextRenderEngine implements IMessageAdapter<JSONObject>{
 	
 	@Override
 	public void onSubscribe(JSONObject resp) throws SmqUnsubscribeException {
+		lastResp = System.currentTimeMillis();
 		if(isAck(resp)){
 			Ack<?> ack = TypeUtils.castToJavaBean(resp, Ack.class);
 			render.rendeAck(ack);
@@ -70,6 +72,9 @@ public class TextRenderEngine implements IMessageAdapter<JSONObject>{
 	public IItem getCurrentLevel() {
 		return currentLevel;
 	}
+	public IMenu getRoot() {
+		return root;
+	}
 	public TextRender getRender() {
 		return render;
 	}
@@ -78,5 +83,13 @@ public class TextRenderEngine implements IMessageAdapter<JSONObject>{
 			this.render = render;
 		}
 		return this;
+	}
+	public TextRenderEngine reset(){
+		currentLevel = null;
+		root = null;
+		return this;
+	}
+	public long getLastResp() {
+		return lastResp;
 	}
 }
