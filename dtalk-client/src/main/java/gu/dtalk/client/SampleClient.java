@@ -119,28 +119,24 @@ public class SampleClient {
         return false;
 	}
 	public boolean scan4Pwd(){
-		System.out.println("Input password  of Device,default password is last 4 character of device MAC address:");
+		System.out.println("Input password  of Device,default password is last 4 character of device MAC address(lowercase):");
 		ConnectReq req = new ConnectReq();
 		req.mac = FaceUtilits.toHex(mymac);
 		Channel<ConnectReq> reqch = new Channel<>(connchname, ConnectReq.class);
         Scanner scaner = new Scanner(System.in);
         try{
-        	while (scaner.hasNextLine()) {
+        	while (reqChannel == null &&scaner.hasNextLine()) {
         		req.pwd = scaner.next();
         		if(req.pwd.isEmpty()){
         			return false;
         		}
         		publisher.publish(reqch, req);
         		waitResp(System.currentTimeMillis());
-        		if(reqChannel == null){
-        			System.out.println("Input password  of Device,default password is last 4 character of device MAC address:");
-        		}
-        		return true;
         	}
+        	return true;
         }finally {
 			scaner.close();
 		}
-        return false;
 	}
 	private void waitResp(long timestamp){
 		int waitCount = 30;
@@ -168,7 +164,7 @@ public class SampleClient {
 	    Scanner scaner = new Scanner(System.in);
 	    try{
 	    	while (scaner.hasNextLine()) {
-	    		String str = scaner.next();
+	    		//String str = scaner.next();
 	    		
 	    		return true;
 	    	}
