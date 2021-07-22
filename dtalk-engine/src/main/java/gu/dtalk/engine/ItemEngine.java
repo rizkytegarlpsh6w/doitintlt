@@ -5,12 +5,12 @@ import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.MoreObjects;
 import gu.dtalk.Ack;
 import gu.dtalk.CmdItem;
+import gu.dtalk.CommonUtils;
 import gu.dtalk.ICmd;
 import gu.dtalk.IItem;
 import gu.dtalk.IMenu;
 import gu.dtalk.IOption;
 import gu.dtalk.ItemType;
-import gu.dtalk.Items;
 import gu.dtalk.MenuItem;
 import gu.dtalk.RootMenu;
 import gu.simplemq.Channel;
@@ -77,11 +77,11 @@ public class ItemEngine implements ItemAdapter{
 				break;
 			}
 			case CMD:{
-				if(Items.isBack(found)){
+				if(CommonUtils.isBack(found)){
 					//  输出上一级菜单
 					currentLevel = MoreObjects.firstNonNull(found.getParent(),root);
 					ack.setValue(currentLevel);
-				}else if(Items.isQuit(found)){
+				}else if(CommonUtils.isQuit(found)){
 					// 取消频道订阅,中断连接
 					throw new SmqUnsubscribeException(true);
 				}else{
@@ -121,7 +121,7 @@ public class ItemEngine implements ItemAdapter{
 		this.root = checkNotNull(root);
 		// 自动添加退出命令在最后
 		if(this.root.getChild(QUIT_NAME)!=null){
-			CmdItem quit = Items.makeQuit();
+			CmdItem quit = CommonUtils.makeQuit();
 			((MenuItem)root).addChilds(quit);
 		}
 	}

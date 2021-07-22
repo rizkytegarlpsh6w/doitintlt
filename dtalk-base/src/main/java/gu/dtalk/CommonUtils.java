@@ -2,6 +2,8 @@ package gu.dtalk;
 
 import static gu.dtalk.CommonConstant.*;
 
+import com.alibaba.fastjson.JSONObject;
+
 import net.gdface.utils.FaceUtilits;
 
 public class CommonUtils {
@@ -22,5 +24,42 @@ public class CommonUtils {
 	}
 	public static String getConnChannel(byte[] mac){
 		return getConnChannel(FaceUtilits.toHex(mac));
+	}
+	private static boolean hasField(Object resp,String name){
+		return resp instanceof JSONObject &&  ((JSONObject) resp).containsKey(name);
+	}
+	public static boolean isAck(Object resp){
+		return resp instanceof JSONObject &&  hasField((JSONObject) resp,ACK_FIELD_STATUS);
+	}
+	public static boolean isItem(Object resp){
+		return hasField(resp,ITEM_FIELD_NAME) 
+				&&  hasField(resp,ITEM_FIELD_PATH) 
+				&& hasField(resp,ITEM_FIELD_CATALOG);
+	}	
+
+	public static CmdItem makeQuit(){
+		CmdItem item = new CmdItem();
+		item.setName(QUIT_NAME);
+		return item;
+	}
+	public static CmdItem makeBack(){
+		CmdItem item = new CmdItem();
+		item.setName(BACK_NAME);
+		return item;
+	}
+	public static boolean isBack(IItem item){
+		return (item instanceof IItem) && BACK_NAME.equals(item.getName());
+	}
+	public static boolean isRoot(IItem item){
+		return (item instanceof IItem) && null == item.getParent();
+	}
+	public static boolean isQuit(IItem item){
+		return (item instanceof IItem) && QUIT_NAME.equals(item.getName());
+	}
+	public static boolean isQuit(JSONObject item){
+		return (item instanceof JSONObject) && QUIT_NAME.equals(((JSONObject)item).getString(ITEM_FIELD_NAME));
+	}
+	public static boolean isQuit(Object item){
+		return isQuit((IItem) item)  || isQuit((JSONObject)item);
 	}
 }

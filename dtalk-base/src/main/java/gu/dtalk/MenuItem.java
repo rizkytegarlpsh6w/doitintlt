@@ -20,7 +20,7 @@ public class MenuItem extends BaseItem implements IMenu {
 
 	private void initChilds(){
 		items.clear();
-		CmdItem back = Items.makeBack();		
+		CmdItem back = CommonUtils.makeBack();		
 		items.put(back.getName(), back);
 	}
 	@Override
@@ -32,7 +32,7 @@ public class MenuItem extends BaseItem implements IMenu {
 	public List<IItem> getChilds(){
 		return Lists.newArrayList(items.values());
 	}
-	public MenuItem setChilds(Collection<IItem> childs){
+	public MenuItem setChilds(List<IItem> childs){
 		initChilds();
 		return addChilds(childs);
 	}

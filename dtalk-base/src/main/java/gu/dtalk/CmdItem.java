@@ -32,7 +32,7 @@ public class CmdItem extends BaseItem implements ICmd {
 	public List<IOption> getParameters(){
 		return Lists.newArrayList(parameters.values());
 	}
-	public CmdItem setParameters(Collection<IOption> parameters){
+	public CmdItem setParameters(List<IOption> parameters){
 		this.parameters.clear();
 		return addParameters(parameters);
 	}

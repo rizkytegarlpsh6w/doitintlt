@@ -26,4 +26,12 @@ public class CommonConstant {
 	 * MAC地址匹配表达表达式，'00:00:7f:2a:39:4A','00e8992730FF'都允许
 	 */
 	public static final String MAC_REG = "([\\da-fA-F]{2}:?){6}";
+	
+	public static final String ACK_FIELD_STATUS="status";
+	public static final String ITEM_FIELD_CATALOG="catalog";
+	public static final String ITEM_FIELD_PATH="path";
+	public static final String ITEM_FIELD_NAME="name";
+	public static final String OPTION_FIELD_TYPE="type";
+	public static final String OPTION_FIELD_VALUE="value";
+
 }
