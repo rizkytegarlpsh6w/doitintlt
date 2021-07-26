@@ -44,20 +44,42 @@ public class SampleTerminal {
 	private final String ackchname;
 	private final String connchname;
 	private final TextRenderEngine renderEngine = new TextRenderEngine();
-	private Channel<Object> reqCh = new Channel<Object>(reqChannel, Object.class);
+	/**
+	 * 构造方法
+	 * @param devmac 要连接的设备MAC地址,测试设备程序在本地运行时可为空。
+	 */
 	private SampleTerminal(String devmac) {
 		// 根据连接参数创建默认实例 
-		JedisPoolLazy.createDefaultInstance( redisParam);
-		consumer = RedisFactory.getConsumer(JedisPoolLazy.getDefaultInstance());
-		publisher = RedisFactory.getPublisher(JedisPoolLazy.getDefaultInstance());
 		try {
+			JedisPoolLazy.createDefaultInstance( redisParam);
+			consumer = RedisFactory.getConsumer(JedisPoolLazy.getDefaultInstance());
+			publisher = RedisFactory.getPublisher(JedisPoolLazy.getDefaultInstance());
+
 			mymac = NetworkUtil.getCurrentMac(REDIS_HOST, REDIS_PORT);
+			System.out.printf("TERMINAL MAC address: %s\n", NetworkUtil.formatMac(mymac, ":"));
+
 			ackchname = getAckChannel(mymac);
+			if(Strings.isNullOrEmpty(devmac)){
+				// 使用本地地址做为设备MAC地址
+				devmac = FaceUtilits.toHex(mymac);
+				System.out.println("use local MAC for target DEVICE");
+			}
+			System.out.printf("DEVICE MAC address: %s\n", devmac);
+
 			connchname = getConnChannel(devmac);
+			Channel<String> testch = new Channel<String>(connchname, String.class);
+			long rc = publisher.publish(testch, "hello");
+			checkState(rc != 0,"TARGET DEVICE NOT online");
+			if(rc>1){
+				System.out.println("DUPLIDATED TARGET DEVICE WITH same MAC address");
+			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}		
 	}
+	/**
+	 * 尝试连接目标设备
+	 */
 	private void connect() {
 		final ConnectorAdapter connectorAdapter = new ConnectorAdapter();
 		final Channel<Ack<String>> ackChannel = new Channel<Ack<String>>(
@@ -69,7 +91,7 @@ public class SampleTerminal {
 
 			@Override
 			public void apply(Channel<Ack<String>> channel) {
-				reqChannel = connectorAdapter.getReqChannel();
+				reqChannel = connectorAdapter.getReqChannel();				
 				System.out.println("Request Channel:" + reqChannel);
 				if(!Strings.isNullOrEmpty(reqChannel)){
 					Channel<JSONObject> c = new Channel<JSONObject>(ackchname,JSONObject.class)
@@ -102,9 +124,14 @@ public class SampleTerminal {
 		}
 		return "";
 	}
+	/**
+	 * 输入目标设备的MAC地址
+	 * @return
+	 */
 	private static String inputMac(){
-		System.out.println("Input MAC address of Device,such as '00:00:7f:2a:39:4A' or '00e8992730FF':");
-
+		System.out.println("Input MAC address of Device,such as '00:00:7f:2a:39:4A' or '00e8992730FF':"
+			+ "(input empty string if target device demo running on localhost)"
+				);
 		return scanLine(new Predicate<String>() {
 			@Override
 			public boolean apply(String input) {
@@ -162,7 +189,9 @@ public class SampleTerminal {
 	private <T>boolean syncPublish(Channel<T>channel,T json){
 		try{
 			long timestamp = System.currentTimeMillis();
-			publisher.publish(channel, json);
+			long rc = publisher.publish(channel, json);
+			// 没有接收端则抛出异常
+			checkState(rc != 0,"target device DISCONNECT");
 			waitResp(timestamp);
 			return true;
 		}catch(Exception e){
@@ -171,6 +200,7 @@ public class SampleTerminal {
 		return false;
 	}
 	private boolean syncPublishReq(Object json){
+		Channel<Object> reqCh = new Channel<Object>(checkNotNull(reqChannel), Object.class);
 		return syncPublish(reqCh, json);
 	}
 
@@ -277,9 +307,6 @@ public class SampleTerminal {
 			}				
 		}
 		String macstr = inputMac();
-		if(Strings.isNullOrEmpty(macstr)){
-			return ;
-		}
 		try{
 			SampleTerminal client = new SampleTerminal(macstr);
 			client.connect();
