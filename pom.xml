@@ -19,7 +19,7 @@
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<common-java.version>1.1.8-SNAPSHOT</common-java.version>
-		<simplemq.version>1.0.5</simplemq.version>
+		<simplemq.version>1.0.6</simplemq.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -113,6 +113,7 @@
 	<modules>
 		<module>dtalk-base</module>
 		<module>dtalk-engine</module>
+		<module>dtalk-demo</module>
 		<module>dtalk-client</module>
 	</modules>
 	<licenses>

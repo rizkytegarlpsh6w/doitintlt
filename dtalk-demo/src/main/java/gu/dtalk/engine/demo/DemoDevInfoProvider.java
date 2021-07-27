@@ -1,15 +1,14 @@
-package gu.dtalk.engine;
+package gu.dtalk.engine.demo;
 
 import java.io.IOException;
 import gu.dtalk.DeviceInfoProvider;
 import net.gdface.utils.FaceUtilits;
 import net.gdface.utils.NetworkUtil;
 
-public class DefaultDevInfoProvider implements DeviceInfoProvider {
+public class DemoDevInfoProvider implements DeviceInfoProvider {
 
-	public static DefaultDevInfoProvider INSTANCE = new DefaultDevInfoProvider();
 	private byte[] mac={0,0,0,0,0,0};
-	public DefaultDevInfoProvider() {
+	public DemoDevInfoProvider() {
 		
 		try {
 			mac = NetworkUtil.getCurrentMac("www.cnnic.net.cn", 80);

@@ -35,12 +35,13 @@ public class SampleTerminal {
 	final static Map<PropName, Object> redisParam = 
 			ImmutableMap.<PropName, Object>of(
 					/** redis 主机名 */PropName.host,REDIS_HOST,
-					/** redis 端口号 */PropName.port,REDIS_PORT
+					/** redis 端口号 */PropName.port,REDIS_PORT,
+					/** redis 密码    */PropName.password,REDIS_PASSWORD
 					);
 	private String reqChannel = null;
 	final RedisConsumer consumer;
 	final RedisPublisher publisher;
-	final byte[] mymac;
+	final byte[] temminalMac;
 	private final String ackchname;
 	private final String connchname;
 	private final TextRenderEngine renderEngine = new TextRenderEngine();
@@ -49,33 +50,38 @@ public class SampleTerminal {
 	 * @param devmac 要连接的设备MAC地址,测试设备程序在本地运行时可为空。
 	 */
 	private SampleTerminal(String devmac) {
-		// 根据连接参数创建默认实例 
+		consumer = RedisFactory.getConsumer(JedisPoolLazy.getDefaultInstance());
+		publisher = RedisFactory.getPublisher(JedisPoolLazy.getDefaultInstance());
+
+		temminalMac = getDeviceMac();
+		System.out.printf("TERMINAL MAC address: %s\n", NetworkUtil.formatMac(temminalMac, ":"));
+
+		ackchname = getAckChannel(temminalMac);
+		if(Strings.isNullOrEmpty(devmac)){
+			// 使用本地地址做为设备MAC地址
+			devmac = FaceUtilits.toHex(temminalMac);
+			System.out.println("use local MAC for target DEVICE");
+		}
+		System.out.printf("DEVICE MAC address: %s\n", devmac);
+
+		connchname = getConnChannel(devmac);
+		Channel<String> testch = new Channel<String>(connchname, String.class);
+		long rc = publisher.publish(testch, "\"hello\"");
+		checkState(rc != 0,"TARGET DEVICE NOT online");
+		if(rc>1){
+			System.out.println("DUPLIDATED TARGET DEVICE WITH same MAC address");
+		}		
+	}
+	private static byte[] getDeviceMac(){
 		try {
-			JedisPoolLazy.createDefaultInstance( redisParam);
-			consumer = RedisFactory.getConsumer(JedisPoolLazy.getDefaultInstance());
-			publisher = RedisFactory.getPublisher(JedisPoolLazy.getDefaultInstance());
-
-			mymac = NetworkUtil.getCurrentMac(REDIS_HOST, REDIS_PORT);
-			System.out.printf("TERMINAL MAC address: %s\n", NetworkUtil.formatMac(mymac, ":"));
-
-			ackchname = getAckChannel(mymac);
-			if(Strings.isNullOrEmpty(devmac)){
-				// 使用本地地址做为设备MAC地址
-				devmac = FaceUtilits.toHex(mymac);
-				System.out.println("use local MAC for target DEVICE");
+			// 使用localhost获取本机MAC地址会返回空数组，所以这里使用一个互联地址来获取
+			if(REDIS_HOST.equals("127.0.0.1") || REDIS_HOST.equalsIgnoreCase("localhost")){
+				return NetworkUtil.getCurrentMac("www.cnnic.net.cn", 80);
 			}
-			System.out.printf("DEVICE MAC address: %s\n", devmac);
-
-			connchname = getConnChannel(devmac);
-			Channel<String> testch = new Channel<String>(connchname, String.class);
-			long rc = publisher.publish(testch, "hello");
-			checkState(rc != 0,"TARGET DEVICE NOT online");
-			if(rc>1){
-				System.out.println("DUPLIDATED TARGET DEVICE WITH same MAC address");
-			}
+			return NetworkUtil.getCurrentMac(REDIS_HOST, REDIS_PORT);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
-		}		
+		}
 	}
 	/**
 	 * 尝试连接目标设备
@@ -148,7 +154,7 @@ public class SampleTerminal {
 	private boolean validatePwd(){
 		System.out.println("Input password  of Device,default password is last 4 character of device MAC address(lowercase):");
 		ConnectReq req = new ConnectReq();
-		req.mac = FaceUtilits.toHex(mymac);
+		req.mac = FaceUtilits.toHex(temminalMac);
 		Channel<ConnectReq> conch = new Channel<>(connchname, ConnectReq.class);
 		String pwd;
 		while (reqChannel == null 
@@ -174,7 +180,7 @@ public class SampleTerminal {
 			System.exit(-1);
 		}
 	}
-	JSONObject makeItemJSON(String path){
+	private JSONObject makeItemJSON(String path){
 		checkArgument(Strings.isNullOrEmpty(path));
 		IItem item = checkNotNull(renderEngine.getCurrentLevel().getChildByPath(path),"NOT FOUND item %s",path);
 		JSONObject json = new JSONObject()
@@ -298,17 +304,25 @@ public class SampleTerminal {
 		return "";
 	}
 	public static void main(String []args){
-		String mac;
+		System.out.println("Text terminal for Device Talk is starting(设备交互字符终端启动)");
+		String devmac = null;
+		// 如果命令行提供了设备mac地址，则尝试解析该参数
 		if(args.length > 1){
-			mac = parseMac(args[0]);
-			if(mac.isEmpty()){
-				System.out.printf("ERROR:Invalid mac adress %s\n",mac);
+			devmac = parseMac(args[0]);
+			if(devmac.isEmpty()){
+				System.out.printf("ERROR:Invalid mac adress %s\n",devmac);
 				return ;
-			}				
+			}
 		}
-		String macstr = inputMac();
+		// 否则提示输入命令行参数
+		if(Strings.isNullOrEmpty(devmac)){
+			devmac = inputMac();
+		}
 		try{
-			SampleTerminal client = new SampleTerminal(macstr);
+			// 创建redis连接实例
+			JedisPoolLazy.createDefaultInstance( redisParam );
+
+			SampleTerminal client = new SampleTerminal(devmac);
 			client.connect();
 			if(!client.validatePwd()){
 				return;
