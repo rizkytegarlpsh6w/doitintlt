@@ -4,18 +4,19 @@ import static gu.dtalk.CommonConstant.REDIS_HOST;
 import static gu.dtalk.CommonConstant.REDIS_PASSWORD;
 import static gu.dtalk.CommonConstant.REDIS_PORT;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Map;
-
 import com.google.common.collect.ImmutableMap;
 
 import gu.dtalk.engine.SampleConnector;
 import gu.simplemq.Channel;
 import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
+import gu.simplemq.redis.RedisSubscriber;
 import gu.simplemq.redis.JedisPoolLazy.PropName;
 import net.gdface.utils.NetworkUtil;
-import gu.simplemq.redis.RedisConsumer;
-
 import static gu.dtalk.CommonUtils.*;
 import static gu.dtalk.engine.SampleConnector.*;
 
@@ -28,11 +29,11 @@ public class Demo {
 					/** redis 密码    */PropName.password,REDIS_PASSWORD
 					);
 	private final SampleConnector connAdapter;
-	private final RedisConsumer consumer;
+	private final RedisSubscriber subscriber;
 	private final byte[] devMac;
 	public Demo() {
 		JedisPoolLazy pool = JedisPoolLazy.getDefaultInstance();
-		consumer = RedisFactory.getConsumer(pool);
+		subscriber = RedisFactory.getSubscriber(pool);
 		connAdapter = new SampleConnector(pool);
 		devMac = DEVINFO_PROVIDER.getMac();
 	}
@@ -41,8 +42,20 @@ public class Demo {
 		String connchname = getConnChannel(devMac);
 		Channel<String> connch = new Channel<>(connchname, String.class)
 				.setAdapter(connAdapter);
-		consumer.register(connch);
+		subscriber.register(connch);
 		System.out.printf("Connect channel registered(连接频道注册) : %s \n",connchname);
+	}
+	private static void waitquit(){
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); 
+		try{
+			while(!"quit".equalsIgnoreCase(reader.readLine())){
+				return;
+			}
+		} catch (IOException e) {
+
+		}finally {
+
+		}
 	}
 	public static void main(String []args){
 		try{
@@ -51,7 +64,8 @@ public class Demo {
 			JedisPoolLazy.createDefaultInstance( redisParam );
 			
 			new Demo().start();
-
+			System.out.println("PRESS 'quit' to exit");
+			waitquit();
 		}catch (Exception e) {
 			//System.out.println(e.getMessage());
 			e.printStackTrace();

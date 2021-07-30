@@ -1,6 +1,8 @@
 package gu.dtalk.client;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Scanner;
 import com.alibaba.fastjson.JSONObject;
@@ -112,13 +114,15 @@ public class SampleTerminal {
 	private static String scanLine(Predicate<String>validate){
 		Scanner scaner = new Scanner(System.in);
 		try{
+			
 			return scanLine(validate,scaner);
 		}finally {
-			scaner.close();
+			//scaner.close();
 		}
 	}
 	private static String scanLine(Predicate<String>validate,Scanner scaner){
-		scaner.useDelimiter("\r?\n");
+		scaner.reset();
+		scaner.useDelimiter("\r?\n");		
 		while (scaner.hasNextLine()) {
 			String str = scaner.next();
 			if(str.isEmpty()){
@@ -129,6 +133,33 @@ public class SampleTerminal {
 			}
 		}
 		return "";
+	}
+/*	private static String scanLine(Predicate<String>validate){
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); 
+		try{
+			return scanLine(validate,reader);
+		}finally {
+			try {
+				reader.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}*/
+	private static String scanLine(Predicate<String>validate,BufferedReader reader){
+		try{
+			do{
+				String str = reader.readLine();
+				if(str.isEmpty()){
+					return "";
+				}
+				if(validate.apply(str)){
+					return str;
+				}
+			}while(true);
+		}catch (IOException e) {
+			return "";
+		}
 	}
 	/**
 	 * 输入目标设备的MAC地址
@@ -156,14 +187,21 @@ public class SampleTerminal {
 		ConnectReq req = new ConnectReq();
 		req.mac = FaceUtilits.toHex(temminalMac);
 		Channel<ConnectReq> conch = new Channel<>(connchname, ConnectReq.class);
-		String pwd;
-		while (reqChannel == null 
-				&& !(pwd=scanLine(Predicates.<String>alwaysTrue())).isEmpty()) {
-			req.pwd = pwd;
-			syncPublish(conch,req);
-		}
-		return reqChannel != null;
-
+		String pwd = null;
+//		Scanner scaner = new Scanner(System.in);
+//		try{
+			while (!(pwd=scanLine(Predicates.<String>alwaysTrue())).isEmpty()) {
+				req.pwd = pwd;
+				syncPublish(conch,req);
+				if(reqChannel == null){
+					System.out.println("INPUT AGAIN:");
+					continue;
+				}
+			}
+			return reqChannel != null;
+/*		}finally{
+			scaner.close();
+		}*/
 	}
 	private void waitResp(long timestamp){
 		int waitCount = 30;
@@ -327,6 +365,7 @@ public class SampleTerminal {
 			if(!client.validatePwd()){
 				return;
 			}
+			System.out.println("PASSWORD validate passed");
 			client.cmdInteractive();
 		}catch (Exception e) {
 			System.out.println(e.getMessage());
