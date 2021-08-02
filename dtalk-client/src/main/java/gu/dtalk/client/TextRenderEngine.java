@@ -9,7 +9,6 @@ import gu.dtalk.CommonUtils;
 import gu.dtalk.IItem;
 import gu.dtalk.IMenu;
 import gu.dtalk.ItemType;
-import gu.simplemq.IMessageAdapter;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
 
 import static gu.dtalk.CommonUtils.*;
@@ -18,20 +17,16 @@ import static gu.dtalk.CommonUtils.*;
  * @author guyadong
  *
  */
-public class TextRenderEngine implements IMessageAdapter<JSONObject>{
+public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
 	private IItem currentLevel;
 	private IMenu root;
-	private long lastRespTimestamp;
-	private Object lastRespObj;
-	private TextRender render = new TextRender();
 	public TextRenderEngine() {
 	}
 
 	
 	@Override
 	public void onSubscribe(JSONObject resp) throws SmqUnsubscribeException {
-		lastRespTimestamp = System.currentTimeMillis();
-		lastRespObj = resp;
+		super.onSubscribe(resp);
 		if(isAck(resp)){
 			Ack<?> ack = TypeUtils.castToJavaBean(resp, Ack.class);
 			render.rendeAck(ack);
@@ -64,24 +59,9 @@ public class TextRenderEngine implements IMessageAdapter<JSONObject>{
 	public IMenu getRoot() {
 		return root;
 	}
-	public TextRender getRender() {
-		return render;
-	}
-	public TextRenderEngine setRender(TextRender render) {
-		if(null != render){
-			this.render = render;
-		}
-		return this;
-	}
 	public TextRenderEngine reset(){
 		currentLevel = null;
 		root = null;
 		return this;
-	}
-	public long getLastResp() {
-		return lastRespTimestamp;
-	}
-	public Object getLastRespObj() {
-		return lastRespObj;
 	}
 }

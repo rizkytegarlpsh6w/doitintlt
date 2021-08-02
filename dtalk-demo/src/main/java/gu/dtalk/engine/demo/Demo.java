@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 
+import gu.dtalk.engine.ItemEngine;
 import gu.dtalk.engine.SampleConnector;
 import gu.simplemq.Channel;
 import gu.simplemq.redis.JedisPoolLazy;
@@ -34,7 +35,7 @@ public class Demo {
 	public Demo() {
 		JedisPoolLazy pool = JedisPoolLazy.getDefaultInstance();
 		subscriber = RedisFactory.getSubscriber(pool);
-		connAdapter = new SampleConnector(pool);
+		connAdapter = new SampleConnector(pool).setItemAdapter(new ItemEngine(pool));
 		devMac = DEVINFO_PROVIDER.getMac();
 	}
 	private void start(){
@@ -64,7 +65,7 @@ public class Demo {
 			JedisPoolLazy.createDefaultInstance( redisParam );
 			
 			new Demo().start();
-			System.out.println("PRESS 'quit' to exit");
+			System.out.println("PRESS 'quit' OR 'CTRL-C' to exit");
 			waitquit();
 		}catch (Exception e) {
 			//System.out.println(e.getMessage());

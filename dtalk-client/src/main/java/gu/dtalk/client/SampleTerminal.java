@@ -2,7 +2,6 @@ package gu.dtalk.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Scanner;
 import com.alibaba.fastjson.JSONObject;
@@ -22,9 +21,9 @@ import gu.dtalk.Ack.Status;
 import gu.simplemq.Channel;
 import gu.simplemq.IUnregistedListener;
 import gu.simplemq.redis.JedisPoolLazy;
-import gu.simplemq.redis.RedisConsumer;
 import gu.simplemq.redis.RedisFactory;
 import gu.simplemq.redis.RedisPublisher;
+import gu.simplemq.redis.RedisSubscriber;
 import gu.simplemq.redis.JedisPoolLazy.PropName;
 import net.gdface.utils.FaceUtilits;
 import net.gdface.utils.NetworkUtil;
@@ -41,18 +40,19 @@ public class SampleTerminal {
 					/** redis 密码    */PropName.password,REDIS_PASSWORD
 					);
 	private String reqChannel = null;
-	final RedisConsumer consumer;
+	final RedisSubscriber subscriber;
 	final RedisPublisher publisher;
 	final byte[] temminalMac;
 	private final String ackchname;
 	private final String connchname;
 	private final TextRenderEngine renderEngine = new TextRenderEngine();
+	private TextMessageAdapter<?> cueAdapter;
 	/**
 	 * 构造方法
 	 * @param devmac 要连接的设备MAC地址,测试设备程序在本地运行时可为空。
 	 */
 	private SampleTerminal(String devmac) {
-		consumer = RedisFactory.getConsumer(JedisPoolLazy.getDefaultInstance());
+		subscriber = RedisFactory.getSubscriber(JedisPoolLazy.getDefaultInstance());
 		publisher = RedisFactory.getPublisher(JedisPoolLazy.getDefaultInstance());
 
 		temminalMac = getDeviceMac();
@@ -100,15 +100,18 @@ public class SampleTerminal {
 			@Override
 			public void apply(Channel<Ack<String>> channel) {
 				reqChannel = connectorAdapter.getReqChannel();				
-				System.out.println("Request Channel:" + reqChannel);
 				if(!Strings.isNullOrEmpty(reqChannel)){
+					System.out.println("Request Channel:" + reqChannel);
 					Channel<JSONObject> c = new Channel<JSONObject>(ackchname,JSONObject.class)
 							.setAdapter(renderEngine.reset());	
-					consumer.register(c);
+					subscriber.register(c);
+					cueAdapter = renderEngine;
 				}
 			}
 		});
-		consumer.register(ackChannel);		
+		subscriber.register(ackChannel);		
+		cueAdapter = connectorAdapter;
+
 		
 	}
 	private static String scanLine(Predicate<String>validate){
@@ -190,13 +193,9 @@ public class SampleTerminal {
 		String pwd = null;
 //		Scanner scaner = new Scanner(System.in);
 //		try{
-			while (!(pwd=scanLine(Predicates.<String>alwaysTrue())).isEmpty()) {
-				req.pwd = pwd;
+			while ((reqChannel == null) && !(pwd=scanLine(Predicates.<String>alwaysTrue())).isEmpty()) {
+				req.pwd = FaceUtilits.getMD5String(pwd.getBytes());
 				syncPublish(conch,req);
-				if(reqChannel == null){
-					System.out.println("INPUT AGAIN:");
-					continue;
-				}
 			}
 			return reqChannel != null;
 /*		}finally{
@@ -205,7 +204,8 @@ public class SampleTerminal {
 	}
 	private void waitResp(long timestamp){
 		int waitCount = 30;
-		while(renderEngine.getLastResp()< timestamp && waitCount > 0){
+		checkState(null !=cueAdapter);
+		while(cueAdapter.getLastResp() < timestamp && waitCount > 0){
 			try {
 				Thread.sleep(100);
 				waitCount --;
@@ -213,7 +213,7 @@ public class SampleTerminal {
 				System.exit(-1);
 			}
 		}
-		if(waitCount ==0){
+		if(waitCount ==0 ){
 			System.out.println("TIMEOUT for response");
 			System.exit(-1);
 		}
@@ -341,6 +341,22 @@ public class SampleTerminal {
 		}
 		return "";
 	}
+	private void waitTextRenderEngine(){
+		int waitCount = 30;
+		checkState(null !=cueAdapter);
+		while( !(cueAdapter instanceof TextRenderEngine) && waitCount > 0){
+			try {
+				Thread.sleep(100);
+				waitCount --;
+			} catch (InterruptedException e) {
+				System.exit(-1);
+			}
+		}
+		if(waitCount ==0 ){
+			System.out.println("TIMEOUT for response");
+			System.exit(-1);
+		}
+	}
 	public static void main(String []args){
 		System.out.println("Text terminal for Device Talk is starting(设备交互字符终端启动)");
 		String devmac = null;
@@ -366,6 +382,7 @@ public class SampleTerminal {
 				return;
 			}
 			System.out.println("PASSWORD validate passed");
+			client.waitTextRenderEngine();
 			client.cmdInteractive();
 		}catch (Exception e) {
 			System.out.println(e.getMessage());

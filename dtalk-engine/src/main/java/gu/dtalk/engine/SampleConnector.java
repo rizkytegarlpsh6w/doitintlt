@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 
 import gu.dtalk.Ack;
@@ -107,13 +108,13 @@ public class SampleConnector implements IMessageAdapter<String> {
 			req = BaseJsonEncoder.getEncoder().fromJson(connstr, ConnectReq.class);
 			checkArgument(req != null,"NULL REQUEST");
 			
-			String admPwd = DEVINFO_PROVIDER.getPassword();
+			String admPwd = checkNotNull(DEVINFO_PROVIDER.getPassword(),"admin password for device is null");
 			checkArgument(!Strings.isNullOrEmpty(req.mac),"NULL REQUEST MAC ADDRESS");
 			checkArgument(!Strings.isNullOrEmpty(req.pwd),"NULL REQUEST PASSWORD");
 			checkArgument(!Strings.isNullOrEmpty(admPwd),"NULL ADMIN PASSWORD");
-			byte[] pwdmd5 = FaceUtilits.getMD5(admPwd.getBytes());
+			String pwdmd5 = FaceUtilits.getMD5String(admPwd.getBytes());
 
-			checkState(Arrays.equals(req.pwd.toLowerCase().getBytes(), pwdmd5),"INVALID REQUEST PASSWORD");
+			checkState(pwdmd5.equalsIgnoreCase(req.pwd),"INVALID REQUEST PASSWORD");
 			checkState(curconnect ==null || curconnect.mac.equals(req.mac),"ANOTHER CLIENT LOCKED");
 			// 密码匹配则发送工作频道名
 			if(workChannel == null){

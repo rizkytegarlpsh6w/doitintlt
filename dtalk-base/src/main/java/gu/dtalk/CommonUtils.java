@@ -39,12 +39,12 @@ public class CommonUtils {
 
 	public static CmdItem makeQuit(){
 		CmdItem item = new CmdItem();
-		item.setName(QUIT_NAME);
+		item.setNameUncheck(QUIT_NAME);
 		return item;
 	}
 	public static CmdItem makeBack(){
 		CmdItem item = new CmdItem();
-		item.setName(BACK_NAME);
+		item.setNameUncheck(BACK_NAME);
 		return item;
 	}
 	public static boolean isBack(IItem item){

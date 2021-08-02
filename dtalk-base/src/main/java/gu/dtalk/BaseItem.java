@@ -38,6 +38,9 @@ public abstract class BaseItem implements IItem{
 		checkArgument(!CommonConstant.RESERV_ENAMES.contains(name),"the name %s is reserved word",name);
 		this.name = checkNotNull(name);
 	}
+	void setNameUncheck(String name){
+		this.name = checkNotNull(name);
+	}
 	@Override
 	public IItem getParent() {
 		return parent;

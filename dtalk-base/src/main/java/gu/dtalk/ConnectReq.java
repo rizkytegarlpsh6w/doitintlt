@@ -13,5 +13,16 @@ public class ConnectReq {
 		this.mac = mac;
 		this.pwd = pwd;
 	}
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ConnectReq [");
+		if (mac != null)
+			builder.append("mac=").append(mac).append(", ");
+		if (pwd != null)
+			builder.append("pwd=").append(pwd);
+		builder.append("]");
+		return builder.toString();
+	}
 
 }
