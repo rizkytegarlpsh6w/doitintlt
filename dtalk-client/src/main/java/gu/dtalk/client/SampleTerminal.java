@@ -5,13 +5,11 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Scanner;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import gu.dtalk.Ack;
 import gu.dtalk.ConnectReq;
 import gu.dtalk.ICmd;
 import gu.dtalk.IItem;
@@ -19,7 +17,6 @@ import gu.dtalk.IOption;
 import gu.dtalk.ItemType;
 import gu.dtalk.Ack.Status;
 import gu.simplemq.Channel;
-import gu.simplemq.IUnregistedListener;
 import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
 import gu.simplemq.redis.RedisPublisher;
@@ -46,7 +43,7 @@ public class SampleTerminal {
 	private final String ackchname;
 	private final String connchname;
 	private final TextRenderEngine renderEngine = new TextRenderEngine();
-	private TextMessageAdapter<?> cueAdapter;
+	private final Channel<JSONObject> ackChannel;
 	/**
 	 * 构造方法
 	 * @param devmac 要连接的设备MAC地址,测试设备程序在本地运行时可为空。
@@ -59,6 +56,17 @@ public class SampleTerminal {
 		System.out.printf("TERMINAL MAC address: %s\n", NetworkUtil.formatMac(temminalMac, ":"));
 
 		ackchname = getAckChannel(temminalMac);
+		ConnectorAdapter msgAdapter = new ConnectorAdapter().setOnValidPwd(new Predicate<String>() {
+
+			@Override
+			public boolean apply(String input) {
+				reqChannel = input;
+				ackChannel.setAdapter(renderEngine);
+				return false;
+			}
+		});		
+		ackChannel = new Channel<JSONObject>(	ackchname,	JSONObject.class).setAdapter(msgAdapter);
+
 		if(Strings.isNullOrEmpty(devmac)){
 			// 使用本地地址做为设备MAC地址
 			devmac = FaceUtilits.toHex(temminalMac);
@@ -73,6 +81,7 @@ public class SampleTerminal {
 		if(rc>1){
 			System.out.println("DUPLIDATED TARGET DEVICE WITH same MAC address");
 		}		
+
 	}
 	private static byte[] getDeviceMac(){
 		try {
@@ -88,14 +97,9 @@ public class SampleTerminal {
 	/**
 	 * 尝试连接目标设备
 	 */
-	private void connect() {
-		final ConnectorAdapter connectorAdapter = new ConnectorAdapter();
-		final Channel<Ack<String>> ackChannel = new Channel<Ack<String>>(
-				ackchname, 
-				new TypeReference<Ack<String>>(){}.getType())
-				.setAdapter(connectorAdapter);
-		// 连接成功时根据返回的
-		ackChannel.addUnregistedListener(new IUnregistedListener<Ack<String>>() {
+	private void connect() {		
+
+/*		ackChannel.addUnregistedListener(new IUnregistedListener<Ack<String>>() {
 
 			@Override
 			public void apply(Channel<Ack<String>> channel) {
@@ -108,10 +112,8 @@ public class SampleTerminal {
 					cueAdapter = renderEngine;
 				}
 			}
-		});
+		});*/
 		subscriber.register(ackChannel);		
-		cueAdapter = connectorAdapter;
-
 		
 	}
 	private static String scanLine(Predicate<String>validate){
@@ -204,8 +206,8 @@ public class SampleTerminal {
 	}
 	private void waitResp(long timestamp){
 		int waitCount = 30;
-		checkState(null !=cueAdapter);
-		while(cueAdapter.getLastResp() < timestamp && waitCount > 0){
+		TextMessageAdapter<?> adapter = (TextMessageAdapter<?>) ackChannel.getAdapter();
+		while(adapter.getLastResp() < timestamp && waitCount > 0){
 			try {
 				Thread.sleep(100);
 				waitCount --;
@@ -343,8 +345,8 @@ public class SampleTerminal {
 	}
 	private void waitTextRenderEngine(){
 		int waitCount = 30;
-		checkState(null !=cueAdapter);
-		while( !(cueAdapter instanceof TextRenderEngine) && waitCount > 0){
+		TextMessageAdapter<?> adapter = (TextMessageAdapter<?>) ackChannel.getAdapter();
+		while( !(adapter instanceof TextRenderEngine) && waitCount > 0){
 			try {
 				Thread.sleep(100);
 				waitCount --;
