@@ -42,7 +42,7 @@ public class CmdItem extends BaseItem implements ICmd {
 	public CmdItem addParameters(Collection<IOption> parameters){
 		parameters = MoreObjects.firstNonNull(parameters, Collections.<IOption>emptyList());
 		for(IItem param:parameters){
-			((BaseItem)param).setParent(this);
+			((IItem)param).setParent(this);
 		}
 		ImmutableMap<String, IOption> m = Maps.uniqueIndex(parameters, new Function<IOption,String>(){
 			@Override

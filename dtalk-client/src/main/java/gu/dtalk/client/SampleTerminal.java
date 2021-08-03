@@ -221,15 +221,23 @@ public class SampleTerminal {
 		}
 	}
 	private JSONObject makeItemJSON(String path){
-		checkArgument(Strings.isNullOrEmpty(path));
-		IItem item = checkNotNull(renderEngine.getCurrentLevel().getChildByPath(path),"NOT FOUND item %s",path);
-		JSONObject json = new JSONObject()
-			.fluentPut(ITEM_FIELD_NAME, item.getName())
-			.fluentPut(ITEM_FIELD_PATH,path)
-			.fluentPut(ITEM_FIELD_CATALOG, item.getCatalog());
-		if(item instanceof IOption){
-			json.put(OPTION_FIELD_TYPE, ((IOption)item).getType());
+		checkArgument(!Strings.isNullOrEmpty(path));
+		JSONObject json = new JSONObject();
+		if(path.equals("/")){
+			json.fluentPut(ITEM_FIELD_PATH, path)
+				.fluentPut(ITEM_FIELD_CATALOG, ItemType.MENU);			
+		}else{
+			IItem currentLevel = checkNotNull(renderEngine.getCurrentLevel(),"currentLevel is null");
+			// 如果没有根据path找到对应的item则抛出异常
+			IItem item = checkNotNull(currentLevel.getChildByPath(path),"NOT FOUND item %s",path);
+			json.fluentPut(ITEM_FIELD_NAME, item.getName())
+				.fluentPut(ITEM_FIELD_PATH,path)
+				.fluentPut(ITEM_FIELD_CATALOG, item.getCatalog());
+			if(item instanceof IOption){
+				json.put(OPTION_FIELD_TYPE, ((IOption)item).getType());
+			}
 		}
+
 		return json;
 	}
 	private <T>boolean syncPublish(Channel<T>channel,T json){

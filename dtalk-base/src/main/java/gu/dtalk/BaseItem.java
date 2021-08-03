@@ -45,7 +45,7 @@ public abstract class BaseItem implements IItem{
 	public IItem getParent() {
 		return parent;
 	}
-	void setParent(IItem parent) {
+	public void setParent(IItem parent) {
 		checkArgument(parent ==null || parent.isContainer());
 		this.parent = parent;
 		this.path = createPath(false);
@@ -64,7 +64,16 @@ public abstract class BaseItem implements IItem{
 				list.add(parent.getName());
 			}
 		}
-		return "/"+Joiner.on('/').join(Lists.reverse(list)) + "/" + name;
+		if(list.isEmpty()){
+			return "/";
+		}
+		String path = "/"+Joiner.on('/').join(Lists.reverse(list)) + "/" + name;
+		if(indexInstead){
+			path += "/"  + Integer.toString(parent.getChilds().indexOf(this));
+		}else{
+			path += "/"  + name;
+		}
+		return path;
 	}
 	/**
 	 * 路径名归一化,以'/'开始，不以'/'结尾

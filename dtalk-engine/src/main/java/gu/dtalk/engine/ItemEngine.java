@@ -61,6 +61,9 @@ public class ItemEngine implements ItemAdapter{
 					found = currentLevel.getChild(req.getPath());
 				}
 			}
+			if(root.getPath().equals(req.getPath())){
+				found = root;
+			}
 			if(found == null){
 				found = root.getChildByPath(req.getPath());
 			}

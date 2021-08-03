@@ -1,6 +1,5 @@
 package gu.dtalk.engine;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 import java.util.Timer;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 
 import gu.dtalk.Ack;
@@ -124,11 +122,17 @@ public class SampleConnector implements IMessageAdapter<String> {
 			}
 
 			ack.setValue(workChannel);
-			if(null == subscriber.getChannel(workChannel)){				
-				Channel<JSONObject> c = new Channel<JSONObject> (workChannel,JSONObject.class,itemAdapter);
-				itemAdapter.setAckChannel(getAckChannel(req.mac));
-				subscriber.register(c);
-				System.out.printf("Connect created(建立连接) %s for client:%s\n", c.name,req.mac);
+			if(null == subscriber.getChannel(workChannel)){
+				final ConnectReq request = new ConnectReq(req.mac,req.pwd);
+				new Thread(){
+					@Override
+					public void run() {
+						Channel<JSONObject> c = new Channel<JSONObject> (workChannel,JSONObject.class,itemAdapter);
+						itemAdapter.setAckChannel(getAckChannel(request.mac));
+						subscriber.register(c);
+						System.out.printf("Connect created(建立连接) %s for client:%s\n", c.name,request.mac);
+					}}.start();
+
 			}
 		}catch(JSONException e){
 			// 忽略无法解析成ConnectReq请求对象的数据

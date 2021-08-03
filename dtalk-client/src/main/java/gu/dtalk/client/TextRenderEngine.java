@@ -35,7 +35,7 @@ public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
 			if(item instanceof IMenu){
 				IMenu menu = (IMenu)item;
 				render.rendeItem(menu);				
-				if(CommonUtils.isRoot(item)){
+				if(isRoot(item)){
 					root = menu;
 				}
 				if(root !=null){
