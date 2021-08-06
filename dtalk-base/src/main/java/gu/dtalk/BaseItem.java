@@ -2,17 +2,31 @@ package gu.dtalk;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import static com.google.common.base.Preconditions.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public abstract class BaseItem implements IItem{
+	static {
+		// 增加对 IItem 序列化支持
+		ParserConfig.global.putDeserializer(IItem.class, ItemCodec.instance);
+		SerializeConfig.globalInstance.put(IItem.class, ItemCodec.instance);
+	}
 	private String name;
 	private String uiName;
 	@JSONField(serialize = false,deserialize = false)
@@ -21,6 +35,7 @@ public abstract class BaseItem implements IItem{
 	private boolean disable=false;
 	@JSONField(deserialize = false)
 	private String description = "";
+	protected final LinkedHashMap<String,IItem> items = new LinkedHashMap<>();
 	public BaseItem() {
 	}
 	@Override
@@ -31,22 +46,19 @@ public abstract class BaseItem implements IItem{
 	 * @param name 允许的字符[a-zA-Z0-9_],不允许有空格
 	 */
 	public void setName(String name) {
-		name = MoreObjects.firstNonNull(name, "").trim();
-		checkArgument(!Strings.isNullOrEmpty(name) && name.matches("^[a-zA-Z]\\w+$"),
+		name = checkNotNull(name,"name is null").trim();
+		checkArgument(name.isEmpty() || name.matches("^[a-zA-Z]\\w+$"),
 				"invalid option name '%s',allow character:[a-zA-Z0-9_],not space char allowed,start with alphabet",name);
-		// 不允许使用保留字做名字
-		checkArgument(!CommonConstant.RESERV_ENAMES.contains(name),"the name %s is reserved word",name);
-		this.name = checkNotNull(name);
+		this.name = name;
 	}
-	void setNameUncheck(String name){
-		this.name = checkNotNull(name);
-	}
+
 	@Override
 	public IItem getParent() {
 		return parent;
 	}
-	public void setParent(IItem parent) {
-		checkArgument(parent ==null || parent.isContainer());
+	void setParent(IItem parent) {
+		checkArgument(parent ==null || parent.isContainer(),"INVALID parent");
+		checkArgument(parent == null || !parent.getChilds().contains(this),"DUPLICATE element in parent %s",this.getName());
 		this.parent = parent;
 		this.path = createPath(false);
 	}
@@ -57,23 +69,14 @@ public abstract class BaseItem implements IItem{
 	 */
 	private String createPath(boolean indexInstead){
 		List<String> list = new ArrayList<>();
-		for(BaseItem item = this;item.parent !=null;item = (BaseItem) item.parent){
+		for(BaseItem item = this; item.parent !=null ; item = (BaseItem) item.parent){
 			if(indexInstead){
 				list.add(Integer.toString(parent.getChilds().indexOf(item)));
 			}else{
-				list.add(parent.getName());
+				list.add(item.getName());
 			}
 		}
-		if(list.isEmpty()){
-			return "/";
-		}
-		String path = "/"+Joiner.on('/').join(Lists.reverse(list)) + "/" + name;
-		if(indexInstead){
-			path += "/"  + Integer.toString(parent.getChilds().indexOf(this));
-		}else{
-			path += "/"  + name;
-		}
-		return path;
+		return "/" + Joiner.on('/').join(Lists.reverse(list));
 	}
 	/**
 	 * 路径名归一化,以'/'开始，不以'/'结尾
@@ -107,15 +110,15 @@ public abstract class BaseItem implements IItem{
 	public boolean isDisable() {
 		return disable;
 	}
+	public void setDisable(boolean disable) {
+		this.disable = disable;
+	}
 	@Override
 	public String getDescription() {
 		return description;
 	}
 	public void setDescription(String description) {
 		this.description = description;
-	}
-	public void setDisable(boolean disable) {
-		this.disable = disable;
 	}
 	@Override
 	public String getUiName() {
@@ -184,5 +187,45 @@ public abstract class BaseItem implements IItem{
 		}
 		return child;
 	
+	}
+	@Override
+	public List<IItem> getChilds() {
+		return Lists.newArrayList(items.values());
+	}
+	public void setChilds(List<IItem> childs) {
+		addChilds(childs);
+	}
+	public void addChilds(IItem ... childs) {
+		addChilds(Arrays.asList(childs));
+	}
+	public BaseItem addChilds(Collection<IItem> childs) {
+		childs = MoreObjects.firstNonNull(childs, Collections.<IItem>emptyList());
+		for(IItem param:childs){
+			((BaseItem)param).setParent(this);
+		}
+		ImmutableMap<String, IItem> m = Maps.uniqueIndex(childs, new Function<IItem,String>(){
+			@Override
+			public String apply(IItem input) {
+				return input.getName();
+			}});
+		items.putAll(m);	
+		return this;
+	}
+	public int childCount() {
+		return items.size();
+	}
+	public boolean isEmpty() {
+		return items.isEmpty();
+	}
+	@Override
+	public IItem getChild(final String name) {
+		IItem item = items.get(name);
+		if (null == item ){
+			try{
+				// 如果name为数字则返回数字
+				return getChilds().get(Integer.valueOf(name));
+			}catch (Exception  e) {}
+		}
+		return item;
 	}
 }

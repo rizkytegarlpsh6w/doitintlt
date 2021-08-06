@@ -2,23 +2,36 @@ package gu.dtalk;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.base.Function;
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import gu.simplemq.IMessageAdapter;
 
 public class CmdItem extends BaseItem implements ICmd {
 
-	private final LinkedHashMap<String,IOption> parameters = new LinkedHashMap<>();
+	private static final Function<IItem, IOption> TO_OPTION = new Function<IItem,IOption>(){
+
+		@Override
+		public IOption apply(IItem input) {
+			return (IOption) input;
+		}};
+	private static final Function<IOption,IItem> TO_ITEM = new Function<IOption,IItem>(){
+
+		@Override
+		public IItem apply(IOption input) {
+			return input;
+		}};
+	private static final Function<IItem, Object> TO_VALUE = new Function<IItem, Object>() {
+		@Override
+		public Object apply(IItem input) {
+			return ((IOption) input).getValue();
+		}
+	};
 	@JSONField(serialize = false,deserialize = false)
 	private IMessageAdapter<Map<String, Object>> cmdAdapter;
 	public CmdItem() {
@@ -29,27 +42,23 @@ public class CmdItem extends BaseItem implements ICmd {
 		return true;
 	}
 	@Override
-	public List<IOption> getParameters(){
-		return Lists.newArrayList(parameters.values());
+	public final ItemType getCatalog() {
+		return ItemType.CMD;
 	}
-	public CmdItem setParameters(List<IOption> parameters){
-		this.parameters.clear();
-		return addParameters(parameters);
+
+	@Override
+	public List<IOption> getParameters(){
+		return Lists.transform(getChilds(),TO_OPTION);
+	}
+	public void setParameters(List<IOption> parameters){
+		items.clear();
+		addParameters(parameters);
 	}
 	public CmdItem addParameters(IOption ... parameter){
 		return addParameters(Arrays.asList(parameter));
 	}
 	public CmdItem addParameters(Collection<IOption> parameters){
-		parameters = MoreObjects.firstNonNull(parameters, Collections.<IOption>emptyList());
-		for(IItem param:parameters){
-			((IItem)param).setParent(this);
-		}
-		ImmutableMap<String, IOption> m = Maps.uniqueIndex(parameters, new Function<IOption,String>(){
-			@Override
-			public String apply(IOption input) {
-				return input.getName();
-			}});
-		this.parameters.putAll(m);	
+		addChilds(Collections2.transform(parameters, TO_ITEM));
 		return this;
 	}
 	public IMessageAdapter<Map<String, Object>> getCmdAdapter() {
@@ -63,32 +72,13 @@ public class CmdItem extends BaseItem implements ICmd {
 	public final void runCmd(){
 		if(cmdAdapter !=null){
 			// 将 parameter 转为 Map<String, Object>
-			Map<String, Object> objParams = Maps.transformValues(parameters, new Function<IOption, Object>() {
-				@Override
-				public Object apply(IOption input) {
-					return input.getValue();
-				}
-			});
+			Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
 			cmdAdapter.onSubscribe(objParams);
 		}
 	}
 	@Override
 	public IOption getParameter(final String name){
-		return parameters.get(name);
+		return (IOption) getChild(name);
 	}
 
-	@Override
-	public final ItemType getCatalog() {
-		return ItemType.CMD;
-	}
-
-	@Override
-	public List<IItem> getChilds() {
-		return ImmutableList.<IItem>copyOf(parameters.values());
-	}
-
-	@Override
-	public IItem getChild(String name) {
-		return getParameter(name);
-	}
 }

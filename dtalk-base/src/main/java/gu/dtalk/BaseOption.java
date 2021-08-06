@@ -1,6 +1,7 @@
 package gu.dtalk;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -88,8 +89,26 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 	}
 
 	@Override
-	public IItem getChild(String name) {
+	public final IItem getChild(String name) {
 		return null;
+	}
+
+	@Override
+	public final IItem getChildByPath(String input) {
+		return null;
+	}
+
+	@Override
+	public final void setChilds(List<IItem> childs) {
+	}
+
+	@Override
+	public final void addChilds(IItem... childs) {
+	}
+
+	@Override
+	public final BaseItem addChilds(Collection<IItem> childs) {
+		return this;
 	}
 
 }

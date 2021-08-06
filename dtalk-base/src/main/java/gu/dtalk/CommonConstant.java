@@ -1,7 +1,5 @@
 package gu.dtalk;
 
-import com.google.common.collect.ImmutableSet;
-
 import redis.clients.jedis.Protocol;
 
 public class CommonConstant {
@@ -14,12 +12,7 @@ public class CommonConstant {
 	public static final String QUIT_NAME="quit";
 	public static final String BACK_NAME="back";
 
-	/**
-	 * 保留关键字
-	 */
-	public static final ImmutableSet<String> RESERV_ENAMES =
-			ImmutableSet.of(QUIT_NAME,BACK_NAME,"exit");
-	
+
 	public static final String REDIS_HOST=Protocol.DEFAULT_HOST;
 	public static final int REDIS_PORT = Protocol.DEFAULT_PORT;
 	public static final String REDIS_PASSWORD = "";

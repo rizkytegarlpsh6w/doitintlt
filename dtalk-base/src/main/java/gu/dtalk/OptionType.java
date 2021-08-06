@@ -1,6 +1,7 @@
 package gu.dtalk;
 
-import com.alibaba.fastjson.JSONObject;
+import java.util.Map;
+
 import com.alibaba.fastjson.util.TypeUtils;
 
 public enum OptionType {
@@ -15,8 +16,8 @@ public enum OptionType {
 	/** base64 格式JPEG/BMP/PNG格式图像 */IMAGE,
 	/** 多选项(n>1) */MULTICHECK,
 	/** 单选开关(n>2) */SWITCH;
-	public static BaseOption<?> parseOption(JSONObject t){
-		OptionType optionType = OptionType.valueOf(t.getString("type"));
+	public static BaseOption<?> parseOption(Map<String,Object> t){
+		OptionType optionType = OptionType.valueOf((String) t.get("type"));
 		switch(optionType){
 		case STRING:
 			return TypeUtils.castToJavaBean(t, StringOption.class);
