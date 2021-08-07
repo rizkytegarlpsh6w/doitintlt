@@ -21,24 +21,23 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public abstract class BaseItem implements IItem{
+public abstract class BaseItem{
 	static {
 		// 增加对 IItem 序列化支持
-		ParserConfig.global.putDeserializer(IItem.class, ItemCodec.instance);
-		SerializeConfig.globalInstance.put(IItem.class, ItemCodec.instance);
+		ParserConfig.global.putDeserializer(BaseItem.class, ItemCodec.instance);
+		SerializeConfig.globalInstance.put(BaseItem.class, ItemCodec.instance);
 	}
 	private String name;
 	private String uiName;
 	@JSONField(serialize = false,deserialize = false)
-	private IItem parent;
+	private BaseItem parent;
 	private String path = null;
 	private boolean disable=false;
 	@JSONField(deserialize = false)
 	private String description = "";
-	protected final LinkedHashMap<String,IItem> items = new LinkedHashMap<>();
+	protected final LinkedHashMap<String,BaseItem> items = new LinkedHashMap<>();
 	public BaseItem() {
 	}
-	@Override
 	public String getName() {
 		return name;
 	}
@@ -52,16 +51,17 @@ public abstract class BaseItem implements IItem{
 		this.name = name;
 	}
 
-	@Override
-	public IItem getParent() {
+	public BaseItem getParent() {
 		return parent;
 	}
-	void setParent(IItem parent) {
+	void setParent(BaseItem parent) {
 		checkArgument(parent ==null || parent.isContainer(),"INVALID parent");
 		checkArgument(parent == null || !parent.getChilds().contains(this),"DUPLICATE element in parent %s",this.getName());
 		this.parent = parent;
 		this.path = createPath(false);
 	}
+	public abstract boolean isContainer();
+	public abstract ItemType getCatalog();
 	/**
 	 * 生成能对象在菜单中全路径名
 	 * @param indexInstead 是否用索引值代替名字
@@ -95,39 +95,33 @@ public abstract class BaseItem implements IItem{
 		}
 		return path;
 	}
-	@Override
 	public String getPath() {
 		if(path == null){
 			path = createPath(false);
 		}
 		return path;
 	}
-	@Override
 	public void setPath(String path) {
 		this.path = normalizePath(path);
 	}
-	@Override
 	public boolean isDisable() {
 		return disable;
 	}
 	public void setDisable(boolean disable) {
 		this.disable = disable;
 	}
-	@Override
 	public String getDescription() {
 		return description;
 	}
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	@Override
 	public String getUiName() {
 		return Strings.isNullOrEmpty(uiName) ? name : uiName;
 	}
 	public void setUiName(String uiName) {
 		this.uiName = uiName;
 	}
-	@Override
 	public String json(){
 		return JSON.toJSONString(this);
 	}
@@ -158,8 +152,7 @@ public abstract class BaseItem implements IItem{
 			return false;
 		return true;
 	}
-	@Override
-	public IItem getChildByPath(String input){
+	public BaseItem getChildByPath(String input){
 		input = MoreObjects.firstNonNull(input, "").trim();
 		String relpath = input;
 		if(input.startsWith("/")){
@@ -178,7 +171,7 @@ public abstract class BaseItem implements IItem{
 			return null;
 		}
 		String[] nodes = relpath.split("/");
-		IItem child = this;
+		BaseItem child = this;
 		for(String node:nodes){
 			child = child.getChild(node);
 			if(child == null){
@@ -188,24 +181,23 @@ public abstract class BaseItem implements IItem{
 		return child;
 	
 	}
-	@Override
-	public List<IItem> getChilds() {
+	public List<BaseItem> getChilds() {
 		return Lists.newArrayList(items.values());
 	}
-	public void setChilds(List<IItem> childs) {
+	public void setChilds(List<BaseItem> childs) {
 		addChilds(childs);
 	}
-	public void addChilds(IItem ... childs) {
+	public void addChilds(BaseItem ... childs) {
 		addChilds(Arrays.asList(childs));
 	}
-	public BaseItem addChilds(Collection<IItem> childs) {
-		childs = MoreObjects.firstNonNull(childs, Collections.<IItem>emptyList());
-		for(IItem param:childs){
+	public BaseItem addChilds(Collection<BaseItem> childs) {
+		childs = MoreObjects.firstNonNull(childs, Collections.<BaseItem>emptyList());
+		for(BaseItem param:childs){
 			((BaseItem)param).setParent(this);
 		}
-		ImmutableMap<String, IItem> m = Maps.uniqueIndex(childs, new Function<IItem,String>(){
+		ImmutableMap<String, BaseItem> m = Maps.uniqueIndex(childs, new Function<BaseItem,String>(){
 			@Override
-			public String apply(IItem input) {
+			public String apply(BaseItem input) {
 				return input.getName();
 			}});
 		items.putAll(m);	
@@ -217,9 +209,8 @@ public abstract class BaseItem implements IItem{
 	public boolean isEmpty() {
 		return items.isEmpty();
 	}
-	@Override
-	public IItem getChild(final String name) {
-		IItem item = items.get(name);
+	public BaseItem getChild(final String name) {
+		BaseItem item = items.get(name);
 		if (null == item ){
 			try{
 				// 如果name为数字则返回数字

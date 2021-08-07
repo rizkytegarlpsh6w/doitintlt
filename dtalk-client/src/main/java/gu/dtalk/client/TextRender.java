@@ -5,8 +5,8 @@ import java.io.PrintStream;
 import com.google.common.base.Strings;
 
 import gu.dtalk.Ack;
-import gu.dtalk.IItem;
-import gu.dtalk.IMenu;
+import gu.dtalk.BaseItem;
+import gu.dtalk.MenuItem;
 import gu.dtalk.Ack.Status;
 
 public class TextRender {
@@ -23,10 +23,10 @@ public class TextRender {
 		}
 		stream.append('\n');
 	}
-	public void rendeItem(IMenu menu){
+	public void rendeItem(MenuItem menu){
 		stream.append(menu.getPath()).append('\n');
 		int i=0;
-		for(IItem item: menu.getChilds()){
+		for(BaseItem item: menu.getChilds()){
 			stream.printf("[%d] [%s] %s \n",
 					i,
 					item.isDisable()?"x":" ",

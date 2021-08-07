@@ -12,7 +12,7 @@ import com.google.common.base.Predicates;
 
 import static com.google.common.base.Preconditions.*;
 
-public abstract class BaseOption<T> extends BaseItem implements IOption {
+public abstract class BaseOption<T> extends BaseItem {
 	private T optionValue;
 	private T defaultValue;
 	private boolean reqiured;
@@ -24,8 +24,7 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 		super();
 		this.type = checkNotNull(type);
 	}
-
-	@Override
+	public abstract OptionType getType();
 	public boolean isReadOnly() {
 		return false;
 	}
@@ -41,12 +40,10 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 		}
 	}
 
-	@Override
 	public final Object getValue() {
 		return	optionValue;
 	}
 	@SuppressWarnings("unchecked")
-	@Override
 	public boolean setValue(Object value) {
 		if(!isDisable() && !isReadOnly()){
 			if(valueValidator.apply((T) value)){
@@ -55,7 +52,6 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 		}
 		return false;
 	}
-	@Override
 	public final Object getDefaultValue() {
 		return defaultValue;
 	}
@@ -69,7 +65,6 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 		}
 	}
 
-	@Override
 	public boolean isReqiured() {
 		return reqiured;
 	}
@@ -78,36 +73,33 @@ public abstract class BaseOption<T> extends BaseItem implements IOption {
 		this.reqiured = reqiured;
 	}
 
-	@Override
 	public final ItemType getCatalog() {
 		return ItemType.OPTION;
 	}
 
-	@Override
-	public final List<IItem> getChilds() {
+	public final List<BaseItem> getChilds() {
 		return Collections.emptyList();
 	}
 
-	@Override
-	public final IItem getChild(String name) {
+	public final BaseItem getChild(String name) {
 		return null;
 	}
 
 	@Override
-	public final IItem getChildByPath(String input) {
+	public final BaseItem getChildByPath(String input) {
 		return null;
 	}
 
 	@Override
-	public final void setChilds(List<IItem> childs) {
+	public final void setChilds(List<BaseItem> childs) {
 	}
 
 	@Override
-	public final void addChilds(IItem... childs) {
+	public final void addChilds(BaseItem... childs) {
 	}
 
 	@Override
-	public final BaseItem addChilds(Collection<IItem> childs) {
+	public final BaseItem addChilds(Collection<BaseItem> childs) {
 		return this;
 	}
 

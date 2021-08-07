@@ -6,12 +6,10 @@ import com.google.common.base.MoreObjects;
 import gu.dtalk.Ack;
 import gu.dtalk.CmdItem;
 import gu.dtalk.CommonUtils;
-import gu.dtalk.ICmd;
-import gu.dtalk.IItem;
-import gu.dtalk.IMenu;
-import gu.dtalk.IOption;
-import gu.dtalk.ItemType;
+import gu.dtalk.BaseItem;
 import gu.dtalk.MenuItem;
+import gu.dtalk.BaseOption;
+import gu.dtalk.ItemType;
 import gu.dtalk.RootMenu;
 import gu.simplemq.Channel;
 import gu.simplemq.IPublisher;
@@ -31,10 +29,10 @@ import static gu.dtalk.CommonConstant.*;
  *
  */
 public class ItemEngine implements ItemAdapter{
-	private IMenu root = new RootMenu(); 
+	private MenuItem root = new RootMenu(); 
 	private IPublisher ackPublisher;
 	private Channel<Ack<Object>> ackChannel;
-	private IItem currentLevel;
+	private BaseItem currentLevel;
 	/**
 	 * 最近一次操作的时间戳
 	 */
@@ -53,8 +51,8 @@ public class ItemEngine implements ItemAdapter{
 		lasthit = System.currentTimeMillis();
 		Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK);
 		try{
-			IItem req = ItemType.parseItem(jsonObject);
-			IItem found = null;
+			BaseItem req = ItemType.parseItem(jsonObject);
+			BaseItem found = null;
 			if(currentLevel != null){
 				found = currentLevel.getChild(req.getName());
 				if(found == null){
@@ -72,10 +70,10 @@ public class ItemEngine implements ItemAdapter{
 
 			switch(found.getCatalog()){
 			case OPTION:{
-				IOption option = (IOption)found;
+				BaseOption<?> option = (BaseOption<?>)found;
 				// 设置参数
 				checkState(!option.isReadOnly(),"READONLY VALUE");
-				Object v = ((IOption)req).getValue();
+				Object v = ((BaseOption<?>)req).getValue();
 				checkState(option.setValue(v),"INVALID VALUE");
 				break;
 			}
@@ -89,7 +87,7 @@ public class ItemEngine implements ItemAdapter{
 					throw new SmqUnsubscribeException(true);
 				}else{
 					// 执行命令
-					((ICmd)found).runCmd();
+					((CmdItem)found).runCmd();
 				}
 				break;
 			}
@@ -116,11 +114,11 @@ public class ItemEngine implements ItemAdapter{
 	}
 
 	@Override
-	public IMenu getRoot() {
+	public MenuItem getRoot() {
 		return root;
 	}
 
-	public void setRoot(IMenu root) {
+	public void setRoot(MenuItem root) {
 		this.root = checkNotNull(root);
 		// 自动添加退出命令在最后
 		if(this.root.getChild(QUIT_NAME)!=null){

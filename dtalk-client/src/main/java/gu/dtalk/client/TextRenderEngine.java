@@ -6,8 +6,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
 import gu.dtalk.Ack;
 import gu.dtalk.CommonUtils;
-import gu.dtalk.IItem;
-import gu.dtalk.IMenu;
+import gu.dtalk.BaseItem;
+import gu.dtalk.MenuItem;
 import gu.dtalk.ItemType;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
 
@@ -18,8 +18,8 @@ import static gu.dtalk.CommonUtils.*;
  *
  */
 public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
-	private IItem currentLevel;
-	private IMenu root;
+	private BaseItem currentLevel;
+	private MenuItem root;
 	public TextRenderEngine() {
 	}
 
@@ -31,9 +31,9 @@ public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
 			Ack<?> ack = TypeUtils.castToJavaBean(resp, Ack.class);
 			render.rendeAck(ack);
 		}else if(isItem(resp)){
-			IItem item = ItemType.parseItem(resp);
-			if(item instanceof IMenu){
-				IMenu menu = (IMenu)item;
+			BaseItem item = ItemType.parseItem(resp);
+			if(item instanceof MenuItem){
+				MenuItem menu = (MenuItem)item;
 				render.rendeItem(menu);				
 				if(isRoot(item)){
 					root = menu;
@@ -53,10 +53,10 @@ public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
 		render.setStream(stream);
 		return this;
 	}
-	public IItem getCurrentLevel() {
+	public BaseItem getCurrentLevel() {
 		return currentLevel;
 	}
-	public IMenu getRoot() {
+	public MenuItem getRoot() {
 		return root;
 	}
 	public TextRenderEngine reset(){

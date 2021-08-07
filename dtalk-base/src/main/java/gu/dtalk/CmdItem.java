@@ -12,24 +12,24 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import gu.simplemq.IMessageAdapter;
 
-public class CmdItem extends BaseItem implements ICmd {
+public class CmdItem extends BaseItem {
 
-	private static final Function<IItem, IOption> TO_OPTION = new Function<IItem,IOption>(){
+	private static final Function<BaseItem, BaseOption<?>> TO_OPTION = new Function<BaseItem,BaseOption<?>>(){
 
 		@Override
-		public IOption apply(IItem input) {
-			return (IOption) input;
+		public BaseOption<?> apply(BaseItem input) {
+			return (BaseOption<?>) input;
 		}};
-	private static final Function<IOption,IItem> TO_ITEM = new Function<IOption,IItem>(){
+	private static final Function<BaseOption<?>,BaseItem> TO_ITEM = new Function<BaseOption<?>,BaseItem>(){
 
 		@Override
-		public IItem apply(IOption input) {
+		public BaseItem apply(BaseOption<?> input) {
 			return input;
 		}};
-	private static final Function<IItem, Object> TO_VALUE = new Function<IItem, Object>() {
+	private static final Function<BaseItem, Object> TO_VALUE = new Function<BaseItem, Object>() {
 		@Override
-		public Object apply(IItem input) {
-			return ((IOption) input).getValue();
+		public Object apply(BaseItem input) {
+			return ((BaseOption<?>) input).getValue();
 		}
 	};
 	@JSONField(serialize = false,deserialize = false)
@@ -41,23 +41,23 @@ public class CmdItem extends BaseItem implements ICmd {
 	public final boolean isContainer() {
 		return true;
 	}
+
 	@Override
 	public final ItemType getCatalog() {
 		return ItemType.CMD;
 	}
 
-	@Override
-	public List<IOption> getParameters(){
+	public List<BaseOption<?>> getParameters(){
 		return Lists.transform(getChilds(),TO_OPTION);
 	}
-	public void setParameters(List<IOption> parameters){
+	public void setParameters(List<BaseOption<?>> parameters){
 		items.clear();
 		addParameters(parameters);
 	}
-	public CmdItem addParameters(IOption ... parameter){
+	public CmdItem addParameters(BaseOption<?> ... parameter){
 		return addParameters(Arrays.asList(parameter));
 	}
-	public CmdItem addParameters(Collection<IOption> parameters){
+	public CmdItem addParameters(Collection<BaseOption<?>> parameters){
 		addChilds(Collections2.transform(parameters, TO_ITEM));
 		return this;
 	}
@@ -68,7 +68,7 @@ public class CmdItem extends BaseItem implements ICmd {
 		this.cmdAdapter = cmdAdapter;
 		return this;
 	}
-	@Override
+
 	public final void runCmd(){
 		if(cmdAdapter !=null){
 			// 将 parameter 转为 Map<String, Object>
@@ -76,9 +76,8 @@ public class CmdItem extends BaseItem implements ICmd {
 			cmdAdapter.onSubscribe(objParams);
 		}
 	}
-	@Override
-	public IOption getParameter(final String name){
-		return (IOption) getChild(name);
+	public BaseOption<?> getParameter(final String name){
+		return (BaseOption<?>) getChild(name);
 	}
 
 }

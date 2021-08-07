@@ -47,19 +47,19 @@ public class CommonUtils {
 		item.setName(BACK_NAME);
 		return item;
 	}
-	public static boolean isBack(IItem item){
-		return (item instanceof IItem) && BACK_NAME.equals(item.getName());
+	public static boolean isBack(BaseItem item){
+		return (item instanceof BaseItem) && BACK_NAME.equals(item.getName());
 	}
-	public static boolean isRoot(IItem item){
-		return (item instanceof IItem) && null == item.getParent();
+	public static boolean isRoot(BaseItem item){
+		return (item instanceof BaseItem) && null == item.getParent();
 	}
-	public static boolean isQuit(IItem item){
-		return (item instanceof IItem) && QUIT_NAME.equals(item.getName());
+	public static boolean isQuit(BaseItem item){
+		return (item instanceof BaseItem) && QUIT_NAME.equals(item.getName());
 	}
 	public static boolean isQuit(JSONObject item){
 		return (item instanceof JSONObject) && QUIT_NAME.equals(((JSONObject)item).getString(ITEM_FIELD_NAME));
 	}
 	public static boolean isQuit(Object item){
-		return isQuit((IItem) item)  || isQuit((JSONObject)item);
+		return isQuit((BaseItem) item)  || isQuit((JSONObject)item);
 	}
 }

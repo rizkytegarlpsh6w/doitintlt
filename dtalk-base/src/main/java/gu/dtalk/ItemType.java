@@ -9,7 +9,7 @@ public enum ItemType {
 	/** 参数类型 */OPTION,
 	/** 命令 */CMD,
 	/** 菜单*/MENU;
-	public static final IItem parseItem(Map<String,Object> jsonObject)  {
+	public static final BaseItem parseItem(Map<String,Object> jsonObject)  {
 		String c = checkNotNull((String) jsonObject.get("catalog"),"NOT FOUND catalog field");
 		ItemType catalog = ItemType.valueOf(c);
 		switch(catalog){

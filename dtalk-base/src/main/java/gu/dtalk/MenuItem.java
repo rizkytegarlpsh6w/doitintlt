@@ -1,6 +1,6 @@
 package gu.dtalk;
 
-public class MenuItem extends BaseItem implements IMenu {
+public class MenuItem extends BaseItem {
 	public MenuItem() {
 		initChilds();
 	}

@@ -2,7 +2,7 @@ package gu.dtalk.engine;
 
 import com.alibaba.fastjson.JSONObject;
 
-import gu.dtalk.IMenu;
+import gu.dtalk.MenuItem;
 import gu.simplemq.IMessageAdapter;
 
 public interface ItemAdapter extends IMessageAdapter<JSONObject> {
@@ -16,5 +16,5 @@ public interface ItemAdapter extends IMessageAdapter<JSONObject> {
 
 	void setAckChannel(String ackChannelName);
 
-	IMenu getRoot();
+	MenuItem getRoot();
 }

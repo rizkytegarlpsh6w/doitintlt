@@ -11,9 +11,9 @@ import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import gu.dtalk.ConnectReq;
-import gu.dtalk.ICmd;
-import gu.dtalk.IItem;
-import gu.dtalk.IOption;
+import gu.dtalk.CmdItem;
+import gu.dtalk.BaseItem;
+import gu.dtalk.BaseOption;
 import gu.dtalk.ItemType;
 import gu.dtalk.Ack.Status;
 import gu.simplemq.Channel;
@@ -227,14 +227,14 @@ public class SampleTerminal {
 			json.fluentPut(ITEM_FIELD_PATH, path)
 				.fluentPut(ITEM_FIELD_CATALOG, ItemType.MENU);			
 		}else{
-			IItem currentLevel = checkNotNull(renderEngine.getCurrentLevel(),"currentLevel is null");
+			BaseItem currentLevel = checkNotNull(renderEngine.getCurrentLevel(),"currentLevel is null");
 			// 如果没有根据path找到对应的item则抛出异常
-			IItem item = checkNotNull(currentLevel.getChildByPath(path),"NOT FOUND item %s",path);
+			BaseItem item = checkNotNull(currentLevel.getChildByPath(path),"NOT FOUND item %s",path);
 			json.fluentPut(ITEM_FIELD_NAME, item.getName())
 				.fluentPut(ITEM_FIELD_PATH,path)
 				.fluentPut(ITEM_FIELD_CATALOG, item.getCatalog());
-			if(item instanceof IOption){
-				json.put(OPTION_FIELD_TYPE, ((IOption)item).getType());
+			if(item instanceof BaseOption<?>){
+				json.put(OPTION_FIELD_TYPE, ((BaseOption<?>)item).getType());
 			}
 		}
 
@@ -260,9 +260,9 @@ public class SampleTerminal {
 
 	private boolean inputOption(Scanner scaner,JSONObject json){
 		checkArgument(json !=null && ItemType.OPTION == json.getObject(ITEM_FIELD_CATALOG, ItemType.class));
-		IItem item = renderEngine.getCurrentLevel().getChildByPath(json.getString(ITEM_FIELD_PATH));
-		checkArgument(item instanceof IOption);
-		IOption option = (IOption)item;
+		BaseItem item = renderEngine.getCurrentLevel().getChildByPath(json.getString(ITEM_FIELD_PATH));
+		checkArgument(item instanceof BaseOption<?>);
+		BaseOption<?> option = (BaseOption<?>)item;
 		String desc = Strings.isNullOrEmpty(option.getDescription()) ? "" : "("+option.getDescription()+")"; 
 		System.out.printf("INPUT VALUE for %s%s:", option.getUiName(),desc);
 		String value = scanLine(Predicates.<String>alwaysTrue(),scaner);
@@ -274,10 +274,10 @@ public class SampleTerminal {
 	}
 	private boolean inputCmd(Scanner scaner,JSONObject json){
 		checkArgument(json !=null && ItemType.OPTION == json.getObject(ITEM_FIELD_CATALOG, ItemType.class));
-		IItem item = renderEngine.getCurrentLevel().getChildByPath(json.getString(ITEM_FIELD_PATH));
-		checkArgument(item instanceof ICmd);
-		ICmd cmd = (ICmd)item;
-		for(IOption param:cmd.getParameters()){
+		BaseItem item = renderEngine.getCurrentLevel().getChildByPath(json.getString(ITEM_FIELD_PATH));
+		checkArgument(item instanceof CmdItem);
+		CmdItem cmd = (CmdItem)item;
+		for(BaseOption<?> param:cmd.getParameters()){
 			JSONObject optjson = makeItemJSON(param.getPath());
 			while(inputOption(scaner,optjson)){
 				if(syncPublishReq(json)){
