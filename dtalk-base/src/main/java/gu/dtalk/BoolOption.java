@@ -2,7 +2,7 @@ package gu.dtalk;
 
 import com.alibaba.fastjson.TypeReference;
 
-public abstract class BoolOption extends BaseOption<Boolean> {
+public class BoolOption extends BaseOption<Boolean> {
 
 	public BoolOption() {
 		super(new TypeReference<Boolean>() {}.getType());

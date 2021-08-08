@@ -3,7 +3,7 @@ package gu.dtalk;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
@@ -24,8 +24,10 @@ import java.util.List;
 public abstract class BaseItem{
 	static {
 		// 增加对 IItem 序列化支持
-		ParserConfig.global.putDeserializer(BaseItem.class, ItemCodec.instance);
-		SerializeConfig.globalInstance.put(BaseItem.class, ItemCodec.instance);
+		ParserConfig.global.putDeserializer(CmdItem.class, new JavaBeanDeserializer(ParserConfig.global, CmdItem.class));
+		ParserConfig.global.putDeserializer(MenuItem.class, new JavaBeanDeserializer(ParserConfig.global, MenuItem.class));
+
+		//SerializeConfig.globalInstance.put(BaseItem.class, ItemCodec.instance);
 	}
 	private String name;
 	private String uiName;
