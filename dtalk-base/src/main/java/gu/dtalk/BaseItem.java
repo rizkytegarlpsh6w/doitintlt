@@ -26,6 +26,7 @@ public abstract class BaseItem{
 		// 增加对 IItem 序列化支持
 		ParserConfig.global.putDeserializer(CmdItem.class, new JavaBeanDeserializer(ParserConfig.global, CmdItem.class));
 		ParserConfig.global.putDeserializer(MenuItem.class, new JavaBeanDeserializer(ParserConfig.global, MenuItem.class));
+		ParserConfig.global.putDeserializer(BaseItem.class, ItemCodec.instance);
 
 		//SerializeConfig.globalInstance.put(BaseItem.class, ItemCodec.instance);
 	}
