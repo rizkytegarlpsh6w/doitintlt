@@ -368,6 +368,7 @@ public class SampleTerminal {
 		}
 	}
 	public static void main(String []args){
+		BaseItem.initDeserializer();
 		System.out.println("Text terminal for Device Talk is starting(设备交互字符终端启动)");
 		String devmac = null;
 		// 如果命令行提供了设备mac地址，则尝试解析该参数

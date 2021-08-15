@@ -7,12 +7,15 @@ import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import static com.google.common.base.Preconditions.*;
+import static gu.dtalk.CommonUtils.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,14 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 public abstract class BaseItem{
-	static {
-		// 增加对 IItem 序列化支持
-		ParserConfig.global.putDeserializer(CmdItem.class, new JavaBeanDeserializer(ParserConfig.global, CmdItem.class));
-		ParserConfig.global.putDeserializer(MenuItem.class, new JavaBeanDeserializer(ParserConfig.global, MenuItem.class));
-		ParserConfig.global.putDeserializer(BaseItem.class, ItemCodec.instance);
-
-		//SerializeConfig.globalInstance.put(BaseItem.class, ItemCodec.instance);
-	}
+	
 	private String name;
 	private String uiName;
 	@JSONField(serialize = false,deserialize = false)
@@ -195,15 +191,22 @@ public abstract class BaseItem{
 	}
 	public BaseItem addChilds(Collection<BaseItem> childs) {
 		childs = MoreObjects.firstNonNull(childs, Collections.<BaseItem>emptyList());
+		// 过滤掉默认添加的选项,否则分重复
+		childs = Collections2.filter(childs, new Predicate<BaseItem>() {
+			@Override
+			public boolean apply(BaseItem input) {
+				return !isBack(input) && !isQuit(input);
+			}
+		});
 		for(BaseItem param:childs){
-			((BaseItem)param).setParent(this);
+			param.setParent(this);
 		}
 		ImmutableMap<String, BaseItem> m = Maps.uniqueIndex(childs, new Function<BaseItem,String>(){
 			@Override
 			public String apply(BaseItem input) {
 				return input.getName();
 			}});
-		items.putAll(m);	
+		items.putAll(m);
 		return this;
 	}
 	public int childCount() {
@@ -221,5 +224,13 @@ public abstract class BaseItem{
 			}catch (Exception  e) {}
 		}
 		return item;
+	}
+	public static final void initDeserializer() {
+		// 增加对 IItem 序列化支持
+		ParserConfig.global.putDeserializer(CmdItem.class, new JavaBeanDeserializer(ParserConfig.global, CmdItem.class));
+		ParserConfig.global.putDeserializer(MenuItem.class, new JavaBeanDeserializer(ParserConfig.global, MenuItem.class));
+		ParserConfig.global.putDeserializer(BaseItem.class, ItemDeserializer.instance);
+
+		//SerializeConfig.globalInstance.put(BaseItem.class, ItemCodec.instance);
 	}
 }
