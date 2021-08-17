@@ -195,7 +195,7 @@ public abstract class BaseItem{
 		childs = Collections2.filter(childs, new Predicate<BaseItem>() {
 			@Override
 			public boolean apply(BaseItem input) {
-				return !isBack(input) && !isQuit(input);
+				return !isBack(input);
 			}
 		});
 		for(BaseItem param:childs){

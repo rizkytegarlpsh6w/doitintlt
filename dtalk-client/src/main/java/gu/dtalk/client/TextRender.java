@@ -24,14 +24,16 @@ public class TextRender {
 		stream.append('\n');
 	}
 	public void rendeItem(MenuItem menu){
-		stream.append(menu.getPath()).append('\n');
+		stream.println("=========Device Menu============");
+		stream.printf("-->%s\n",menu.getPath());
 		int i=0;
 		for(BaseItem item: menu.getChilds()){
 			stream.printf("[%d] [%s] %s \n",
-					i,
+					i++,
 					item.isDisable()?"x":" ",
 					item.getUiName());
 		}
+		stream.println("==Press number to seleect menu item(按数字选项菜单)==");
 	}
 	public TextRender setStream(PrintStream stream) {
 		if(null != stream){
