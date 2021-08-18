@@ -5,13 +5,14 @@ import java.io.PrintStream;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
 import gu.dtalk.Ack;
-import gu.dtalk.CommonUtils;
 import gu.dtalk.BaseItem;
 import gu.dtalk.MenuItem;
 import gu.dtalk.ItemType;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
 
 import static gu.dtalk.CommonUtils.*;
+import static com.google.common.base.Preconditions.*;
+
 /**
  * 文本渲染引擎<br>
  * @author guyadong
@@ -37,8 +38,9 @@ public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
 				render.rendeItem(menu);				
 				if(isRoot(item)){
 					root = menu;
-				}
-				if(root !=null){
+					currentLevel = menu;
+				}else{
+					checkState(root!=null," root menu is uninitialized");
 					currentLevel = root.getChildByPath(item.getPath());
 				}
 			}else{

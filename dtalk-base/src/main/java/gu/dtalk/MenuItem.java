@@ -5,10 +5,10 @@ public class MenuItem extends BaseItem {
 		initChilds();
 	}
 
-	void initChilds(){
+	private void initChilds(){
 		items.clear();
 		CmdItem back = CommonUtils.makeBack();		
-		items.put(back.getName(), back);
+		addChilds(back);
 	}
 	@Override
 	public final boolean isContainer() {

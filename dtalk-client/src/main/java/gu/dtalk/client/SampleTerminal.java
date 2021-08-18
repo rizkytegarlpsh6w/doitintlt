@@ -4,6 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Scanner;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
@@ -29,6 +33,7 @@ import static gu.dtalk.CommonUtils.*;
 import static com.google.common.base.Preconditions.*;
 
 public class SampleTerminal {
+	private static final Logger logger = LoggerFactory.getLogger(SampleTerminal.class);
 	/** redis 连接参数 */
 	final static Map<PropName, Object> redisParam = 
 			ImmutableMap.<PropName, Object>of(
@@ -273,7 +278,7 @@ public class SampleTerminal {
 		return false;
 	}
 	private boolean inputCmd(Scanner scaner,JSONObject json){
-		checkArgument(json !=null && ItemType.OPTION == json.getObject(ITEM_FIELD_CATALOG, ItemType.class));
+		checkArgument(json !=null && ItemType.CMD == json.getObject(ITEM_FIELD_CATALOG, ItemType.class));
 		BaseItem item = renderEngine.getCurrentLevel().getChildByPath(json.getString(ITEM_FIELD_PATH));
 		checkArgument(item instanceof CmdItem);
 		CmdItem cmd = (CmdItem)item;
@@ -396,7 +401,8 @@ public class SampleTerminal {
 			client.waitTextRenderEngine();
 			client.cmdInteractive();
 		}catch (Exception e) {
-			System.out.println(e.getMessage());
+			//System.out.println(e.getMessage());
+			logger.error(e.getMessage(),e);
 			return ;
 		}
 	}

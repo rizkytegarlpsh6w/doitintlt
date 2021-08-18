@@ -19,6 +19,7 @@ import gu.simplemq.redis.RedisFactory;
 
 import static com.google.common.base.Preconditions.*;
 import static gu.dtalk.CommonConstant.*;
+import static gu.dtalk.CommonUtils.*;
 
 /**
  * 消息驱动的菜单引擎，根据收到的请求执行对应的动作<br>
@@ -49,6 +50,7 @@ public class ItemEngine implements ItemAdapter{
 	@Override
 	public void onSubscribe(JSONObject jsonObject) throws SmqUnsubscribeException {
 		lasthit = System.currentTimeMillis();
+		boolean isQuit = false;
 		Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK);
 		try{
 			BaseItem req = ItemType.parseItem(jsonObject);
@@ -78,13 +80,13 @@ public class ItemEngine implements ItemAdapter{
 				break;
 			}
 			case CMD:{
-				if(CommonUtils.isBack(found)){
+				if(isBack(found)){
 					//  输出上一级菜单
 					currentLevel = MoreObjects.firstNonNull(found.getParent(),root);
 					ack.setValue(currentLevel);
-				}else if(CommonUtils.isQuit(found)){
+				}else if(isQuit(found)){
 					// 取消频道订阅,中断连接
-					throw new SmqUnsubscribeException(true);
+					isQuit = true;
 				}else{
 					// 执行命令
 					((CmdItem)found).runCmd();
@@ -110,6 +112,10 @@ public class ItemEngine implements ItemAdapter{
 		// 向ack频道发送返回值消息
 		if(ackChannel != null){
 			ackPublisher.publish(ackChannel, ack);
+		}
+		if(isQuit){
+			// 取消频道订阅,中断连接
+			throw new SmqUnsubscribeException(true);
 		}
 	}
 

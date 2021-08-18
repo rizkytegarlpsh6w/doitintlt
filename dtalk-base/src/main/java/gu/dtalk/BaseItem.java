@@ -37,7 +37,7 @@ public abstract class BaseItem{
 	protected final LinkedHashMap<String,BaseItem> items = new LinkedHashMap<>();
 	public BaseItem() {
 	}
-	public String getName() {
+	public String getName() {		
 		return name;
 	}
 	/**
