@@ -2,8 +2,6 @@ package gu.dtalk;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
@@ -224,13 +222,5 @@ public abstract class BaseItem{
 			}catch (Exception  e) {}
 		}
 		return item;
-	}
-	public static final void initDeserializer() {
-		// 增加对 IItem 序列化支持
-		ParserConfig.global.putDeserializer(CmdItem.class, new JavaBeanDeserializer(ParserConfig.global, CmdItem.class));
-		ParserConfig.global.putDeserializer(MenuItem.class, new JavaBeanDeserializer(ParserConfig.global, MenuItem.class));
-		ParserConfig.global.putDeserializer(BaseItem.class, ItemDeserializer.instance);
-
-		//SerializeConfig.globalInstance.put(BaseItem.class, ItemCodec.instance);
 	}
 }
