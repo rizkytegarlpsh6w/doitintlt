@@ -2,14 +2,9 @@ package gu.dtalk;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-
 import static com.google.common.base.Preconditions.*;
 
 public abstract class BaseOption<T> extends BaseItem {
@@ -32,74 +27,58 @@ public abstract class BaseOption<T> extends BaseItem {
 	public final boolean isContainer() {
 		return false;
 	}
-	public static final boolean isValidString(String value,Type type) {
+
+	@Override
+	public final ItemType getCatalog() {
+		return ItemType.OPTION;
+	}
+	@Override
+	public final BaseItem addChilds(Collection<BaseItem> childs) {
+		// DO NOTHING
+		return this;
+	}
+	/**
+	 * 验证value是否有效
+	 * @param value
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public boolean validate(Object value){
 		try{
-			return null == JSON.parseObject(value, type);
+			return valueValidator.apply((T) value);
 		}catch (Exception e) {
 			return false;
 		}
 	}
-
 	public final Object getValue() {
 		return	optionValue;
 	}
 	@SuppressWarnings("unchecked")
-	public boolean setValue(Object value) {
-		if(!isDisable() && !isReadOnly()){
-			if(valueValidator.apply((T) value)){
-				optionValue = (T) value;
-			}
-		}
-		return false;
+	public BaseOption<T> setValue(Object value) {
+		optionValue = (T) value;
+		return this;
 	}
-	public final Object getDefaultValue() {
+	public final T getDefaultValue() {
 		return defaultValue;
 	}
-	public void setDefaultValue(T defaultValue) {
-		this.defaultValue = defaultValue;		
+	public BaseOption<T> setDefaultValue(T defaultValue) {
+		this.defaultValue = defaultValue;
+		return this;
 	}
 
-	public synchronized void setValidator(Predicate<T> validator) {
+	public synchronized BaseOption<T> setValidator(Predicate<T> validator) {
 		if(validator!=null){
 			this.valueValidator = validator;
 		}
+		return this;
 	}
 
 	public boolean isReqiured() {
 		return reqiured;
 	}
 
-	public void setReqiured(boolean reqiured) {
+	public BaseOption<T> setReqiured(boolean reqiured) {
 		this.reqiured = reqiured;
-	}
-
-	public final ItemType getCatalog() {
-		return ItemType.OPTION;
-	}
-
-	public final List<BaseItem> getChilds() {
-		return Collections.emptyList();
-	}
-
-	public final BaseItem getChild(String name) {
-		return null;
-	}
-
-	@Override
-	public final BaseItem getChildByPath(String input) {
-		return null;
-	}
-
-	@Override
-	public final void setChilds(List<BaseItem> childs) {
-	}
-
-	@Override
-	public final void addChilds(BaseItem... childs) {
-	}
-
-	@Override
-	public final BaseItem addChilds(Collection<BaseItem> childs) {
 		return this;
 	}
 

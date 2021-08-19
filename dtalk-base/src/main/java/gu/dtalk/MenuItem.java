@@ -1,15 +1,13 @@
 package gu.dtalk;
+import static gu.dtalk.CommonUtils.*;
 
 public class MenuItem extends BaseItem {
 	public MenuItem() {
-		initChilds();
-	}
-
-	private void initChilds(){
 		items.clear();
-		CmdItem back = CommonUtils.makeBack();		
+		CmdItem back = makeBack();
 		addChilds(back);
 	}
+
 	@Override
 	public final boolean isContainer() {
 		return true;

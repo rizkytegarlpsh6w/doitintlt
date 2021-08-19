@@ -40,22 +40,25 @@ public abstract class BaseItem{
 	}
 	/**
 	 * @param name 允许的字符[a-zA-Z0-9_],不允许有空格
+	 * @return 
 	 */
-	public void setName(String name) {
+	public BaseItem setName(String name) {
 		name = checkNotNull(name,"name is null").trim();
 		checkArgument(name.isEmpty() || name.matches("^[a-zA-Z]\\w+$"),
 				"invalid option name '%s',allow character:[a-zA-Z0-9_],not space char allowed,start with alphabet",name);
 		this.name = name;
+		return this;
 	}
 
 	public BaseItem getParent() {
 		return parent;
 	}
-	void setParent(BaseItem parent) {
+	BaseItem setParent(BaseItem parent) {
 		checkArgument(parent ==null || parent.isContainer(),"INVALID parent");
 		checkArgument(parent == null || !parent.getChilds().contains(this),"DUPLICATE element in parent %s",this.getName());
 		this.parent = parent;
 		this.path = createPath(false);
+		return this;
 	}
 	public abstract boolean isContainer();
 	public abstract ItemType getCatalog();
@@ -98,26 +101,30 @@ public abstract class BaseItem{
 		}
 		return path;
 	}
-	public void setPath(String path) {
+	public BaseItem setPath(String path) {
 		this.path = normalizePath(path);
+		return this;
 	}
 	public boolean isDisable() {
 		return disable;
 	}
-	public void setDisable(boolean disable) {
+	public BaseItem setDisable(boolean disable) {
 		this.disable = disable;
+		return this;
 	}
 	public String getDescription() {
 		return description;
 	}
-	public void setDescription(String description) {
+	public BaseItem setDescription(String description) {
 		this.description = description;
+		return this;
 	}
 	public String getUiName() {
 		return Strings.isNullOrEmpty(uiName) ? name : uiName;
 	}
-	public void setUiName(String uiName) {
+	public BaseItem setUiName(String uiName) {
 		this.uiName = uiName;
+		return this;
 	}
 	public String json(){
 		return JSON.toJSONString(this);
@@ -181,15 +188,16 @@ public abstract class BaseItem{
 	public List<BaseItem> getChilds() {
 		return Lists.newArrayList(items.values());
 	}
-	public void setChilds(List<BaseItem> childs) {
-		addChilds(childs);
+	public BaseItem setChilds(List<BaseItem> childs) {
+		items.clear();
+		return addChilds(childs);
 	}
-	public void addChilds(BaseItem ... childs) {
-		addChilds(Arrays.asList(childs));
+	public BaseItem addChilds(BaseItem ... childs) {
+		return addChilds(Arrays.asList(childs));
 	}
 	public BaseItem addChilds(Collection<BaseItem> childs) {
 		childs = MoreObjects.firstNonNull(childs, Collections.<BaseItem>emptyList());
-		// 过滤掉默认添加的选项,否则分重复
+		// 过滤掉默认添加的选项,否则会重复
 		childs = Collections2.filter(childs, new Predicate<BaseItem>() {
 			@Override
 			public boolean apply(BaseItem input) {
@@ -223,4 +231,5 @@ public abstract class BaseItem{
 		}
 		return item;
 	}
+	
 }
