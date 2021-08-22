@@ -8,7 +8,7 @@ public class DemoMenu extends RootMenu{
 	public DemoMenu() {
 	}
 	public DemoMenu init(){
-		MenuItem menu1 = new MenuItem();
+		MenuItem network = new MenuItem();
 		
 		return this;
 	}
