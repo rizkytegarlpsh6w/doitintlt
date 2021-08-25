@@ -11,7 +11,6 @@ public abstract class BaseOption<T> extends BaseItem {
 	private T optionValue;
 	private T defaultValue;
 	private boolean reqiured;
-	@JSONField(serialize = false,deserialize = false)
 	protected final Type type;
 	@JSONField(serialize = false,deserialize = false)
 	private Predicate<T> valueValidator = Predicates.alwaysTrue();
