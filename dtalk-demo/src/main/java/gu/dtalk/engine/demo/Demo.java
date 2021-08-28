@@ -35,7 +35,7 @@ public class Demo {
 	public Demo() {
 		JedisPoolLazy pool = JedisPoolLazy.getDefaultInstance();
 		subscriber = RedisFactory.getSubscriber(pool);
-		connAdapter = new SampleConnector(pool).setItemAdapter(new ItemEngine(pool));
+		connAdapter = new SampleConnector(pool).setItemAdapter(new ItemEngine(pool).setRoot(new DemoMenu().init()));
 		devMac = DEVINFO_PROVIDER.getMac();
 	}
 	private void start(){

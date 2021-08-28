@@ -11,6 +11,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	private T optionValue;
 	private T defaultValue;
 	private boolean reqiured;
+	private boolean readOnly;
 	protected final Type type;
 	@JSONField(serialize = false,deserialize = false)
 	private Predicate<T> valueValidator = Predicates.alwaysTrue();
@@ -20,7 +21,11 @@ public abstract class BaseOption<T> extends BaseItem {
 	}
 	public abstract OptionType getType();
 	public boolean isReadOnly() {
-		return false;
+		return readOnly;
+	}
+	public BaseOption<T> setReadonly(boolean readOnly) {
+		this.readOnly = readOnly;
+		return this;
 	}
 	@Override
 	public final boolean isContainer() {

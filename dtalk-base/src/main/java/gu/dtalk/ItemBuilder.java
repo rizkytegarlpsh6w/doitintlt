@@ -57,7 +57,7 @@ public class ItemBuilder<T extends BaseItem> {
 	public T instance(){
 		return item;
 	}
-	public static <T extends BaseItem>ItemBuilder<?> builder(Class<T> type) {
+	public static <T extends BaseItem>ItemBuilder<T> builder(Class<T> type) {
 		checkNotNull(type,"type is null");
 		// 不允许为抽象类
 		checkArgument(!Modifier.isAbstract(type.getModifiers()),"%s is a abstract class",type.getName());

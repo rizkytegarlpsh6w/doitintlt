@@ -125,13 +125,14 @@ public class ItemEngine implements ItemAdapter{
 		return root;
 	}
 
-	public void setRoot(MenuItem root) {
+	public ItemEngine setRoot(MenuItem root) {
 		this.root = checkNotNull(root);
 		// 自动添加退出命令在最后
-		if(this.root.getChild(QUIT_NAME)!=null){
+		if(this.root.getChild(QUIT_NAME)==null){
 			CmdItem quit = CommonUtils.makeQuit();
 			((MenuItem)root).addChilds(quit);
 		}
+		return this;
 	}
 
 	@Override
