@@ -19,6 +19,9 @@ public abstract class BaseOption<T> extends BaseItem {
 		super();
 		this.type = checkNotNull(type);
 	}
+	Type javaType(){
+		return type;
+	}
 	public abstract OptionType getType();
 	public boolean isReadOnly() {
 		return readOnly;
@@ -54,11 +57,10 @@ public abstract class BaseOption<T> extends BaseItem {
 			return false;
 		}
 	}
-	public final Object getValue() {
+	public final T getValue() {
 		return	optionValue;
 	}
-	@SuppressWarnings("unchecked")
-	public BaseOption<T> setValue(Object value) {
+	public BaseOption<T> setValue(T value) {
 		optionValue = (T) value;
 		return this;
 	}
@@ -84,6 +86,8 @@ public abstract class BaseOption<T> extends BaseItem {
 	public BaseOption<T> setReqiured(boolean reqiured) {
 		this.reqiured = reqiured;
 		return this;
+	}	
+	public String contentOfValue(){
+		return optionValue == null ? "": optionValue.toString();
 	}
-
 }

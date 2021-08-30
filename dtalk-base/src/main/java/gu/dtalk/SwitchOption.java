@@ -35,23 +35,24 @@ public class SwitchOption<E> extends CheckOption<E> {
 		return super.setValidator(Predicates.and(switchValidator, validator));
 	}
 
-	@Override
-	public CheckOption<E> addOption(E opt, String desc) {
-		checkState(options.size()<2,"TOO MANY OPTIONS");
-		return super.addOption(opt, desc);
-	}
+	@JSONField(serialize = false,deserialize = false)
 	public E getSwitch(){
 		List<E> list = getSelected();
 		return list.size()>0 ? list.get(0) : null;
 	}
+	@JSONField(serialize = false,deserialize = false)
 	public CheckOption<E> setSwitch(E value){
 		return setSelected(Arrays.asList(value));
 	}
 
+	@JSONField(serialize = false,deserialize = false)
 	@Override
 	public CheckOption<E> setSelected(List<E> sel) {
 		sel = MoreObjects.firstNonNull(sel, Collections.<E>emptyList());
-		checkArgument(sel.size()==1);
+		if(!sel.isEmpty()){
+			checkArgument(sel.size()==1,"TOO MANY SELECTED OPTIONS");
+		}
 		return super.setSelected(sel);
 	}
+
 }

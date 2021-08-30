@@ -2,19 +2,11 @@ package gu.dtalk;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import static com.google.common.base.Preconditions.*;
-import static gu.dtalk.CommonUtils.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,7 +49,7 @@ public abstract class BaseItem{
 		checkArgument(parent ==null || parent.isContainer(),"INVALID parent");
 		checkArgument(parent == null || !parent.getChilds().contains(this),"DUPLICATE element in parent %s",this.getName());
 		this.parent = parent;
-		this.path = createPath(false);
+		refreshPath();
 		return this;
 	}
 	public abstract boolean isContainer();
@@ -78,6 +70,12 @@ public abstract class BaseItem{
 		}
 		return "/" + Joiner.on('/').join(Lists.reverse(list));
 	}
+	private void refreshPath(){		
+		this.path = createPath(false);
+		for(BaseItem child:items.values()){
+			child.refreshPath();
+		}
+	}
 	/**
 	 * 路径名归一化,以'/'开始，不以'/'结尾
 	 * @param path
@@ -97,7 +95,7 @@ public abstract class BaseItem{
 	}
 	public String getPath() {
 		if(path == null){
-			path = createPath(false);
+			refreshPath();
 		}
 		return path;
 	}
@@ -197,22 +195,12 @@ public abstract class BaseItem{
 	}
 	public BaseItem addChilds(Collection<BaseItem> childs) {
 		childs = MoreObjects.firstNonNull(childs, Collections.<BaseItem>emptyList());
-		// 过滤掉默认添加的选项,否则会重复
-		childs = Collections2.filter(childs, new Predicate<BaseItem>() {
-			@Override
-			public boolean apply(BaseItem input) {
-				return !isBack(input);
+		for(BaseItem child:childs){
+			if(!items.containsKey(child.getName())){
+				child.setParent(this);
+				items.put(child.getName(), child);
 			}
-		});
-		for(BaseItem param:childs){
-			param.setParent(this);
 		}
-		ImmutableMap<String, BaseItem> m = Maps.uniqueIndex(childs, new Function<BaseItem,String>(){
-			@Override
-			public String apply(BaseItem input) {
-				return input.getName();
-			}});
-		items.putAll(m);
 		return this;
 	}
 	public int childCount() {
@@ -231,5 +219,5 @@ public abstract class BaseItem{
 		}
 		return item;
 	}
-	
+
 }

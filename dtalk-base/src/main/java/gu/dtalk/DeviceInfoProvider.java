@@ -26,4 +26,9 @@ public interface DeviceInfoProvider {
 	 * @return
 	 */
 	byte[] getMac();
+	/**
+	 * 返回当前使用的IP地址,不可为空或{@code null}
+	 * @return
+	 */
+	byte[] getIp();
 }

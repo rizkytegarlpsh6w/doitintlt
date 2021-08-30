@@ -1,11 +1,9 @@
 package gu.dtalk;
 
-import com.alibaba.fastjson.TypeReference;
-
 public class StringOption extends BaseOption<String> {
 
 	public StringOption() {
-		super(new TypeReference<String>() {}.getType());
+		super(String.class);
 	}
 
 	@Override

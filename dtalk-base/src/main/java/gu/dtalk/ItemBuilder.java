@@ -11,7 +11,7 @@ import com.google.common.base.Throwables;
 public class ItemBuilder<T extends BaseItem> {
 
 	private final T item;
-	protected ItemBuilder(T item) {
+	public ItemBuilder(T item) {
 		super();
 		this.item = item;
 	}

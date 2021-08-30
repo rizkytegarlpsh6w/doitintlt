@@ -9,7 +9,6 @@ import gu.dtalk.BaseItem;
 import gu.dtalk.MenuItem;
 import gu.dtalk.ItemType;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
-
 import static gu.dtalk.CommonUtils.*;
 import static com.google.common.base.Preconditions.*;
 

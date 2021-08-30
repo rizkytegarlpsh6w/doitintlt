@@ -72,7 +72,8 @@ public class ItemEngine implements ItemAdapter{
 
 			switch(found.getCatalog()){
 			case OPTION:{
-				BaseOption<?> option = (BaseOption<?>)found;
+				@SuppressWarnings("unchecked")
+				BaseOption<Object> option = (BaseOption<Object>)found;
 				// 设置参数
 				checkState(!option.isReadOnly(),"READONLY VALUE");
 				Object v = ((BaseOption<?>)req).getValue();
@@ -84,7 +85,8 @@ public class ItemEngine implements ItemAdapter{
 				if(isBack(found)){
 					//  输出上一级菜单
 					currentLevel = MoreObjects.firstNonNull(found.getParent(),root);
-					ack.setValue(currentLevel);
+					ackPublisher.publish(menuChannel, (MenuItem)currentLevel);
+					return;
 				}else if(isQuit(found)){
 					// 取消频道订阅,中断连接
 					isQuit = true;

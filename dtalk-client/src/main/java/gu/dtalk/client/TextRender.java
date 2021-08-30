@@ -1,11 +1,14 @@
 package gu.dtalk.client;
 
 import java.io.PrintStream;
+import java.net.URL;
 
 import com.google.common.base.Strings;
 
 import gu.dtalk.Ack;
 import gu.dtalk.BaseItem;
+import gu.dtalk.BaseOption;
+import gu.dtalk.CheckOption;
 import gu.dtalk.MenuItem;
 import gu.dtalk.Ack.Status;
 
@@ -28,10 +31,26 @@ public class TextRender {
 		stream.printf("-->%s\n",menu.getPath());
 		int i=0;
 		for(BaseItem item: menu.getChilds()){
-			stream.printf("[%d] [%s] %s \n",
+			String acc = item.isDisable() ? "x" : " ";			
+			String content = "";
+			if(item instanceof BaseOption){
+				BaseOption<?> option = (BaseOption<?>)item;
+				content = option.contentOfValue();
+				acc = option.isReadOnly() ? "R" : acc;
+			}
+			if(!content.isEmpty()){
+				content = ": " +content;
+			}			
+			
+			stream.printf("[%d] [%s] %s %s\n",
 					i++,
-					item.isDisable()?"x":" ",
-					item.getUiName());
+					acc,
+					item.getUiName(),
+					content);
+			if(item instanceof CheckOption){
+				CheckOption<?> checkOption = (CheckOption<?>)item;
+				stream.println(checkOption.contentOfOptions());
+			}
 		}
 		stream.println("==Press number to seleect menu item(按数字选项菜单)==");
 	}

@@ -1,10 +1,16 @@
 package gu.dtalk;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.alibaba.fastjson.TypeReference;
@@ -54,8 +60,8 @@ public class CheckOption<E> extends BaseOption<Set<Integer>> {
 		return super.setValidator(Predicates.and(checkValidator, validator));
 	}
 
+	@JSONField(serialize = false,deserialize = false)
 	public List<E> getSelected(){
-		@SuppressWarnings("unchecked")
 		ArrayList<Integer> indexs = Lists.newArrayList((Set<Integer>) getValue());
 		final ArrayList<E> opts = Lists.newArrayList(options.keySet());
 		return Lists.transform(indexs, new Function<Integer, E>() {
@@ -66,6 +72,7 @@ public class CheckOption<E> extends BaseOption<Set<Integer>> {
 			}
 		});
 	}
+	@JSONField(serialize = false,deserialize = false)
 	public CheckOption<E> setSelected(List<E> sel){
 		sel = MoreObjects.firstNonNull(sel, Collections.<E>emptyList());
 		Iterable<E> itor = Iterables.filter(sel, new Predicate<E>() {
@@ -85,5 +92,33 @@ public class CheckOption<E> extends BaseOption<Set<Integer>> {
 			}}));
 		setValue(indexSet);
 		return this;
+	}
+	@SuppressWarnings("unchecked")
+	public CheckOption<E> setSelected(E... sel){		
+		return setSelected(Arrays.asList(sel));		
+	}
+	
+	public String contentOfOptions(){
+		ByteArrayOutputStream bytestream = new ByteArrayOutputStream();
+		PrintStream stream = new PrintStream(bytestream);
+		int index=0;
+		stream.printf("\tavailable options:\n");
+		for(Entry<E, String> entry:options.entrySet()){
+			String desc = entry.getValue();			
+			stream.printf("\t<%d>%s -- %s\n", index++,entry.getKey().toString(), desc.isEmpty() ? "NO DESC" : desc);
+		}
+		try {
+			return new String(bytestream.toByteArray(),"utf-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public Map<E, String> getOptions() {
+		return options;
+	}
+	public void setOptions(Map<E, String>  options) {
+		this.options.clear();
+		this.options.putAll(options);
 	}
 }

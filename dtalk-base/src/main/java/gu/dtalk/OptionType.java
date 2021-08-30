@@ -12,7 +12,10 @@ public enum OptionType {
 	/** 布尔型 true/false 0/1 yes/no,on/off */BOOL,
 	/** 日期  yyyy-MM-dd HH:mm:ss  */DATE,
 	/** url字符串 */URL,
+	/** 密码字符串 */PASSWORD,
 	/** base64 格式二进制数据 */BASE64,
+	/** MAC地址二进制数据 */MAC,
+	/** IP地址二进制数据 */IP,
 	/** base64 格式JPEG/BMP/PNG格式图像 */IMAGE,
 	/** 多选项(n>1) */MULTICHECK,
 	/** 单选开关(n>2) */SWITCH;
@@ -31,8 +34,14 @@ public enum OptionType {
 			return TypeUtils.castToJavaBean(t, DateOption.class);
 		case URL:
 			return TypeUtils.castToJavaBean(t, UrlOption.class);
+		case PASSWORD:
+			return TypeUtils.castToJavaBean(t, PasswordOption.class);
 		case BASE64:
 			return TypeUtils.castToJavaBean(t, Base64Option.class);
+		case MAC:
+			return TypeUtils.castToJavaBean(t, MACOption.class);
+		case IP:
+			return TypeUtils.castToJavaBean(t, IPv4Option.class);
 		case IMAGE:
 			return TypeUtils.castToJavaBean(t, ImageOption.class);
 		case MULTICHECK:

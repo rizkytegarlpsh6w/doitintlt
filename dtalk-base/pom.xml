@@ -38,6 +38,11 @@
 			<version>${common-java.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>common-base2</artifactId>
+			<version>${common-java.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>com.gitee.l0km</groupId>
 			<artifactId>simplemq</artifactId>
 			<version>${simplemq.version}</version>
