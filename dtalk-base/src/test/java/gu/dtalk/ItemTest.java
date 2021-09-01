@@ -24,4 +24,10 @@ public class ItemTest {
 		logger.info("json parsed={}",parsed);
 	}
 
+	@Test
+	public void test2Json(){
+		int intarray[] = {1,2,4};
+		logger.info("json of int array {}",JSON.toJSONString(intarray));
+		
+	}
 }

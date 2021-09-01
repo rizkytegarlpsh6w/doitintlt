@@ -183,6 +183,71 @@ public abstract class BaseItem{
 		return child;
 	
 	}
+	public BaseItem find(String path){
+		path = MoreObjects.firstNonNull(path, "").trim();
+		BaseItem root = this;
+		for(;root.getParent() != null;root = root.getParent()){}
+		return root.getChildByPath(path);
+	}
+	@SuppressWarnings("unchecked")
+	public BaseOption<Object> findOption(String path){
+		BaseItem item = find(path);
+		return (item instanceof BaseOption) ? (BaseOption<Object>)item: null;
+	}
+	public Base64Option findBase64Option(String path){
+		BaseItem item = find(path);
+		return (item instanceof Base64Option) ? (Base64Option)item: null;
+	}
+	public BoolOption findBoolOption(String path){
+		BaseItem item = find(path);
+		return (item instanceof BoolOption) ? (BoolOption)item: null;
+	}
+	public IPv4Option findIPv4Option(String path){
+		BaseItem item = find(path);
+		return (item instanceof IPv4Option) ? (IPv4Option)item: null;
+	}
+	public MACOption findMACOption(String path){
+		BaseItem item = find(path);
+		return (item instanceof MACOption) ? (MACOption)item: null;
+	}
+	public IntOption findIntOption(String path){
+		BaseItem item = find(path);
+		return (item instanceof IntOption) ? (IntOption)item: null;
+	}
+	public FloatOption findFloatOption(String path){
+		BaseItem item = find(path);
+		return (item instanceof FloatOption) ? (FloatOption)item: null;
+	}
+	public DateOption findDateOption(String path){
+		BaseItem item = find(path);
+		return (item instanceof DateOption) ? (DateOption)item: null;
+	}
+	public StringOption findStringOption(String path){
+		BaseItem item = find(path);
+		return (item instanceof StringOption) ? (StringOption)item: null;
+	}
+	public PasswordOption findPasswordOption(String path){
+		BaseItem item = find(path);
+		return (item instanceof PasswordOption) ? (PasswordOption)item: null;
+	}
+	public UrlOption findUrlOption(String path){
+		BaseItem item = find(path);
+		return (item instanceof UrlOption) ? (UrlOption)item: null;
+	}
+	public ImageOption findImageOption(String path){
+		BaseItem item = find(path);
+		return (item instanceof ImageOption) ? (ImageOption)item: null;
+	}
+	@SuppressWarnings("unchecked")
+	public <T>CheckOption<T> findCheckOption(String path){
+		BaseItem item = find(path);
+		return (item instanceof CheckOption) ? (CheckOption<T>)item: null;
+	}
+	@SuppressWarnings("unchecked")
+	public <T>SwitchOption<T> findSwitchOption(String path){
+		BaseItem item = find(path);
+		return (item instanceof SwitchOption) ? (SwitchOption<T>)item: null;
+	}
 	public List<BaseItem> getChilds() {
 		return Lists.newArrayList(items.values());
 	}

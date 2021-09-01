@@ -1,8 +1,15 @@
 package gu.dtalk;
 
 import java.util.Map;
+import java.util.Set;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.util.TypeUtils;
+import com.google.common.collect.Sets;
+
+import static gu.dtalk.CommonConstant.*;
 
 public enum OptionType {
 	AUTO,
@@ -19,37 +26,68 @@ public enum OptionType {
 	/** base64 格式JPEG/BMP/PNG格式图像 */IMAGE,
 	/** 多选项(n>1) */MULTICHECK,
 	/** 单选开关(n>2) */SWITCH;
-	public static BaseOption<?> parseOption(Map<String,Object> t){
-		OptionType optionType = OptionType.valueOf((String) t.get("type"));
+	public static BaseOption<?> parseOption(Map<String,Object> json){
+		OptionType optionType = OptionType.valueOf((String) json.get(OPTION_FIELD_TYPE));
 		switch(optionType){
 		case STRING:
-			return TypeUtils.castToJavaBean(t, StringOption.class);
+			return TypeUtils.castToJavaBean(json, StringOption.class);
 		case INTEGER:
-			return TypeUtils.castToJavaBean(t, IntOption.class);
+			return TypeUtils.castToJavaBean(json, IntOption.class);
 		case FLOAT:
-			return TypeUtils.castToJavaBean(t, FloatOption.class);
+			return TypeUtils.castToJavaBean(json, FloatOption.class);
 		case BOOL:
-			return TypeUtils.castToJavaBean(t, BoolOption.class);
+			return TypeUtils.castToJavaBean(json, BoolOption.class);
 		case DATE:
-			return TypeUtils.castToJavaBean(t, DateOption.class);
+			return TypeUtils.castToJavaBean(json, DateOption.class);
 		case URL:
-			return TypeUtils.castToJavaBean(t, UrlOption.class);
+			return TypeUtils.castToJavaBean(json, UrlOption.class);
 		case PASSWORD:
-			return TypeUtils.castToJavaBean(t, PasswordOption.class);
+			return TypeUtils.castToJavaBean(json, PasswordOption.class);
 		case BASE64:
-			return TypeUtils.castToJavaBean(t, Base64Option.class);
+			return TypeUtils.castToJavaBean(json, Base64Option.class);
 		case MAC:
-			return TypeUtils.castToJavaBean(t, MACOption.class);
+			return TypeUtils.castToJavaBean(json, MACOption.class);
 		case IP:
-			return TypeUtils.castToJavaBean(t, IPv4Option.class);
+			return TypeUtils.castToJavaBean(json, IPv4Option.class);
 		case IMAGE:
-			return TypeUtils.castToJavaBean(t, ImageOption.class);
-		case MULTICHECK:
-			return TypeUtils.castToJavaBean(t, CheckOption.class);
-		case SWITCH:
-			return TypeUtils.castToJavaBean(t, SwitchOption.class);
+			return TypeUtils.castToJavaBean(json, ImageOption.class);
+		case MULTICHECK:{
+			refreshValue4IntSet(json);
+			return TypeUtils.castToJavaBean(json, CheckOption.class);
+		}
+		case SWITCH:{
+			refreshValue4IntSet(json);
+			return TypeUtils.castToJavaBean(json, SwitchOption.class);
+		}
 		default :
 			throw new IllegalArgumentException("INVALID OptionType");
-		}		
+		}
+	}
+	
+	/**
+	 * 重新解析value字段为Set<Integer>类型
+	 * @param json
+	 */
+	private static void refreshValue4IntSet(Map<String,Object> json){
+		String value = json.get(OPTION_FIELD_VALUE).toString();
+		try{
+			Set<Integer> parsed = JSON.parseObject(value,
+					new TypeReference<Set<Integer>>(){}.getType());
+			json.put(OPTION_FIELD_VALUE, parsed);
+			return ;
+		}catch (JSONException e) {
+			try {
+				json.put(OPTION_FIELD_VALUE, Sets.newHashSet(JSON.parseObject(value,Integer.class)));	
+			} catch (JSONException e2) {
+				String[] list = value.split("\\s*[,;]\\s*");
+				try{
+					Set<Integer> parsed = JSON.parseObject(JSON.toJSONString(list),
+							new TypeReference<Set<Integer>>(){}.getType());
+					json.put(OPTION_FIELD_VALUE, parsed);
+				}catch (JSONException e3) {
+					throw e;
+				}
+			}
+		}
 	}
 }
