@@ -73,7 +73,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	}
 
 	public synchronized BaseOption<T> setValidator(Predicate<T> validator) {
-		if(validator!=null){
+		if(validator != null){
 			this.valueValidator = validator;
 		}
 		return this;

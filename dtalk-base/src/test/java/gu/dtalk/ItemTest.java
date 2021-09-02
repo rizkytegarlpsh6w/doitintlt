@@ -1,5 +1,7 @@
 package gu.dtalk;
 
+import static gu.dtalk.CommonConstant.OPTION_FIELD_VALUE;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +10,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import gu.simplemq.json.BaseJsonEncoder;
+import net.gdface.utils.FaceUtilits;
 
 public class ItemTest {
 	private Logger logger = LoggerFactory.getLogger(ItemTest.class);
@@ -27,7 +30,19 @@ public class ItemTest {
 	@Test
 	public void test2Json(){
 		int intarray[] = {1,2,4};
-		logger.info("json of int array {}",JSON.toJSONString(intarray));
-		
+		logger.info("json of int array {}",JSON.toJSONString(intarray));		
+	}
+	@Test
+	public void test3IP(){
+		String ipaddress = "127.0.0.1";
+		String ip = "[" + ipaddress.replace(".", ",") + "]";
+		byte[] parsed = JSON.parseObject(ip,	byte[].class);
+		logger.info("pares = {}",parsed);
+	}
+	@Test
+	public void test4MAC(){
+		String macstr = "00:4f:Fe:ea:98:3a";
+		String hex = macstr.replace(":", "");
+		logger.info("mac hex ={}",FaceUtilits.hex2Bytes(hex));
 	}
 }

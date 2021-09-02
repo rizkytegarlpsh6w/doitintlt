@@ -57,6 +57,8 @@ public class DemoMenu extends RootMenu{
 					.addChilds(
 							ItemBuilder.builder(DateOption.class).name("date").uiName("日期测试").instance().setValue(new Date()),
 							ItemBuilder.builder(BoolOption.class).name("bool").uiName("BOOL测试").instance().setValue(true),
+							ItemBuilder.builder(IPv4Option.class).name("ipv4").uiName("IPV4测试").instance().setValue(new byte[]{127,0,0,1}),
+							ItemBuilder.builder(MACOption.class).name("mac").uiName("MAC测试").instance().setValue(new byte[]{22,35,17,19,97,88}),
 							new ItemBuilder<>(new SwitchOption<Float>()).name("swith").uiName("SWITCH测试").instance()
 							.addOption(0f, "zero")
 							.addOption(0.5f, "half")
