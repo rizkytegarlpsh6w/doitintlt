@@ -76,6 +76,9 @@ public enum OptionType {
 	 * @param json
 	 */
 	private static void refreshValue4IntSet(Map<String,Object> json){
+		if(!json.containsKey(OPTION_FIELD_VALUE)){
+			return;
+		}
 		String value = json.get(OPTION_FIELD_VALUE).toString();
 		try{
 			Set<Integer> parsed = JSON.parseObject(value,
@@ -103,7 +106,9 @@ public enum OptionType {
 	 * @param json
 	 */
 	private static void refreshValue4Ipv4(Map<String,Object> json){		
-		
+		if(!json.containsKey(OPTION_FIELD_VALUE)){
+			return;
+		}
 		Object obj = json.get(OPTION_FIELD_VALUE);
 		try{
 			if(IPv4Option.STR_VALIDATOR.apply(obj.toString())){
@@ -128,7 +133,9 @@ public enum OptionType {
 	 * @param json
 	 */
 	private static void refreshValue4MAC(Map<String,Object> json){		
-		
+		if(!json.containsKey(OPTION_FIELD_VALUE)){
+			return;
+		}
 		Object obj = json.get(OPTION_FIELD_VALUE);
 		try{
 			if(MACOption.STR_VALIDATOR.apply(obj.toString())){
