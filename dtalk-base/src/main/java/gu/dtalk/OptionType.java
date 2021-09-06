@@ -49,21 +49,25 @@ public enum OptionType {
 		case BASE64:
 			return TypeUtils.castToJavaBean(json, Base64Option.class);
 		case MAC:{
-			refreshValue4MAC(json);
+			refreshValue4MAC(json,OPTION_FIELD_VALUE);
+			refreshValue4MAC(json,OPTION_FIELD_DEFAULT);
 			return TypeUtils.castToJavaBean(json, MACOption.class);
 		}
 		case IP:{
-			refreshValue4Ipv4(json);
+			refreshValue4Ipv4(json,OPTION_FIELD_VALUE);
+			refreshValue4Ipv4(json,OPTION_FIELD_DEFAULT);
 			return TypeUtils.castToJavaBean(json, IPv4Option.class);
 		}
 		case IMAGE:
 			return TypeUtils.castToJavaBean(json, ImageOption.class);
 		case MULTICHECK:{
-			refreshValue4IntSet(json);
+			refreshValue4IntSet(json,OPTION_FIELD_VALUE);
+			refreshValue4IntSet(json,OPTION_FIELD_DEFAULT);
 			return TypeUtils.castToJavaBean(json, CheckOption.class);
 		}
 		case SWITCH:{
-			refreshValue4IntSet(json);
+			refreshValue4IntSet(json,OPTION_FIELD_VALUE);
+			refreshValue4IntSet(json,OPTION_FIELD_DEFAULT);
 			return TypeUtils.castToJavaBean(json, SwitchOption.class);
 		}
 		default :
@@ -75,25 +79,25 @@ public enum OptionType {
 	 * 重新解析value字段为Set<Integer>类型
 	 * @param json
 	 */
-	private static void refreshValue4IntSet(Map<String,Object> json){
-		if(!json.containsKey(OPTION_FIELD_VALUE)){
+	private static void refreshValue4IntSet(Map<String,Object> json,String name){
+		if( null == json.get(name)){
 			return;
 		}
-		String value = json.get(OPTION_FIELD_VALUE).toString();
+		String value = json.get(name).toString();
 		try{
 			Set<Integer> parsed = JSON.parseObject(value,
 					new TypeReference<Set<Integer>>(){}.getType());
-			json.put(OPTION_FIELD_VALUE, parsed);
+			json.put(name, parsed);
 			return ;
 		}catch (JSONException e) {
 			try {
-				json.put(OPTION_FIELD_VALUE, Sets.newHashSet(JSON.parseObject(value,Integer.class)));	
+				json.put(name, Sets.newHashSet(JSON.parseObject(value,Integer.class)));	
 			} catch (JSONException e2) {
 				String[] list = value.split("[,;\\s]+");
 				try{
 					Set<Integer> parsed = JSON.parseObject(JSON.toJSONString(list),
 							new TypeReference<Set<Integer>>(){}.getType());
-					json.put(OPTION_FIELD_VALUE, parsed);
+					json.put(name, parsed);
 				}catch (JSONException e3) {
 					throw e;
 				}
@@ -105,11 +109,11 @@ public enum OptionType {
 	 * 重新解析value字段为ipv4类型,允许输入格式为127.0.0.1格式的ip地址
 	 * @param json
 	 */
-	private static void refreshValue4Ipv4(Map<String,Object> json){		
-		if(!json.containsKey(OPTION_FIELD_VALUE)){
+	private static void refreshValue4Ipv4(Map<String,Object> json,String name){		
+		if(null == json.get(name)){
 			return;
 		}
-		Object obj = json.get(OPTION_FIELD_VALUE);
+		Object obj = json.get(name);
 		try{
 			if(IPv4Option.STR_VALIDATOR.apply(obj.toString())){
 				String ip = "[" + obj.toString().replace(".", ",") + "]";
@@ -119,7 +123,7 @@ public enum OptionType {
 				for(int i = 0; i < parseByte.length; ++i){
 					parseByte[i] = (byte) (parsedInt[i] & 0xff);
 				}
-				json.put(OPTION_FIELD_VALUE, parseByte);
+				json.put(name, parseByte);
 			}else{
 				byte[] parsed = TypeUtils.castToBytes(obj);
 				checkArgument(IPv4Option.VALIDATOR.apply(parsed),"INVALID IPv4 address");
@@ -132,15 +136,15 @@ public enum OptionType {
 	 * 重新解析value字段为MAC类型,允许输入格式为ff:20:20:20:20:20格式的ip地址
 	 * @param json
 	 */
-	private static void refreshValue4MAC(Map<String,Object> json){		
-		if(!json.containsKey(OPTION_FIELD_VALUE)){
+	private static void refreshValue4MAC(Map<String,Object> json,String name){		
+		if(null == json.get(name)){
 			return;
 		}
-		Object obj = json.get(OPTION_FIELD_VALUE);
+		Object obj = json.get(name);
 		try{
 			if(MACOption.STR_VALIDATOR.apply(obj.toString())){
 				String hex = obj.toString().replace(":", "");
-				json.put(OPTION_FIELD_VALUE, FaceUtilits.hex2Bytes(hex));
+				json.put(name, FaceUtilits.hex2Bytes(hex));
 			}else{
 				byte[] parsed = TypeUtils.castToBytes(obj);
 				checkArgument(MACOption.VALIDATOR.apply(parsed),"INVALID MAC address");
