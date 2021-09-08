@@ -16,15 +16,9 @@ public class IPv4Option extends BaseBinary {
 			return input != null && input.length==4;
 		}
 	};
-	public static final Predicate<String> STR_VALIDATOR = new Predicate<String>() {
-		@Override
-		public boolean apply(String input) {
-			return input != null
-					&& input.matches("^((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))$");
-		}
-	};
 	public IPv4Option() {
 		setValidator(VALIDATOR);
+		setStringTransformer(getType().<byte[]>trans());
 	}
 	@Override
 	public OptionType getType() {

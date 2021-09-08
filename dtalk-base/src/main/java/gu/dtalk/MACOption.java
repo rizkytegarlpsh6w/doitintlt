@@ -16,14 +16,9 @@ public class MACOption extends BaseBinary {
 			return input != null && input.length == 6;
 		}
 	};
-	public static final Predicate<String> STR_VALIDATOR = new Predicate<String>() {
-		@Override
-		public boolean apply(String input) {
-			return input != null && input.matches("^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$");
-		}
-	};
 	public MACOption() {
 		setValidator(VALIDATOR);
+		setStringTransformer(getType().<byte[]>trans());
 	}
 
 	@Override
