@@ -18,9 +18,7 @@ public class MACOption extends BaseBinary {
 	};
 	public MACOption() {
 		setValidator(VALIDATOR);
-		setStringTransformer(getType().<byte[]>trans());
 	}
-
 	@Override
 	public OptionType getType() {
 		return OptionType.MAC;

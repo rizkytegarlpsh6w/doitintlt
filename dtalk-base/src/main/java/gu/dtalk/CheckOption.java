@@ -43,7 +43,6 @@ public class CheckOption<E> extends BaseOption<Set<Integer>> {
 	public CheckOption() {
 		super(new TypeReference<Set<Integer>>() {}.getType());
 		super.setValidator(checkValidator);
-		setStringTransformer(getType().<Set<Integer>>trans());
 	}
 
 	public CheckOption<E> addOption(E opt,String desc){

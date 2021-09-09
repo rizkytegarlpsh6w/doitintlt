@@ -3,13 +3,9 @@ package gu.dtalk;
 import java.lang.reflect.Type;
 import java.util.Collection;
 
-import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-
-import gu.simplemq.json.BaseJsonEncoder;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -21,8 +17,6 @@ public abstract class BaseOption<T> extends BaseItem {
 	protected final Type type;
 	@JSONField(serialize = false,deserialize = false)
 	private Predicate<T> valueValidator = Predicates.alwaysTrue();
-	@JSONField(serialize = false,deserialize = false)
-	private Function<String, T> stringTransformer ;
 	public BaseOption(Type type) {
 		super();
 		this.type = checkNotNull(type);
@@ -99,29 +93,11 @@ public abstract class BaseOption<T> extends BaseItem {
 		return optionValue == null ? "": optionValue.toString();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public T fromString(String input){
-		try {
-			return (T) BaseJsonEncoder.getEncoder().fromJson(input, type);
-		} catch (JSONException e) {
-			if(stringTransformer != null){
-				checkArgument(getType().strValidator.apply(input),"INVALID FORMAT for %s", getType().name());
-				return stringTransformer.apply(input);
-			}
-			throw e;
-		}
-	}
 	public BaseOption<T> asValue(String input){
-		return setValue(fromString(input));
+		return setValue(getType().<T>trans().apply(input));
 	}
 	public BaseOption<T> asDefaultValue(String input){
-		return setDefaultValue(fromString(input));
+		return setDefaultValue(getType().<T>trans().apply(input));
 	}
-	public Function<String, T> getStringTransformer() {
-		return stringTransformer;
-	}
-	public BaseOption<T> setStringTransformer(Function<String, T> stringTransformer) {
-		this.stringTransformer = stringTransformer;
-		return this;
-	}
+
 }

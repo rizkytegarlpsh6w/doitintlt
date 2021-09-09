@@ -18,7 +18,6 @@ public class IPv4Option extends BaseBinary {
 	};
 	public IPv4Option() {
 		setValidator(VALIDATOR);
-		setStringTransformer(getType().<byte[]>trans());
 	}
 	@Override
 	public OptionType getType() {

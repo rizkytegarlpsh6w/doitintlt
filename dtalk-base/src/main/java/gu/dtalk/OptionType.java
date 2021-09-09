@@ -29,14 +29,13 @@ public enum OptionType {
 	/** 日期  yyyy-MM-dd HH:mm:ss  */DATE(DateOption.class),
 	/** url字符串 */URL(UrlOption.class),
 	/** 密码字符串 */PASSWORD(PasswordOption.class),
+	/** EMAIL */EMAIL(StringOption.class,"^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$"),
 	/** base64 格式二进制数据 */BASE64(Base64Option.class),
 	/** MAC地址二进制数据 */MAC(MACOption.class, "^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$"),
 	/** IP地址二进制数据 */IP(IPv4Option.class,"^((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))$"),
 	/** base64 格式JPEG/BMP/PNG格式图像 */IMAGE(ImageOption.class),
-	/** 多选项(n>1) */@SuppressWarnings("unchecked")
-	MULTICHECK(CheckOption.class,"^\\s*(\\d+)?([,;\\s]+\\d+)?\\s*$"),
-	/** 单选开关(n>1) */@SuppressWarnings("unchecked")
-	SWITCH(SwitchOption.class,"^\\s*\\d+\\s*$");
+	/** 多选项(n>1) */@SuppressWarnings("unchecked")MULTICHECK(CheckOption.class,"^\\s*(\\d+)?([,;\\s]+\\d+)?\\s*$"),
+	/** 单选开关(n>1) */@SuppressWarnings("unchecked")SWITCH(SwitchOption.class,"^\\s*\\d+\\s*$");
 	final String regex;
 	private volatile Type targetType;
 	@SuppressWarnings("rawtypes")
@@ -58,6 +57,11 @@ public enum OptionType {
 		}
 	};
 	private static final Cache<OptionType, Function<String, ?>> cache = CacheBuilder.newBuilder().build();
+	/**
+	 * 返回从字符串转到指定类型的转换器实例<br>
+	 * 如果输入的字符串格式无效则抛出异常
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	private <T> Function<String, T> internalTrans(){
 
@@ -68,11 +72,9 @@ public enum OptionType {
 
 				@Override
 				public byte[] apply(String input) {
-					if(strValidator.apply(input)){
-						String hex = input.replace(":", "");
-						return FaceUtilits.hex2Bytes(hex);
-					}
-					return null;
+					checkArgument(strValidator.apply(input),"INVALID FORMAT '%s' FOR %s", input,OptionType.this.name());
+					String hex = input.replace(":", "");
+					return FaceUtilits.hex2Bytes(hex);
 				}};
 		case IP:
 			// 解析value字段为ipv4类型,允许输入格式为127.0.0.1格式的ip地址
@@ -80,16 +82,16 @@ public enum OptionType {
 				
 				@Override
 				public byte[] apply(String input) {
-					if(strValidator.apply(input)){
-						String[] ip = input.split("\\.");
-						// [192,168,1,1]这样的数组大于127的值直接解析为byte会溢出，所以要先解析为int[]再转为byte[]
-						byte[] parseByte = new byte[ip.length];
-						for(int i = 0; i < parseByte.length; ++i){
-							parseByte[i] = (byte) (Integer.valueOf(ip[i]) & 0xff);
-						}
-						return parseByte;
+					checkArgument(strValidator.apply(input),"INVALID FORMAT '%s' FOR %s", input,OptionType.this.name());
+
+					String[] ip = input.split("\\.");
+					// [192,168,1,1]这样的数组大于127的值直接解析为byte会溢出，所以要先解析为int[]再转为byte[]
+					byte[] parseByte = new byte[ip.length];
+					for(int i = 0; i < parseByte.length; ++i){
+						parseByte[i] = (byte) (Integer.valueOf(ip[i]) & 0xff);
 					}
-					return null;
+					return parseByte;
+				
 				}
 			};
 		case MULTICHECK:
@@ -99,17 +101,16 @@ public enum OptionType {
 
 				@Override
 				public Set<Integer> apply(String input) {
-					if(strValidator.apply(input)){
-						String[] numlist = input.split("[;,\\s]+");
-						HashSet<Integer> set = Sets.newHashSet();
-						for(String num:numlist){
-							if(num.trim().isEmpty()){
-								set.add(Integer.valueOf(num.trim()));
-							}
+					checkArgument(strValidator.apply(input),"INVALID FORMAT '%s' FOR %s", input,OptionType.this.name());
+
+					String[] numlist = input.split("[;,\\s]+");
+					HashSet<Integer> set = Sets.newHashSet();
+					for(String num:numlist){
+						if(num.trim().isEmpty()){
+							set.add(Integer.valueOf(num.trim()));
 						}
-						return set;
 					}
-					return null;
+					return set;
 				}}; 		
 		default:
 			return new DefaultStringTransformer<>(getTargetType());
@@ -120,6 +121,7 @@ public enum OptionType {
 	/**
 	 * 返回对应类型String到目标数据类型的转换器
 	 * @return
+	 * @see #internalTrans()
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> Function<String, T> trans(){
@@ -147,14 +149,23 @@ public enum OptionType {
 			if(null != json.get(name)){
 
 				String valuestr = json.get(name).toString();
-
-				Object parsed = t.apply(valuestr);
-				if(parsed != null){
-					json.put(name, parsed);
+				try {
+					Object parsed = t.apply(valuestr);
+					if(parsed != null){
+						json.put(name, parsed);
+					}	
+				} catch (Exception e) {
 				}
+				
 			}
 		}
 	}
+	/**
+	 * 默认字符串到T类型的转换器
+	 * @author guyadong
+	 *
+	 * @param <T>
+	 */
 	private class DefaultStringTransformer<T> implements Function<String, T>{
 		
 		private final Type type;
@@ -162,6 +173,10 @@ public enum OptionType {
 			super();
 			this.type = checkNotNull(type,"type is null");
 		}
+		/**
+		 * 调用fastjson对输入字符串解析返回指定类型的对象，如果格式不对则抛出异常
+		 * @see com.google.common.base.Function#apply(java.lang.Object)
+		 */
 		@Override
 		public T apply(String input) {
 			return BaseJsonEncoder.getEncoder().fromJson(input, type);
@@ -177,7 +192,7 @@ public enum OptionType {
 	public Type getTargetType() {
 		if(null == targetType){
 			synchronized (this) {
-				if (targetType != null) {
+				if (targetType == null) {
 					try {
 						targetType = implClass.newInstance().type;
 					} catch (Exception e) {

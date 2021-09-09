@@ -4,11 +4,11 @@ import gu.dtalk.IntOption;
 import gu.dtalk.ItemBuilder;
 import gu.dtalk.MACOption;
 import gu.dtalk.MenuItem;
+import gu.dtalk.OptionType;
 import gu.dtalk.PasswordOption;
 import gu.dtalk.RootMenu;
 import gu.dtalk.StringOption;
 import gu.dtalk.SwitchOption;
-import net.gdface.utils.FaceUtilits;
 
 import static gu.dtalk.CommonConstant.*;
 import static gu.dtalk.engine.SampleConnector.DEVINFO_PROVIDER;
@@ -57,8 +57,9 @@ public class DemoMenu extends RootMenu{
 					.addChilds(
 							ItemBuilder.builder(DateOption.class).name("date").uiName("日期测试").instance().setValue(new Date()),
 							ItemBuilder.builder(BoolOption.class).name("bool").uiName("BOOL测试").instance().setValue(true),
-							ItemBuilder.builder(IPv4Option.class).name("ipv4").uiName("IPV4测试").instance().setValue(new byte[]{127,0,0,1}),
-							ItemBuilder.builder(MACOption.class).name("mac").uiName("MAC测试").instance().setValue(new byte[]{22,35,17,19,97,88}),
+							ItemBuilder.builder(IPv4Option.class).name("ipv4").uiName("IPV4测试").instance().asValue("127.0.0.1"),
+							ItemBuilder.builder(MACOption.class).name("mac").uiName("MAC测试").instance().asValue("22:35:ff:e0:3f:ab"),
+							ItemBuilder.builder(OptionType.EMAIL).name("email").uiName("email测试").instance().asValue("my@hello.com"),
 							new ItemBuilder<>(new SwitchOption<Float>()).name("swith").uiName("SWITCH测试").instance()
 							.addOption(0f, "zero")
 							.addOption(0.5f, "half")
