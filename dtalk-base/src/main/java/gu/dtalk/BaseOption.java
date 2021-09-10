@@ -25,6 +25,9 @@ public abstract class BaseOption<T> extends BaseItem {
 		return type;
 	}
 	public abstract OptionType getType();
+	BaseOption<T> setType(OptionType type){
+		return this;
+	}
 	public boolean isReadOnly() {
 		return readOnly;
 	}

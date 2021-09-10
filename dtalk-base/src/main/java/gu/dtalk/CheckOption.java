@@ -121,4 +121,7 @@ public class CheckOption<E> extends BaseOption<Set<Integer>> {
 		this.options.clear();
 		this.options.putAll(options);
 	}
+	public BaseOption<Set<Integer>> setValue(Integer ...selects){
+		return setValue(Sets.newHashSet(selects));
+	}
 }

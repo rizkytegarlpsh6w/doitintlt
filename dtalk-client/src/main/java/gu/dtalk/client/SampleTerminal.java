@@ -1,6 +1,5 @@
 package gu.dtalk.client;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Scanner;
@@ -144,33 +143,7 @@ public class SampleTerminal {
 		}
 		return "";
 	}
-/*	private static String scanLine(Predicate<String>validate){
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); 
-		try{
-			return scanLine(validate,reader);
-		}finally {
-			try {
-				reader.close();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}*/
-	private static String scanLine(Predicate<String>validate,BufferedReader reader){
-		try{
-			do{
-				String str = reader.readLine();
-				if(str.isEmpty()){
-					return "";
-				}
-				if(validate.apply(str)){
-					return str;
-				}
-			}while(true);
-		}catch (IOException e) {
-			return "";
-		}
-	}
+
 	/**
 	 * 输入目标设备的MAC地址
 	 * @return

@@ -67,13 +67,11 @@ public class ItemBuilder<T extends BaseItem> {
 			throw new RuntimeException(e);
 		}
 	}
-	public static <T, O extends BaseOption<T>>ItemBuilder<O> builder(OptionType optionType) {
-		@SuppressWarnings("unchecked")
-		Class<O> type = (Class<O>) checkNotNull(optionType,"type is null").implClass;
-		// 不允许为抽象类
-		checkArgument(!Modifier.isAbstract(type.getModifiers()),"%s is a abstract class",type.getName());
+	@SuppressWarnings("unchecked")
+	public static <V, T extends BaseOption<V>>ItemBuilder<T> builder(OptionType optionType) {
+		Class<T> type = (Class<T>) checkNotNull(optionType,"optionType is null").implClass;
 		try {
-			return new ItemBuilder<O>(type.newInstance());
+			return new ItemBuilder<T>((T) type.newInstance().setType(optionType));
 		} catch (Exception e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
