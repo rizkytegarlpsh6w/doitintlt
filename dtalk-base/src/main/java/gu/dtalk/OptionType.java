@@ -31,7 +31,7 @@ public enum OptionType {
 	INTEGER(IntOption.class),
 	/** 浮点数 */
 	FLOAT(FloatOption.class),
-	/** 布尔型 true/false 0/1 yes/no,on/off */
+	/** 布尔型 true/false 0/1 */
 	BOOL(BoolOption.class),
 	/** 日期  yyyy-MM-dd HH:mm:ss  */
 	DATE(DateOption.class),

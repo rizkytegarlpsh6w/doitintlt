@@ -1,5 +1,7 @@
 package gu.dtalk;
 
+import com.google.common.base.Throwables;
+
 import net.gdface.utils.FaceUtilits;
 
 public abstract class BaseBinary extends BaseOption<byte[]> {
@@ -19,5 +21,40 @@ public abstract class BaseBinary extends BaseOption<byte[]> {
 		}
 		return "BINARY";
 	}
-	
+	@Override
+	public BaseOption<byte[]> asValue(String input) {
+		try {
+			return setValue(FaceUtilits.getBytes(input));
+		} catch (Exception e) {
+			Throwables.throwIfUnchecked(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public BaseOption<byte[]> asDefaultValue(String input) {
+		try {
+			return setDefaultValue(FaceUtilits.getBytes(input));
+		} catch (Exception e) {
+			Throwables.throwIfUnchecked(e);
+			throw new RuntimeException(e);
+		}
+	}
+	public <T>BaseOption<byte[]> asValue(T input) {
+		try {
+			return setValue(FaceUtilits.getBytes(input));
+		} catch (Exception e) {
+			Throwables.throwIfUnchecked(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	public <T>BaseOption<byte[]> asDefaultValue(T input) {
+		try {
+			return setDefaultValue(FaceUtilits.getBytes(input));
+		} catch (Exception e) {
+			Throwables.throwIfUnchecked(e);
+			throw new RuntimeException(e);
+		}
+	}
 }

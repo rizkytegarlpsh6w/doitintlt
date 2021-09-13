@@ -8,7 +8,7 @@ import net.gdface.utils.FaceUtilits;
 
 public class ImageOption extends BaseBinary {
 
-	private BaseLazyImage image;
+	private volatile BaseLazyImage image;
 	public ImageOption() {
 	}
 
@@ -21,8 +21,36 @@ public class ImageOption extends BaseBinary {
 	}
 	public BaseLazyImage imageObj() throws ImageErrorException{
 		if(image == null){
-				image = BaseLazyImage.getLazyImageFactory().create(getValue());
+			synchronized (this) {
+				if(image == null){
+					image = BaseLazyImage.getLazyImageFactory().create(getValue());
+				}
+			}
 		}
 		return image;
 	}
+	public int getWidth(){
+		try {
+			return imageObj().getWidth();
+		} catch (ImageErrorException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+	public int getHeight(){
+		try {
+			return imageObj().getHeight();
+		} catch (ImageErrorException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+	public String getSuffix(){
+		try {
+			return imageObj().getSuffix();
+		} catch (ImageErrorException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+
+	
 }
