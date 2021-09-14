@@ -81,8 +81,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	 * @see #validate(Object)
 	 */
 	public BaseOption<T> setValue(T value)  {
-		checkArgument(null == value || validate(value),"INVALID VALUE");
-		optionValue = (T) value;
+		optionValue = value;
 		return this;
 	}
 	public final T getDefaultValue() {
