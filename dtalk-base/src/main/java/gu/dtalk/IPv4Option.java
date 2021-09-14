@@ -1,6 +1,9 @@
 package gu.dtalk;
 
+import java.net.InetAddress;
+
 import com.google.common.base.Predicate;
+import com.google.common.base.Throwables;
 
 import net.gdface.utils.NetworkUtil;
 
@@ -29,5 +32,23 @@ public class IPv4Option extends BaseBinary {
 			return super.contentOfValue();
 		}
 		return NetworkUtil.formatIp((byte[]) getValue());		
+	}
+	public IPv4Option asValue(InetAddress input) {
+		try {
+			setValue(input.getAddress());
+			return this;
+		} catch (Exception e) {
+			Throwables.throwIfUnchecked(e);
+			throw new RuntimeException(e);
+		}
+	}
+	public IPv4Option asDefaultValue(InetAddress input) {
+		try {
+			setDefaultValue(input.getAddress());
+			return this;
+		} catch (Exception e) {
+			Throwables.throwIfUnchecked(e);
+			throw new RuntimeException(e);
+		}
 	}
 }

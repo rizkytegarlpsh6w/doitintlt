@@ -77,7 +77,6 @@ public class ItemEngine implements ItemAdapter{
 				// 设置参数
 				checkState(!option.isReadOnly(),"READONLY VALUE");
 				Object v = ((BaseOption<?>)req).getValue();
-				checkArgument(option.validate(v),"INVALID VALUE");
 				option.setValue(v);
 				break;
 			}

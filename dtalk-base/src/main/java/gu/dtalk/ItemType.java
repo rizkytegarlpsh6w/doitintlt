@@ -22,6 +22,5 @@ public enum ItemType {
 		default:
 			throw new IllegalArgumentException("UNSUPPORTED CATALOG: " + c); 
 		}
-
 	}
 }

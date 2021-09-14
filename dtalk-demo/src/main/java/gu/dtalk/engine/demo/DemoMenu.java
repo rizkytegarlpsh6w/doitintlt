@@ -4,6 +4,7 @@ import gu.dtalk.IntOption;
 import gu.dtalk.ItemBuilder;
 import gu.dtalk.MACOption;
 import gu.dtalk.MenuItem;
+import gu.dtalk.NumberValidator;
 import gu.dtalk.OptionType;
 import gu.dtalk.PasswordOption;
 import gu.dtalk.RootMenu;
@@ -59,21 +60,21 @@ public class DemoMenu extends RootMenu{
 						ItemBuilder.builder(BoolOption.class).name("bool").uiName("BOOL测试").instance().setValue(true),
 						ItemBuilder.builder(IPv4Option.class).name("ipv4").uiName("IPV4测试").instance().asValue("127.0.0.1"),
 						ItemBuilder.builder(MACOption.class).name("mac").uiName("MAC测试").instance().asValue("22:35:ff:e0:3f:ab"),
-						new ItemBuilder<>(new SwitchOption<Float>()).name("swith").uiName("SWITCH测试").instance()
-						.addOption(0f, "zero")
-						.addOption(0.5f, "half")
-						.addOption(1f, "full")
-						.setSelected(0.5f),
-						new ItemBuilder<>(new CheckOption<String>()).name("check").uiName("CHECK测试").instance()
-											.addOption("中国", "zero")
-											.addOption("俄罗斯", "half")
-											.addOption("美国", "full")
-											.setValue(1),
-						ItemBuilder.builder(OptionType.EMAIL).name("email").uiName("email测试").instance().asValue("my@hello.com"),
-						ItemBuilder.builder(OptionType.MPHONE).name("mobilePhone").uiName("移动电话号码测试").instance().asValue("13611426411"),
-						ItemBuilder.builder(OptionType.IDNUM).name("idnum").uiName("身份证号码测试").instance().asValue("320113199001133483"),
-						ItemBuilder.builder(OptionType.INTEGER).name("integer").uiName("数字测试").instance().asValue("133483")
-
+						ItemBuilder.builder(new SwitchOption<Float>()).name("swith").uiName("SWITCH测试").instance()
+							.addOption(0f, "zero")
+							.addOption(0.5f, "half")
+							.addOption(1f, "full")
+							.setSelected(0.5f),
+						ItemBuilder.builder(new CheckOption<String>()).name("check").uiName("CHECK测试").instance()
+							.addOption("中国", "zero")
+							.addOption("俄罗斯", "half")
+							.addOption("美国", "full")
+							.setValue(1),
+						OptionType.EMAIL.builder().name("email").uiName("email测试").instance().asValue("my@hello.com"),
+						OptionType.MPHONE.builder().name("mphone").uiName("移动电话号码测试").instance().asValue("13611426411"),
+						OptionType.IDNUM.builder().name("idnum").uiName("身份证号码测试").instance().asValue("320113199001133483"),
+						OptionType.INTEGER.builder().name("integer").uiName("数字测试").instance().asValue("133483")
+											.setValidator(NumberValidator.makeValidator(1024,256,128))
 						)
 				.instance();
 		addChilds(device,redis,test);

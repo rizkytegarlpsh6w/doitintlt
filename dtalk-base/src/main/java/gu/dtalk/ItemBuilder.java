@@ -10,12 +10,11 @@ import com.google.common.base.Throwables;
 
 public class ItemBuilder<T extends BaseItem> {
 
-	private final T item;
+	protected final T item;
 	public ItemBuilder(T item) {
 		super();
 		this.item = item;
 	}
-
 	public ItemBuilder<T> name(String name) {
 		item.setName(name);
 		return this;
@@ -57,6 +56,9 @@ public class ItemBuilder<T extends BaseItem> {
 	public T instance(){
 		return item;
 	}
+	public static <T extends BaseItem>ItemBuilder<T> builder(T instance) {
+		return new ItemBuilder<T>(checkNotNull(instance,"instance is null"));
+	}
 	public static <T extends BaseItem>ItemBuilder<T> builder(Class<T> type) {
 		// 不允许为抽象类
 		checkArgument(!Modifier.isAbstract(type.getModifiers()),"%s is a abstract class",type.getName());
@@ -68,8 +70,8 @@ public class ItemBuilder<T extends BaseItem> {
 		}
 	}
 	@SuppressWarnings("unchecked")
-	public static <V, T extends BaseOption<V>>ItemBuilder<T> builder(OptionType optionType) {
-		Class<T> type = (Class<T>) checkNotNull(optionType,"optionType is null").implClass;
+	public static <V, T extends BaseOption<V>>ItemBuilder<T> optBuilder(OptionType optionType,Class<T> targetType) {
+		Class<T> type = (Class<T>) checkNotNull(optionType,"optionType is null").optClass;
 		try {
 			return new ItemBuilder<T>((T) type.newInstance().setType(optionType));
 		} catch (Exception e) {

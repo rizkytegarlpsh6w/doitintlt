@@ -1,6 +1,9 @@
 package gu.dtalk;
 
+import java.net.NetworkInterface;
+
 import com.google.common.base.Predicate;
+import com.google.common.base.Throwables;
 
 import net.gdface.utils.NetworkUtil;
 
@@ -31,5 +34,22 @@ public class MACOption extends BaseBinary {
 		}
 		return NetworkUtil.formatMac((byte[]) getValue(), ":");		
 	}
-
+	public MACOption asValue(NetworkInterface input) {
+		try {
+			setValue(input.getHardwareAddress());
+			return this;
+		} catch (Exception e) {
+			Throwables.throwIfUnchecked(e);
+			throw new RuntimeException(e);
+		}
+	}
+	public MACOption asDefaultValue(NetworkInterface input) {
+		try {
+			setDefaultValue(input.getHardwareAddress());
+			return this;
+		} catch (Exception e) {
+			Throwables.throwIfUnchecked(e);
+			throw new RuntimeException(e);
+		}
+	}
 }

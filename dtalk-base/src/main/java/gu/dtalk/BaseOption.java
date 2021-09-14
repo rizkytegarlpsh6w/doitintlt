@@ -9,12 +9,20 @@ import com.google.common.base.Predicates;
 
 import static com.google.common.base.Preconditions.*;
 
+/**
+ * @author guyadong
+ *
+ * @param <T> 实例封装的数据类型
+ */
 public abstract class BaseOption<T> extends BaseItem {
 	private T optionValue;
 	private T defaultValue;
-	private boolean reqiured;
+	private boolean required;
 	private boolean readOnly;
 	protected final Type type;
+	/**
+	 * 数据值验证器，默认不验证直接返回true
+	 */
 	@JSONField(serialize = false,deserialize = false)
 	private Predicate<T> valueValidator = Predicates.alwaysTrue();
 	public BaseOption(Type type) {
@@ -52,7 +60,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	/**
 	 * 验证value是否有效
 	 * @param value
-	 * @return
+	 * @return 成功返回true，否则返回false
 	 */
 	@SuppressWarnings("unchecked")
 	public boolean validate(Object value){
@@ -65,18 +73,39 @@ public abstract class BaseOption<T> extends BaseItem {
 	public final T getValue() {
 		return	optionValue;
 	}
-	public BaseOption<T> setValue(T value) {
+	/**
+	 * 设置指定的值，同时验证数据有效性，失败抛出异常
+	 * @param value
+	 * @return
+	 * @throws IllegalArgumentException 数值验证失败
+	 * @see #validate(Object)
+	 */
+	public BaseOption<T> setValue(T value)  {
+		checkArgument(null == value || validate(value),"INVALID VALUE");
 		optionValue = (T) value;
 		return this;
 	}
 	public final T getDefaultValue() {
 		return defaultValue;
 	}
+	/**
+	 * 设置默认值，同时验证数据有效性，失败抛出异常
+	 * @param defaultValue
+	 * @return
+	 * @throws IllegalArgumentException 数值验证失败
+	 * @see #validate(Object)
+	 */
 	public BaseOption<T> setDefaultValue(T defaultValue) {
+		checkArgument(null == defaultValue || validate(defaultValue),"INVALID DEFAULT VALUE");
 		this.defaultValue = defaultValue;
 		return this;
 	}
 
+	/**
+	 * 设置数据验证器
+	 * @param validator 为null忽略
+	 * @return
+	 */
 	public synchronized BaseOption<T> setValidator(Predicate<T> validator) {
 		if(validator != null){
 			this.valueValidator = validator;
@@ -84,21 +113,33 @@ public abstract class BaseOption<T> extends BaseItem {
 		return this;
 	}
 
-	public boolean isReqiured() {
-		return reqiured;
+	public boolean isRequired() {
+		return required;
 	}
 
-	public BaseOption<T> setReqiured(boolean reqiured) {
-		this.reqiured = reqiured;
+	public BaseOption<T> setRequired(boolean required) {
+		this.required = required;
 		return this;
 	}	
 	public String contentOfValue(){
 		return optionValue == null ? "": optionValue.toString();
 	}
 	
+	/**
+	 * 以字符串形式设置值
+	 * @param input 如果不符合数据类型的格式则抛出异常
+	 * @return
+	 * @see OptionType#trans()
+	 */
 	public BaseOption<T> asValue(String input){
 		return setValue(getType().<T>trans().apply(input));
 	}
+	/**
+	 * 以字符串形式设置默认值
+	 * @param input 如果不符合数据类型的格式则抛出异常
+	 * @return
+	 * @see OptionType#trans()
+	 */
 	public BaseOption<T> asDefaultValue(String input){
 		return setDefaultValue(getType().<T>trans().apply(input));
 	}

@@ -21,25 +21,7 @@ public abstract class BaseBinary extends BaseOption<byte[]> {
 		}
 		return "BINARY";
 	}
-	@Override
-	public BaseOption<byte[]> asValue(String input) {
-		try {
-			return setValue(FaceUtilits.getBytes(input));
-		} catch (Exception e) {
-			Throwables.throwIfUnchecked(e);
-			throw new RuntimeException(e);
-		}
-	}
 
-	@Override
-	public BaseOption<byte[]> asDefaultValue(String input) {
-		try {
-			return setDefaultValue(FaceUtilits.getBytes(input));
-		} catch (Exception e) {
-			Throwables.throwIfUnchecked(e);
-			throw new RuntimeException(e);
-		}
-	}
 	public <T>BaseOption<byte[]> asValue(T input) {
 		try {
 			return setValue(FaceUtilits.getBytes(input));

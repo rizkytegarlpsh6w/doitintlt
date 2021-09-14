@@ -5,7 +5,7 @@ public class MenuItem extends BaseItem {
 	public MenuItem() {
 		items.clear();
 		CmdItem back = makeBack();
-		// Îª²Ëµ¥ÏîÌí¼Ó·µ»ØÏî
+		// ä¸ºèœå•é¡¹æ·»åŠ è¿”å›é¡¹
 		items.put(back.getName(), back);
 	}
 

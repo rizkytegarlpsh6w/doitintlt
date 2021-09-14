@@ -39,9 +39,9 @@ public enum OptionType {
 	URL(UrlOption.class),
 	/** 密码字符串 */
 	PASSWORD(PasswordOption.class),
-	/** EMAIL */
+	/** e-mail地址 */
 	EMAIL(StringOption.class,"^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$"),
-	/** 手机号码 */
+	/** 手机号码(11位) */
 	MPHONE(StringOption.class,"^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\\d{8}$"),
 	/** 身份证号(15位、18位数字)，最后一位是校验位，可能为数字或字符X */
 	IDNUM(StringOption.class,"(^\\d{15}$)|(^\\d{18}$)|(^\\d{17}(\\d|X|x)$)"),
@@ -61,15 +61,22 @@ public enum OptionType {
 	SWITCH(SwitchOption.class,"^\\s*\\d+\\s*$");
 	final String regex;
 	private volatile Type targetType;
+	/**
+	 * 实现数据选项的类
+	 */
 	@SuppressWarnings("rawtypes")
-	final Class<? extends BaseOption> implClass;
+	final Class<? extends BaseOption> optClass;
 	private <T,B extends BaseOption<T>>OptionType(Class<B> implClass) {
 		this(implClass,"");
 	}
 	private <T,B extends BaseOption<T>>OptionType(Class<B> implClass,String regex) {
-		this.implClass = checkNotNull(implClass,"implClass is null");
+		this.optClass = checkNotNull(implClass,"implClass is null");
 		this.regex = checkNotNull(regex,"regex is null");
 	}
+	/**
+	 * 字符串验证器,根据正则表达式判断字符串是否符合当前数据类型的格式,
+	 * 输入为null或正则表达式不匹配则返回false
+	 */
 	final Predicate<String> strValidator = new Predicate<String>() {
 		@Override
 		public boolean apply(String input) {
@@ -179,7 +186,9 @@ public enum OptionType {
 	} 
 	
 	/**
-	 * 返回对应类型String到目标数据类型的转换器
+	 * 返回对应类型String到目标数据类型的转换器<br>
+	 * 返回的转器实例将字符器转换为当前类型的数据，转换失败则抛出异常
+	 * @param <T> 目标数据类型
 	 * @return
 	 * @see #internalTrans()
 	 */
@@ -222,6 +231,10 @@ public enum OptionType {
 			}
 		}
 	}
+	@SuppressWarnings("unchecked")
+	public <V, T extends BaseOption<V>>ItemBuilder<T> builder() {
+		return (ItemBuilder<T>) ItemBuilder.optBuilder(this,null);
+	}
 	/**
 	 * 默认字符串到T类型的转换器
 	 * @author guyadong
@@ -248,7 +261,7 @@ public enum OptionType {
 		OptionType optionType = OptionType.valueOf((String) json.get(OPTION_FIELD_TYPE));
 		optionType.refreshValueIfTransPresent(json, OPTION_FIELD_VALUE);
 		optionType.refreshValueIfTransPresent(json, OPTION_FIELD_DEFAULT);
-		return TypeUtils.castToJavaBean(json, optionType.implClass);
+		return TypeUtils.castToJavaBean(json, optionType.optClass);
 	}
 	
 	private Type getTargetType() {
@@ -256,7 +269,7 @@ public enum OptionType {
 			synchronized (this) {
 				if (targetType == null) {
 					try {
-						targetType = implClass.newInstance().type;
+						targetType = optClass.newInstance().type;
 					} catch (Exception e) {
 						Throwables.throwIfUnchecked(e);
 						throw new RuntimeException(e);

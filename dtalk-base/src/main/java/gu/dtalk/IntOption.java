@@ -10,4 +10,5 @@ public class IntOption extends BaseNumOption<Integer> {
 	public final OptionType getType() {
 		return OptionType.INTEGER;
 	}
+	
 }
