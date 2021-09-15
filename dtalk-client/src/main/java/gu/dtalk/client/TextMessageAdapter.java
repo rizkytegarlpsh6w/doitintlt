@@ -1,12 +1,17 @@
 package gu.dtalk.client;
 
+import static gu.dtalk.CommonUtils.isAck;
+
+import com.alibaba.fastjson.util.TypeUtils;
+
+import gu.dtalk.Ack;
 import gu.simplemq.IMessageAdapter;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
 
 public class TextMessageAdapter <T> implements IMessageAdapter<T>{
 
 	private long lastRespTimestamp;
-	private Object lastRespObj;
+	private T lastRespObj;
 	protected TextRender render = new TextRender();
 	
 	public TextMessageAdapter() {

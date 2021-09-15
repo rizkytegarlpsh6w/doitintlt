@@ -174,8 +174,8 @@ public enum OptionType {
 					String[] numlist = input.split("[;,\\s]+");
 					HashSet<Integer> set = Sets.newHashSet();
 					for(String num:numlist){
-						if(num.trim().isEmpty()){
-							set.add(Integer.valueOf(num.trim()));
+						if(!num.isEmpty()){
+							set.add(Integer.valueOf(num));
 						}
 					}
 					return set;

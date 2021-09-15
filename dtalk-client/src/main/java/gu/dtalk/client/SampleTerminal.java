@@ -18,6 +18,7 @@ import gu.dtalk.CmdItem;
 import gu.dtalk.BaseItem;
 import gu.dtalk.BaseOption;
 import gu.dtalk.ItemType;
+import gu.dtalk.Ack;
 import gu.dtalk.Ack.Status;
 import gu.simplemq.Channel;
 import gu.simplemq.redis.JedisPoolLazy;
@@ -236,19 +237,28 @@ public class SampleTerminal {
 		return syncPublish(reqCh, json);
 	}
 
-	private boolean inputOption(Scanner scaner,JSONObject json){
+	/**
+	 * 接受键盘输入选项内容
+	 * @param scaner
+	 * @param json
+	 * @return 输入不为空返回true，否则返回false
+	 */
+	private boolean inputOption(Scanner scaner,final JSONObject json){
 		checkArgument(json !=null && ItemType.OPTION == json.getObject(ITEM_FIELD_CATALOG, ItemType.class));
 		BaseItem item = renderEngine.getCurrentLevel().getChildByPath(json.getString(ITEM_FIELD_PATH));
 		checkArgument(item instanceof BaseOption<?>);
 		BaseOption<?> option = (BaseOption<?>)item;
 		String desc = Strings.isNullOrEmpty(option.getDescription()) ? "" : "("+option.getDescription()+")"; 
 		System.out.printf("INPUT VALUE for %s%s:", option.getUiName(),desc);
-		String value = scanLine(Predicates.<String>alwaysTrue(),scaner);
-		if(!value.isEmpty()){
-			json.fluentPut(OPTION_FIELD_VALUE, value);
-			return true;
-		}
-		return false;
+		String value = scanLine(new Predicate<String>() {
+
+			@Override
+			public boolean apply(String input) {
+				json.fluentPut(OPTION_FIELD_VALUE, input);
+				return true;
+			}
+		}, scaner);
+		return !value.isEmpty();
 	}
 	private boolean inputCmd(Scanner scaner,JSONObject json){
 		checkArgument(json !=null && ItemType.CMD == json.getObject(ITEM_FIELD_CATALOG, ItemType.class));
@@ -278,6 +288,7 @@ public class SampleTerminal {
 	 */
 	private void cmdInteractive(){
 		
+		// 第一次进入发送命令显示根菜单
 		if(!syncPublishReq(makeItemJSON("/"))){
 			return ;
 		}
@@ -295,27 +306,49 @@ public class SampleTerminal {
 	    				// 进入菜单 
 	    				syncPublishReq(json);
 	    				break;
-					case OPTION:
-						// 修改参数
-						if(inputOption(scaner,json)){
-							syncPublishReq(json);
-						}
+	    			case OPTION:{
+	    				Ack<?> ack=null;
+	    				// 修改参数
+	    				do{
+	    					if(inputOption(scaner,json)){
+	    						syncPublishReq(json);
+	    					}else{
+	    						// 输入空行则返回
+	    						break;
+	    					}
+	    					// 获取响应消息内容,如果输入响应错误则提示继续
+	    					ack = renderEngine.getLastAck();
+	    					
+	    				}while(ack != null && !Status.OK.equals(ack.getStatus()));
+	    				break;
+	    			}
+					case CMD:{
+						Ack<?> ack = null;
+						do{
+							// 执行命令
+							if(inputCmd(scaner,json)){
+								syncPublishReq(json);
+							}else{
+								// 输入空行则返回
+								break;
+							}
+							if(isQuit(json)){
+								return;
+							}
+							// 获取响应消息内容,如果输入响应错误则提示继续
+	    					ack = renderEngine.getLastAck();
+	    					
+						}while(ack != null && !Status.OK.equals(ack.getStatus()));
 						break;
-					case CMD:						
-						// 执行命令
-						if(inputCmd(scaner,json)){
-							syncPublishReq(json);
-						}
-						if(isQuit(json)){
-							return;
-						}
-						break;
+					}
 					default:
 						break;
 					}
 	    		}catch (Exception e) {
 	    			System.out.println(e.getMessage());
 				}
+	    		// 刷新当前菜单
+	    		renderEngine.getRender().rendeItem(renderEngine.getCurrentLevel());
 	    	}
 	    }finally {
 			scaner.close();

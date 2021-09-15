@@ -1,7 +1,6 @@
 package gu.dtalk.client;
 
 import java.io.PrintStream;
-import java.net.URL;
 
 import com.google.common.base.Strings;
 

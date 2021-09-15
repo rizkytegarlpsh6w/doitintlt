@@ -18,8 +18,15 @@ import static com.google.common.base.Preconditions.*;
  *
  */
 public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
-	private BaseItem currentLevel;
+	private MenuItem currentLevel;
 	private MenuItem root;
+	private Ack<?> lastAck;
+
+	public Ack<?> getLastAck() {
+		return lastAck;
+	}
+
+
 	public TextRenderEngine() {
 	}
 
@@ -27,8 +34,10 @@ public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
 	@Override
 	public void onSubscribe(JSONObject resp) throws SmqUnsubscribeException {
 		super.onSubscribe(resp);
+		lastAck = null;
 		if(isAck(resp)){
 			Ack<?> ack = TypeUtils.castToJavaBean(resp, Ack.class);
+			lastAck = TypeUtils.castToJavaBean(resp, Ack.class);
 			render.rendeAck(ack);
 		}else if(isItem(resp)){
 			BaseItem item = ItemType.parseItem(resp);
@@ -40,7 +49,7 @@ public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
 					currentLevel = menu;
 				}else{
 					checkState(root!=null," root menu is uninitialized");
-					currentLevel = root.getChildByPath(item.getPath());
+					currentLevel = (MenuItem) root.getChildByPath(menu.getPath());
 				}
 			}else{
 				render.getStream().printf("UNSUPPORTED ITEM RENDE TYPE:%s\n", item.getCatalog());
@@ -54,7 +63,7 @@ public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
 		render.setStream(stream);
 		return this;
 	}
-	public BaseItem getCurrentLevel() {
+	public MenuItem getCurrentLevel() {
 		return currentLevel;
 	}
 	public MenuItem getRoot() {
@@ -64,5 +73,8 @@ public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
 		currentLevel = null;
 		root = null;
 		return this;
+	}
+	public void paint(){
+		render.rendeItem(currentLevel);				
 	}
 }
