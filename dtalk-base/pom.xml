@@ -13,6 +13,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
+		<!-- 依赖库artifactId后缀，默认为空 -->
+		<artifactId.os.suffix></artifactId.os.suffix>
 	</properties>
 
 	<dependencies>
@@ -51,6 +53,11 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>common-image${artifactId.os.suffix}</artifactId>
+			<version>${common-java.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -61,4 +68,18 @@
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>android_platform</id>
+			<activation>
+				<os>
+					<name>Android</name>
+				</os>
+			</activation>
+			<properties>
+			<artifactId.os.suffix>-android</artifactId.os.suffix>
+			</properties>
+			
+		</profile>
+	</profiles>
 </project>
