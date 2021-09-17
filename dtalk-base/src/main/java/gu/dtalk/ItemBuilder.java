@@ -69,14 +69,4 @@ public class ItemBuilder<T extends BaseItem> {
 			throw new RuntimeException(e);
 		}
 	}
-	@SuppressWarnings("unchecked")
-	public static <V, T extends BaseOption<V>>ItemBuilder<T> optBuilder(OptionType optionType,Class<T> targetType) {
-		Class<T> type = (Class<T>) checkNotNull(optionType,"optionType is null").optClass;
-		try {
-			return new ItemBuilder<T>((T) type.newInstance().setType(optionType));
-		} catch (Exception e) {
-			Throwables.throwIfUnchecked(e);
-			throw new RuntimeException(e);
-		}
-	}
 }

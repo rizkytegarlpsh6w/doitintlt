@@ -21,8 +21,11 @@ public abstract class BaseBinary extends BaseOption<byte[]> {
 		}
 		return "BINARY";
 	}
-
-	public <T>BaseOption<byte[]> asValue(T input) {
+	/**
+	 * 从input中读取字节流转为byte[]调用{@link #setValue(byte[])}
+	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
+	 */
+	protected <T>BaseOption<byte[]> asValue(T input) {
 		try {
 			return setValue(FaceUtilits.getBytes(input));
 		} catch (Exception e) {
@@ -30,8 +33,11 @@ public abstract class BaseBinary extends BaseOption<byte[]> {
 			throw new RuntimeException(e);
 		}
 	}
-
-	public <T>BaseOption<byte[]> asDefaultValue(T input) {
+	/**
+	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(byte[])}
+	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
+	 */
+	protected <T>BaseOption<byte[]> asDefaultValue(T input) {
 		try {
 			return setDefaultValue(FaceUtilits.getBytes(input));
 		} catch (Exception e) {

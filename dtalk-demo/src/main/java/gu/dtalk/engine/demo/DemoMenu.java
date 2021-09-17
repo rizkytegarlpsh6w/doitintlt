@@ -34,7 +34,7 @@ public class DemoMenu extends RootMenu{
 				.uiName("设备")
 				.addChilds(
 						ItemBuilder.builder(StringOption.class).name("name").uiName("设备名称").instance(),
-						ItemBuilder.builder(StringOption.class).name("sn").uiName("设备序列号").instance().setValue("001122334455"),
+						ItemBuilder.builder(StringOption.class).name("sn").uiName("设备序列号").instance().asValue("001122334455"),
 						ItemBuilder.builder(IPv4Option.class).name("IP").uiName("IP地址").instance().setValue(ip).setReadonly(true),
 						ItemBuilder.builder(MACOption.class).name("mac").uiName("物理地址").instance().setReadonly(true).setValue(mac).setReadonly(true),
 						ItemBuilder.builder(StringOption.class).name("gps").uiName("位置(GPS)").instance().setReadonly(true),
@@ -70,11 +70,12 @@ public class DemoMenu extends RootMenu{
 							.addOption("俄罗斯", "half")
 							.addOption("美国", "full")
 							.setValue(1),
-						OptionType.EMAIL.builder().name("email").uiName("email测试").instance().asValue("my@hello.com"),
-						OptionType.MPHONE.builder().name("mphone").uiName("移动电话号码测试").instance().asValue("13611426411"),
-						OptionType.IDNUM.builder().name("idnum").uiName("身份证号码测试").instance().asValue("320113199001133483"),
-						OptionType.INTEGER.builder().name("integer").uiName("数字测试").instance().asValue("133483")
-											.setValidator(NumberValidator.makeValidator(1024,256,128))
+						OptionType.EMAIL.builder().name("email").uiName("email测试").asValue("my@hello.com").instance(),
+						OptionType.MPHONE.builder().name("mphone").uiName("移动电话号码测试").asValue("13611426411").instance(),
+						OptionType.IDNUM.builder().name("idnum").uiName("身份证号码测试").asValue("320113199001133483").instance(),
+						OptionType.INTEGER.builder().name("integer").uiName("数字测试").asValue("133483")
+											.validator(NumberValidator.makeValidator(1024,256,128)).instance(),
+						OptionType.URL.builder().name("url").uiName("URL测试").asValue("https://gitee.com/l0km/dtalk.git").instance()
 						)
 				.instance();
 		addChilds(device,redis,test);

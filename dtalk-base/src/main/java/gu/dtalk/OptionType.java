@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -231,9 +233,8 @@ public enum OptionType {
 			}
 		}
 	}
-	@SuppressWarnings("unchecked")
-	public <V, T extends BaseOption<V>>ItemBuilder<T> builder() {
-		return (ItemBuilder<T>) ItemBuilder.optBuilder(this,null);
+	public <T, O extends BaseOption<T>>OptionBuilder<T, O> builder() {
+		return OptionBuilder.<T,O>builder(this);
 	}
 	/**
 	 * 默认字符串到T类型的转换器
@@ -254,14 +255,24 @@ public enum OptionType {
 		 */
 		@Override
 		public T apply(String input) {
-			return BaseJsonEncoder.getEncoder().fromJson(input, type);
+			try {
+				return BaseJsonEncoder.getEncoder().fromJson(input, type);
+			} catch (JSONException e) {
+				if( !input.startsWith("\"") && !input.endsWith("\"")){
+					try {
+						return BaseJsonEncoder.getEncoder().fromJson("\"" + input + "\"", type);
+					} catch (JSONException e2) {
+					}
+				}
+				throw e;
+			}
 		}		
 	}
 	public static BaseOption<?> parseOption(Map<String,Object> json){
 		OptionType optionType = OptionType.valueOf((String) json.get(OPTION_FIELD_TYPE));
 		optionType.refreshValueIfTransPresent(json, OPTION_FIELD_VALUE);
 		optionType.refreshValueIfTransPresent(json, OPTION_FIELD_DEFAULT);
-		return TypeUtils.castToJavaBean(json, optionType.optClass);
+		return BaseJsonEncoder.getEncoder().fromJson(	JSON.toJSONString(json), optionType.optClass);
 	}
 	
 	private Type getTargetType() {
