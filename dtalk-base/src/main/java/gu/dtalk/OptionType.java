@@ -12,7 +12,6 @@ import java.util.concurrent.ExecutionException;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.util.TypeUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
