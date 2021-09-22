@@ -58,7 +58,7 @@ public abstract class BaseOption<T> extends BaseItem {
 		return this;
 	}
 	/**
-	 * 验证value是否有效
+	 * 验证value是否有效,该方法不会抛出异常
 	 * @param value
 	 * @return 成功返回true，否则返回false
 	 */
@@ -142,5 +142,16 @@ public abstract class BaseOption<T> extends BaseItem {
 	public BaseOption<T> asDefaultValue(String input){
 		return setDefaultValue(getType().<T>trans().apply(input));
 	}
-
+	/**
+	 * 检查value,defaultValue的有效性，无效则抛出异常
+	 * @throws IllegalArgumentException value,defaultValue的值无效
+	 */
+	public BaseOption<T> compile(){
+		// 检测value,defaultValue的值是否有效,无效则抛出异常
+		checkArgument(null == getValue() || validate(getValue())
+				,"CHECK:invalid value of %s",getType().name());
+		checkArgument(null == getDefaultValue() || validate(getDefaultValue())
+				,"CHECK:invalid defaultValue of %s",getType().name());
+		return this;
+	}
 }

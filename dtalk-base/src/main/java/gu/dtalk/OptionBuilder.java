@@ -61,7 +61,13 @@ public class OptionBuilder<T,O extends BaseOption<T>> {
 		option.setValidator(validator);
 		return this;
 	}
+	/**
+	 * 返回<T>对象
+	 * @return
+	 * @throws IllegalArgumentException 返回前检查value,defaultValue的有效性，无效则抛出异常
+	 */
 	public O instance(){
+		option.compile();
 		return option;
 	}
 	public static <T,O extends BaseOption<T>>OptionBuilder<T,O> builder(O instance) {
