@@ -2,10 +2,13 @@ package gu.dtalk;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
-
+import java.util.Observable;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+
+import gu.dtalk.event.ValueChangeEvent;
+import gu.dtalk.event.ValueListener;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -20,6 +23,16 @@ public abstract class BaseOption<T> extends BaseItem {
 	private boolean required;
 	private boolean readOnly;
 	protected final Type type;
+	/**
+	 * 侦听器管理对象
+	 */
+	protected final Observable listeners = new Observable(){
+		@Override
+		public void notifyObservers(Object arg) {
+			setChanged();
+			super.notifyObservers(arg);
+		}
+	};
 	/**
 	 * 数据值验证器，默认不验证直接返回true
 	 */
@@ -82,6 +95,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	 */
 	public BaseOption<T> setValue(T value)  {
 		optionValue = value;
+		listeners.notifyObservers(new ValueChangeEvent<T>(this, value));
 		return this;
 	}
 	public final T getDefaultValue() {
@@ -152,6 +166,15 @@ public abstract class BaseOption<T> extends BaseItem {
 				,"CHECK:invalid value of %s",getType().name());
 		checkArgument(null == getDefaultValue() || validate(getDefaultValue())
 				,"CHECK:invalid defaultValue of %s",getType().name());
+		return this;
+	}
+	public final BaseOption<T> addListener(ValueListener<T> listener) {
+		listeners.addObserver(listener);
+		return this;
+	}
+
+	public final BaseOption<T> deleteListener(ValueListener<T> listener) {
+		listeners.deleteObserver(listener);
 		return this;
 	}
 }

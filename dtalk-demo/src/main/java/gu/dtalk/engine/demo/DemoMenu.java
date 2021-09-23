@@ -73,7 +73,7 @@ public class DemoMenu extends RootMenu{
 						OptionType.EMAIL.builder().name("email").uiName("email测试").asValue("my@hello.com").instance(),
 						OptionType.MPHONE.builder().name("mphone").uiName("移动电话号码测试").asValue("13611426411").instance(),
 						OptionType.IDNUM.builder().name("idnum").uiName("身份证号码测试").asValue("320113199001133483").instance(),
-						OptionType.INTEGER.builder().name("integer").uiName("数字测试").asValue("0")
+						OptionType.INTEGER.builder().name("integer").uiName("数字测试").value(0)
 											.validator(NumberValidator.makeValidator(1024,256,128,0)).instance(),
 						OptionType.URL.builder().name("url").uiName("URL测试").asValue("https://gitee.com/l0km/dtalk.git").instance()
 						)
