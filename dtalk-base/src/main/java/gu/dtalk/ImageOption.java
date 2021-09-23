@@ -3,13 +3,13 @@ package gu.dtalk;
 import com.google.common.base.Throwables;
 
 import net.gdface.image.ImageErrorException;
-import net.gdface.image.LazyImage;
+import net.gdface.image.BaseLazyImage;
 import net.gdface.utils.FaceUtilits;
 import net.gdface.utils.Judge;
 
 public class ImageOption extends BaseBinary {
 	private volatile boolean updated = false;
-	private LazyImage image;
+	private BaseLazyImage image;
 	public ImageOption() {
 	}
 
@@ -31,14 +31,14 @@ public class ImageOption extends BaseBinary {
 	 * @return 返回图像对象,如果值为空则返回{@code null}
 	 * @throws ImageErrorException
 	 */
-	public LazyImage imageObj() throws ImageErrorException{
+	public BaseLazyImage imageObj() throws ImageErrorException{
 		if(Judge.isEmpty(getValue())){
 			return null;
 		}
 		if(!updated){
 			synchronized (this) {
 				if(!updated){
-					image = LazyImage.create(getValue());
+					image = BaseLazyImage.getLazyImageFactory().create(getValue());
 					updated = true;
 				}
 			}
@@ -50,7 +50,7 @@ public class ImageOption extends BaseBinary {
 	 * 与{@link #imageObj()}类似，只是所有的异常都被封装到{@link RuntimeException}
 	 * @return 返回图像对象,如果值为空则返回{@code null}
 	 */
-	public LazyImage imageObjUncheck(){
+	public BaseLazyImage imageObjUncheck(){
 		try {
 			return imageObj();
 		} catch (Exception e) {
@@ -127,7 +127,7 @@ public class ImageOption extends BaseBinary {
 	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(byte[])}
 	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
 	 */
-	public <T>ImageOption asValue(LazyImage input) {
+	public <T>ImageOption asValue(BaseLazyImage input) {
 		setValue(input.wirteJPEGBytes());
 		this.image = input;
 		return this;
@@ -136,7 +136,7 @@ public class ImageOption extends BaseBinary {
 	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(byte[])}
 	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
 	 */
-	public <T>ImageOption asDefaultValue(LazyImage input) {
+	public <T>ImageOption asDefaultValue(BaseLazyImage input) {
 		setDefaultValue(input.wirteJPEGBytes());
 		this.image = input;
 		return this;
