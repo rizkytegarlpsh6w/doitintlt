@@ -7,6 +7,8 @@ import java.lang.reflect.Modifier;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 
+import gu.dtalk.event.ValueListener;
+
 public class OptionBuilder<T,O extends BaseOption<T>> {
 
 	private final O option;
@@ -59,6 +61,16 @@ public class OptionBuilder<T,O extends BaseOption<T>> {
 	}
 	public OptionBuilder<T,O> validator(Predicate<T> validator) {
 		option.setValidator(validator);
+		return this;
+	}
+	/**
+	 * 添加事件侦听器
+	 * @param listeners
+	 * @return
+	 */
+	@SafeVarargs
+	public final OptionBuilder<T, O> addListener(ValueListener<T> ...listeners) {
+		option.addListener(listeners);
 		return this;
 	}
 	/**

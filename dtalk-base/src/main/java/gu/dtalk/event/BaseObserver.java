@@ -17,10 +17,16 @@ public abstract class BaseObserver<SRC,ARG> implements Observer {
 	@SuppressWarnings("unchecked")
 	@Override
 	public final void update(Observable o, Object arg) {
+		SRC src;
+		ARG argument;
 		try {
-			doUpdte((SRC) o, (ARG) arg);
-		} catch (Exception e) {			
+			// 通过强制类型转时是否抛出异常自动过滤不属于当前侦听器关注的对象
+			src = (SRC) o;
+			argument = (ARG)arg;
+		} catch (Exception e) {		
+			return;
 		}
+		doUpdte(src, argument);
 	}
 
 }
