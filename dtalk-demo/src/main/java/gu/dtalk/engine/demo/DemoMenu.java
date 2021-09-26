@@ -79,6 +79,7 @@ public class DemoMenu extends RootMenu{
 						)
 				.instance();
 		addChilds(device,redis,test);
+		
 		return this;
 	}
 }
