@@ -320,6 +320,8 @@ public class SampleTerminal {
 	    					ack = renderEngine.getLastAck();
 	    					
 	    				}while(ack != null && !Status.OK.equals(ack.getStatus()));
+	    	    		// 刷新当前菜单
+	    	    		renderEngine.getRender().rendeItem(renderEngine.getCurrentLevel());
 	    				break;
 	    			}
 					case CMD:{
@@ -347,8 +349,6 @@ public class SampleTerminal {
 	    		}catch (Exception e) {
 	    			System.out.println(e.getMessage());
 				}
-	    		// 刷新当前菜单
-	    		renderEngine.getRender().rendeItem(renderEngine.getCurrentLevel());
 	    	}
 	    }finally {
 			scaner.close();

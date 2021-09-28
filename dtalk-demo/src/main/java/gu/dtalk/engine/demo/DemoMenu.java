@@ -10,6 +10,7 @@ import gu.dtalk.PasswordOption;
 import gu.dtalk.RootMenu;
 import gu.dtalk.StringOption;
 import gu.dtalk.SwitchOption;
+import gu.dtalk.event.ValueListener;
 
 import static gu.dtalk.CommonConstant.*;
 import static gu.dtalk.engine.SampleConnector.DEVINFO_PROVIDER;
@@ -80,6 +81,10 @@ public class DemoMenu extends RootMenu{
 				.instance();
 		addChilds(device,redis,test);
 		
+		return this;
+	}
+	public DemoMenu register(ValueListener<Object> listener){
+		listener.register(this);
 		return this;
 	}
 }

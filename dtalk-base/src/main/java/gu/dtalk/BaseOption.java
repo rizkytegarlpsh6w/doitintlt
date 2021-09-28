@@ -97,7 +97,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	public BaseOption<T> setValue(T value)  {
 		if(!Objects.equal(value, optionValue)){
 			optionValue = value;
-			observable.notifyObservers(new ValueChangeEvent<T>(this, value));
+			observable.notifyObservers(new ValueChangeEvent<BaseOption<T>>(this));
 		}
 		return this;
 	}

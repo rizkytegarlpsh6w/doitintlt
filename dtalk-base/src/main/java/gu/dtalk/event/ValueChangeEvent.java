@@ -1,19 +1,23 @@
 package gu.dtalk.event;
 
+import gu.dtalk.BaseOption;
+
 /**
  * value改变事件
  * @author guyadong
  *
- * @param <T>
+ * @param <O>
  */
-public class ValueChangeEvent<T> extends ItemEvent {
+public class ValueChangeEvent<O extends BaseOption<?>> extends ItemEvent<O> {
 
 	private static final long serialVersionUID = 8039626618382197982L;
 	
-	final T value;
-	public ValueChangeEvent(Object source,T value) {
+	public ValueChangeEvent(O  source) {
 		super(source);
-		this.value = value;
 	}
 
+	@SuppressWarnings("unchecked")
+	public O option(){
+		return (O) getSource();
+	}
 }
