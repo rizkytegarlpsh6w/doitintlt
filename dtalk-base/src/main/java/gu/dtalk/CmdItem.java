@@ -10,7 +10,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import gu.simplemq.IMessageAdapter;
 
 public class CmdItem extends BaseItem {
 
@@ -33,7 +32,7 @@ public class CmdItem extends BaseItem {
 		}
 	};
 	@JSONField(serialize = false,deserialize = false)
-	private IMessageAdapter<Map<String, Object>> cmdAdapter;
+	private ICmdAdapter cmdAdapter;
 	public CmdItem() {
 	}
 
@@ -61,23 +60,27 @@ public class CmdItem extends BaseItem {
 		addChilds(Collections2.transform(parameters, TO_ITEM));
 		return this;
 	}
-	public IMessageAdapter<Map<String, Object>> getCmdAdapter() {
+	public ICmdAdapter getCmdAdapter() {
 		return cmdAdapter;
 	}
-	public CmdItem setCmdAdapter(IMessageAdapter<Map<String, Object>> cmdAdapter) {
+	public CmdItem setCmdAdapter(ICmdAdapter cmdAdapter) {
 		this.cmdAdapter = cmdAdapter;
 		return this;
 	}
 
-	public final void runCmd(){
+	public final Object runCmd(){
 		if(cmdAdapter !=null){
 			// 将 parameter 转为 Map<String, Object>
 			Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
-			cmdAdapter.onSubscribe(objParams);
+			return cmdAdapter.apply(objParams);
 		}
+		return null;
 	}
 	public BaseOption<?> getParameter(final String name){
 		return (BaseOption<?>) getChild(name);
 	}
 
+	public static interface ICmdAdapter extends Function<Map<String, Object>, Object>{
+		
+	}
 }

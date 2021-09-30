@@ -6,6 +6,7 @@ import gu.dtalk.MACOption;
 import gu.dtalk.MenuItem;
 import gu.dtalk.NumberValidator;
 import gu.dtalk.OptionType;
+import gu.dtalk.OptionViewCmd;
 import gu.dtalk.PasswordOption;
 import gu.dtalk.RootMenu;
 import gu.dtalk.StringOption;
@@ -19,6 +20,7 @@ import java.util.Date;
 
 import gu.dtalk.BoolOption;
 import gu.dtalk.CheckOption;
+import gu.dtalk.CmdItem;
 import gu.dtalk.DateOption;
 import gu.dtalk.IPv4Option;
 
@@ -76,7 +78,10 @@ public class DemoMenu extends RootMenu{
 						OptionType.IDNUM.builder().name("idnum").uiName("身份证号码测试").asValue("320113199001133483").instance(),
 						OptionType.INTEGER.builder().name("integer").uiName("数字测试").value(0)
 											.validator(NumberValidator.makeValidator(1024,256,128,0)).instance(),
-						OptionType.URL.builder().name("url").uiName("URL测试").asValue("https://gitee.com/l0km/dtalk.git").instance()
+						OptionType.URL.builder().name("url").uiName("URL测试").asValue("https://gitee.com/l0km/dtalk.git").instance(),
+						ItemBuilder.builder(CmdItem.class).name("optionview").uiName("命令测试").description("显示指定选项")
+							.addChilds(OptionType.STRING.builder().name("query").uiName("选项类型").instance())
+							.instance().setCmdAdapter(new OptionViewCmd())
 						)
 				.instance();
 		addChilds(device,redis,test);
