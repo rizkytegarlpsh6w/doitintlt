@@ -43,10 +43,19 @@ public class ItemEngine implements ItemAdapter{
 		ackPublisher = RedisFactory.getPublisher(pool);
 	}
 
-	
+	private void updateOption(BaseOption<Object> option,BaseOption<Object> req){
+		if(option != null && req != null){
+			// 设置参数
+			checkState(!option.isReadOnly(),"READONLY VALUE");
+			Object value = req.getValue();
+			checkArgument(option.validate(value),"INVALID VALUE");
+			option.setValue(value);
+		}
+	}
 	/** 
 	 * 响应菜单命令
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onSubscribe(JSONObject jsonObject) throws SmqUnsubscribeException {
 		lasthit = System.currentTimeMillis();
@@ -72,13 +81,7 @@ public class ItemEngine implements ItemAdapter{
 
 			switch(found.getCatalog()){
 			case OPTION:{
-				@SuppressWarnings("unchecked")
-				BaseOption<Object> option = (BaseOption<Object>)found;
-				// 设置参数
-				checkState(!option.isReadOnly(),"READONLY VALUE");
-				Object value = ((BaseOption<?>)req).getValue();
-				checkArgument(option.validate(value),"INVALID VALUE");
-				option.setValue(value);
+				updateOption((BaseOption<Object>)found,(BaseOption<Object>)req);
 				break;
 			}
 			case CMD:{
@@ -92,7 +95,14 @@ public class ItemEngine implements ItemAdapter{
 					isQuit = true;
 				}else{
 					// 执行命令
-					((CmdItem)found).runCmd();
+					CmdItem cmd = (CmdItem)found;
+					CmdItem reqCmd = (CmdItem)req;
+					for(BaseOption<?> param:cmd.getParameters()){
+						updateOption((BaseOption<Object>)param, 
+								(BaseOption<Object>)reqCmd.getParameter(param.getName()));
+					}
+					ack.setValue(cmd.runCmd());
+					cmd.reset();
 				}
 				break;
 			}

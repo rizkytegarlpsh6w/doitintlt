@@ -97,7 +97,6 @@ public class CheckOption<E> extends BaseOption<Set<Integer>> {
 	public CheckOption<E> setSelected(E... sel){		
 		return setSelected(Arrays.asList(sel));		
 	}
-	
 	public String contentOfOptions(){
 		ByteArrayOutputStream bytestream = new ByteArrayOutputStream();
 		PrintStream stream = new PrintStream(bytestream);

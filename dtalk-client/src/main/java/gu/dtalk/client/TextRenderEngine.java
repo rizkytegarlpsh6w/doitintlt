@@ -38,7 +38,7 @@ public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
 		if(isAck(resp)){
 			Ack<?> ack = TypeUtils.castToJavaBean(resp, Ack.class);
 			lastAck = TypeUtils.castToJavaBean(resp, Ack.class);
-			render.rendeAck(ack);
+			render.rendeAck(ack, true);
 		}else if(isItem(resp)){
 			BaseItem item = ItemType.parseItem(resp);
 			if(item instanceof MenuItem){

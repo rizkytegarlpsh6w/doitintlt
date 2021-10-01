@@ -28,7 +28,7 @@ public class CmdItem extends BaseItem {
 	private static final Function<BaseItem, Object> TO_VALUE = new Function<BaseItem, Object>() {
 		@Override
 		public Object apply(BaseItem input) {
-			return ((BaseOption<?>) input).getValue();
+			return ((BaseOption<?>) input).fetch();
 		}
 	};
 	@JSONField(serialize = false,deserialize = false)
@@ -45,10 +45,11 @@ public class CmdItem extends BaseItem {
 	public final ItemType getCatalog() {
 		return ItemType.CMD;
 	}
-
+	@JSONField(serialize = false,deserialize = false)
 	public List<BaseOption<?>> getParameters(){
 		return Lists.transform(getChilds(),TO_OPTION);
 	}
+	@JSONField(serialize = false,deserialize = false)
 	public void setParameters(List<BaseOption<?>> parameters){
 		items.clear();
 		addParameters(parameters);
@@ -79,7 +80,15 @@ public class CmdItem extends BaseItem {
 	public BaseOption<?> getParameter(final String name){
 		return (BaseOption<?>) getChild(name);
 	}
-
+	
+	/**
+	 * 设置所有参数为{@code null}
+	 */
+	public void reset(){
+		for (BaseOption<?> item : getParameters()) {
+			item.setValue(null);
+		}
+	}
 	public static interface ICmdAdapter extends Function<Map<String, Object>, Object>{
 		
 	}

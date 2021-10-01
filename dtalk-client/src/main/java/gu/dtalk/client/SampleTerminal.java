@@ -268,7 +268,7 @@ public class SampleTerminal {
 		for(BaseOption<?> param:cmd.getParameters()){
 			JSONObject optjson = makeItemJSON(param.getPath());
 			while(inputOption(scaner,optjson)){
-				if(syncPublishReq(json)){
+				if(syncPublishReq(optjson)){
 					checkState(isAck(renderEngine.getLastRespObj()));
 					Status status = ((JSONObject)renderEngine.getLastRespObj()).getObject(ACK_FIELD_STATUS, Status.class);
 					if(status != Status.OK){

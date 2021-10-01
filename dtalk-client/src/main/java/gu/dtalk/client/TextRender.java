@@ -17,11 +17,15 @@ public class TextRender {
 	
 	public TextRender() {
 	}
-	public void rendeAck(Ack<?> ack){
+	public void rendeAck(Ack<?> ack, boolean renderValueIfOk){
 		Status status = ack.getStatus();
-		stream.append(status.name());		
-		if(status != Ack.Status.OK && !Strings.isNullOrEmpty(ack.getErrorMessage())){
-			stream.append(":").append(ack.getErrorMessage());
+		if(renderValueIfOk && Ack.Status.OK == status && ack.getValue() != null){
+			stream.append(ack.getValue().toString());
+		}else{
+			stream.append(status.name());		
+			if(status != Ack.Status.OK && !Strings.isNullOrEmpty(ack.getErrorMessage())){
+				stream.append(":").append(ack.getErrorMessage());
+			}
 		}
 		stream.append('\n');
 	}

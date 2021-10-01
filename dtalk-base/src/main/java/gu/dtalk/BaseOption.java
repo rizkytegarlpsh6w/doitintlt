@@ -116,7 +116,12 @@ public abstract class BaseOption<T> extends BaseItem {
 		this.defaultValue = defaultValue;
 		return this;
 	}
-
+	public T fetch(){
+		if(getValue() == null){
+			return getDefaultValue();
+		}
+		return getValue();
+	}
 	/**
 	 * 设置数据验证器
 	 * @param validator 为null忽略
