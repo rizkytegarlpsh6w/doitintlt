@@ -47,7 +47,7 @@ public class SampleTerminal {
 	final byte[] temminalMac;
 	private final String ackchname;
 	private final String connchname;
-	private final TextRenderEngine renderEngine = new TextRenderEngine();
+	private final RenderEngine renderEngine = new RenderEngine();
 	private final Channel<JSONObject> ackChannel;
 	/**
 	 * 构造方法
@@ -365,7 +365,7 @@ public class SampleTerminal {
 	private void waitTextRenderEngine(){
 		int waitCount = 30;
 		TextMessageAdapter<?> adapter = (TextMessageAdapter<?>) ackChannel.getAdapter();
-		while( !(adapter instanceof TextRenderEngine) && waitCount > 0){
+		while( !(adapter instanceof RenderEngine) && waitCount > 0){
 			try {
 				Thread.sleep(100);
 				waitCount --;

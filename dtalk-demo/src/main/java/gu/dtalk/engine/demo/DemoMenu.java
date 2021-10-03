@@ -80,7 +80,7 @@ public class DemoMenu extends RootMenu{
 											.validator(NumberValidator.makeValidator(1024,256,128,0)).instance(),
 						OptionType.URL.builder().name("url").uiName("URL测试").asValue("https://gitee.com/l0km/dtalk.git").instance(),
 						ItemBuilder.builder(CmdItem.class).name("optionview").uiName("命令测试").description("显示指定选项")
-							.addChilds(OptionType.STRING.builder().name("query").uiName("选项类型").instance())
+							.addChilds(OptionType.STRING.builder().name(OptionViewCmd.QUERY).uiName("选项类型").instance())
 							.instance().setCmdAdapter(new OptionViewCmd())
 						)
 				.instance();

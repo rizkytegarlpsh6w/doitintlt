@@ -2,8 +2,6 @@ package gu.dtalk.client;
 
 import static gu.dtalk.CommonUtils.isAck;
 
-import java.io.PrintStream;
-
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.google.common.base.Predicate;
@@ -33,11 +31,6 @@ public class ConnectorAdapter extends TextMessageAdapter<JSONObject> {
 	}
 	
 	public ConnectorAdapter() {
-	}
-
-	public ConnectorAdapter setStream(PrintStream stream) {
-		render.setStream(stream);
-		return this;
 	}
 
 	public ConnectorAdapter setOnValidPwd(Predicate<String> onValidPwd) {

@@ -50,6 +50,9 @@ public class CommonUtils {
 	public static boolean isBack(BaseItem item){
 		return (item instanceof BaseItem) && BACK_NAME.equals(item.getName());
 	}
+	public static boolean isRoot(JSONObject item){
+		return (item instanceof JSONObject) && "/".equals(item.getString(ITEM_FIELD_PATH));
+	}
 	public static boolean isRoot(BaseItem item){
 		return (item instanceof BaseItem) && null == item.getParent();
 	}

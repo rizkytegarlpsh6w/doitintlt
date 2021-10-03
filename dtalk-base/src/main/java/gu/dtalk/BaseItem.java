@@ -172,6 +172,12 @@ public abstract class BaseItem{
 		if(relpath.isEmpty()){
 			return null;
 		}
+		if(relpath.startsWith("/")){
+			relpath = relpath.substring(1);
+		}
+		if(relpath.endsWith("/")){
+			relpath = relpath.substring(0,relpath.length()-1);
+		}
 		String[] nodes = relpath.split("/");
 		BaseItem child = this;
 		for(String node:nodes){
@@ -187,7 +193,15 @@ public abstract class BaseItem{
 		path = MoreObjects.firstNonNull(path, "").trim();
 		BaseItem root = this;
 		for(;root.getParent() != null;root = root.getParent()){}
-		return root.getChildByPath(path);
+		return root.getPath().equals(path) ? this : root.getChildByPath(path);
+	}
+	public MenuItem findMenu(String path){
+		BaseItem item = find(path);
+		return (item instanceof MenuItem) ? (MenuItem)item: null;
+	}
+	public CmdItem findCmd(String path){
+		BaseItem item = find(path);
+		return (item instanceof CmdItem) ? (CmdItem)item: null;
 	}
 	@SuppressWarnings("unchecked")
 	public BaseOption<Object> findOption(String path){
@@ -284,5 +298,14 @@ public abstract class BaseItem{
 		}
 		return item;
 	}
-
+	/**
+	 * 用{@code item}更新同名的子对象，如果对象不存在则跳过
+	 * @param item
+	 */
+	public void updateChild(BaseItem item){
+		if(items.containsKey(item.getName())){
+			items.remove(item.getName());
+			addChilds(item);
+		}
+	}
 }

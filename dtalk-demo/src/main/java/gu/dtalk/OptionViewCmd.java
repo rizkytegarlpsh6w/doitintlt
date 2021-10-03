@@ -38,8 +38,22 @@ public class OptionViewCmd implements CmdItem.ICmdAdapter{
 					return toMap(input);
 				}});
 		}else{
-			OptionType query = OptionType.valueOf(name);
-			return toMap(query);
+			try{
+				OptionType query = OptionType.valueOf(name);
+				return toMap(query);
+			}catch (IllegalArgumentException e) {
+				try{
+					// 尝试name转为数字
+					OptionType query = OptionType.values()[Integer.valueOf(name.trim())];
+					return toMap(query);
+				}catch (IndexOutOfBoundsException e2) {
+					throw e2;
+				}catch (NumberFormatException e2) {
+					throw e;
+				}catch (Exception e2) {
+					throw e;
+				}
+			}
 		}
 	}
 

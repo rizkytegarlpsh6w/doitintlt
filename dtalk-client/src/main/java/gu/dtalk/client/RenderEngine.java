@@ -1,7 +1,5 @@
 package gu.dtalk.client;
 
-import java.io.PrintStream;
-
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
 import gu.dtalk.Ack;
@@ -13,12 +11,13 @@ import static gu.dtalk.CommonUtils.*;
 import static com.google.common.base.Preconditions.*;
 
 /**
- * 文本渲染引擎<br>
+ * 渲染引擎<br>
+ * 用于显示从设备端收到的消息
  * @author guyadong
  *
  */
-public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
-	private MenuItem currentLevel;
+public class RenderEngine extends TextMessageAdapter<JSONObject>{
+	private String currentPath;
 	private MenuItem root;
 	private Ack<?> lastAck;
 
@@ -27,7 +26,7 @@ public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
 	}
 
 
-	public TextRenderEngine() {
+	public RenderEngine() {
 	}
 
 	
@@ -43,38 +42,35 @@ public class TextRenderEngine extends TextMessageAdapter<JSONObject>{
 			BaseItem item = ItemType.parseItem(resp);
 			if(item instanceof MenuItem){
 				MenuItem menu = (MenuItem)item;
-				render.rendeItem(menu);				
-				if(isRoot(item)){
+				currentPath = menu.getPath();
+				if(isRoot(resp)){
 					root = menu;
-					currentLevel = menu;
 				}else{
 					checkState(root!=null," root menu is uninitialized");
-					currentLevel = (MenuItem) root.getChildByPath(menu.getPath());
+					// 更新root中当前菜单项内容
+					root.getChildByPath(currentPath).getParent().updateChild(menu);
 				}
+				render.rendeItem(menu);
 			}else{
-				render.getStream().printf("UNSUPPORTED ITEM RENDE TYPE:%s\n", item.getCatalog());
+				System.out.printf("UNSUPPORTED ITEM RENDE TYPE:%s\n", item.getCatalog());
 			}
 		}else{
-			render.getStream().printf("UNKNOW TYPE:%s\n", resp.toString());
+			System.out.printf("UNKNOW TYPE:%s\n", resp.toString());
 		}
 	}
 
-	public TextRenderEngine setStream(PrintStream stream) {
-		render.setStream(stream);
-		return this;
-	}
 	public MenuItem getCurrentLevel() {
-		return currentLevel;
+		return checkNotNull(root).findMenu(currentPath);
 	}
 	public MenuItem getRoot() {
 		return root;
 	}
-	public TextRenderEngine reset(){
-		currentLevel = null;
+	public RenderEngine reset(){
+		currentPath = null;
 		root = null;
 		return this;
 	}
 	public void paint(){
-		render.rendeItem(currentLevel);				
+		render.rendeItem(getCurrentLevel());				
 	}
 }
