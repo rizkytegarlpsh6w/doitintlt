@@ -3,7 +3,7 @@ package gu.dtalk.client;
 import gu.dtalk.Ack;
 import gu.dtalk.MenuItem;
 
-public interface ClientRender {
+public interface IClientRender {
 
 	/**
 	 * @param ack

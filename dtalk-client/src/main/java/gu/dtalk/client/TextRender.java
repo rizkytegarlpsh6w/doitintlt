@@ -17,7 +17,7 @@ import gu.dtalk.Ack.Status;
  * @author guyadong
  *
  */
-public class TextRender implements ClientRender {
+public class TextRender implements IClientRender {
 
 	private PrintStream stream = System.out;
 	
@@ -78,7 +78,7 @@ public class TextRender implements ClientRender {
 		}
 		stream.println("==Press number to seleect menu item(按数字选项菜单)==");
 	}
-	public ClientRender setStream(PrintStream stream) {
+	public IClientRender setStream(PrintStream stream) {
 		if(null != stream){
 			this.stream = stream;
 		}
