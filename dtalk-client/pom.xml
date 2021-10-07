@@ -38,6 +38,12 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>common-image</artifactId>
+			<version>${common-java.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>dtalk-base</artifactId>
 			<version>${project.version}</version>
 		</dependency>

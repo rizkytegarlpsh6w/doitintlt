@@ -18,7 +18,7 @@ public class ImageOption extends BaseBinary {
 		return OptionType.IMAGE;
 	}
 	@Override
-	public BaseOption<byte[]> setValue(byte[] value) {
+	public ImageOption setValue(byte[] value) {
 		synchronized(this){
 			super.setValue(value);
 			updated = false;
@@ -140,5 +140,19 @@ public class ImageOption extends BaseBinary {
 		setDefaultValue(input.wirteJPEGBytes());
 		this.image = input;
 		return this;
+	}
+
+	@Override
+	public String contentOfValue() {
+		try {
+			BaseLazyImage img = imageObj();
+			if(img != null){
+				return String.format("%s(%dx%d),size=%d", img.getSuffix(),img.getWidth(),img.getHeight(),getValue().length);
+			}
+		} catch (ImageErrorException e) {
+			return e.getMessage();
+		}
+		
+		return super.contentOfValue();
 	}
 }

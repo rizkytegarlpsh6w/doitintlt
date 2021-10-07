@@ -81,7 +81,8 @@ public class DemoMenu extends RootMenu{
 						OptionType.URL.builder().name("url").uiName("URL测试").asValue("https://gitee.com/l0km/dtalk.git").instance(),
 						ItemBuilder.builder(CmdItem.class).name("optionview").uiName("命令测试").description("显示指定选项")
 							.addChilds(OptionType.STRING.builder().name(OptionViewCmd.QUERY).uiName("选项类型").instance())
-							.instance().setCmdAdapter(new OptionViewCmd())
+							.instance().setCmdAdapter(new OptionViewCmd()),
+						OptionType.IMAGE.builder().name("image").uiName("图像测试").instance()							
 						)
 				.instance();
 		addChilds(device,redis,test);

@@ -1,5 +1,6 @@
 package gu.dtalk;
 
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Date;
 
@@ -8,10 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.util.TypeUtils;
-
 import gu.simplemq.json.BaseJsonEncoder;
 import net.gdface.utils.FaceUtilits;
 
@@ -73,5 +71,20 @@ public class ItemTest {
 			e.printStackTrace();
 		}
 		//BaseJsonEncoder.getEncoder().fromJson("https://gitee.com/l0km/dtalk.git", URL.class);
+	}
+	@Test
+	public void test5Image(){
+		try {
+			Method valueSetter = ImageOption.class.getMethod("setValue", byte[].class);
+			logger.info("DeclaringClass {}",valueSetter.getDeclaringClass().getName());
+			Method valueSetter2 = ImageOption.class.getMethod("setValue", Object.class);
+			logger.info("DeclaringClass {}",valueSetter2.getDeclaringClass().getName());
+			ImageOption img = OptionBuilder.builder(ImageOption.class).name("testimg").value(FaceUtilits.getBytes(ItemTest.class.getResource("/images/dg.png"))).instance();
+			String jsonStr = BaseJsonEncoder.getEncoder().toJsonString(img);
+			ImageOption parsed = BaseJsonEncoder.getEncoder().fromJson(jsonStr, ImageOption.class);
+			logger.info("{}",parsed.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

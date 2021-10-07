@@ -1,5 +1,6 @@
 package gu.dtalk.client;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Scanner;
@@ -12,6 +13,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import gu.dtalk.ConnectReq;
 import gu.dtalk.CmdItem;
@@ -138,8 +140,12 @@ public class SampleTerminal {
 			if(str.isEmpty()){
 				return "";
 			}
-			if(validate.apply(str)){
-				return str;
+			try{
+				if(validate.apply(str)){
+					return str;
+				}
+			}catch (Exception e) {
+				System.out.println(e.getMessage());
 			}
 		}
 		return "";
@@ -254,7 +260,16 @@ public class SampleTerminal {
 
 			@Override
 			public boolean apply(String input) {
-				json.fluentPut(OPTION_FIELD_VALUE, input);
+				if(isImage(json)){
+					try {
+						json.fluentPut(OPTION_FIELD_VALUE, FaceUtilits.getByteBufferNotEmpty(new File(input)));
+					} catch (Exception e) {
+						Throwables.throwIfUnchecked(e);
+						throw new RuntimeException(e);
+					}
+				}else{
+					json.fluentPut(OPTION_FIELD_VALUE, input);
+				}
 				return true;
 			}
 		}, scaner);

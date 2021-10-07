@@ -65,4 +65,7 @@ public class CommonUtils {
 	public static boolean isQuit(Object item){
 		return isQuit((BaseItem) item)  || isQuit((JSONObject)item);
 	}
+	public static boolean isImage(JSONObject item){
+		return item == null ? false : OptionType.IMAGE.name().equals(item.getString(OPTION_FIELD_TYPE));
+	}
 }
