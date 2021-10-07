@@ -189,74 +189,165 @@ public abstract class BaseItem{
 		return child;
 	
 	}
+	/**
+	 * 根据{@code path}指定的路径查找对象,
+	 * 先在当前对象中查找，如果找不到，从根结点查找
+	 * @param path
+	 * @return 返回找到的{@link BaseItem},找不到返回{@code null}
+	 */
 	public BaseItem find(String path){
-		path = MoreObjects.firstNonNull(path, "").trim();
+		// 当前对象查找
+		BaseItem child = getChildByPath(path);
+		if (child !=null) {
+			return child;
+		}
 		BaseItem root = this;
 		for(;root.getParent() != null;root = root.getParent()){}
+		// 从根菜单查找
 		return root.getPath().equals(path) ? this : root.getChildByPath(path);
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	public MenuItem findMenu(String path){
 		BaseItem item = find(path);
 		return (item instanceof MenuItem) ? (MenuItem)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	public CmdItem findCmd(String path){
 		BaseItem item = find(path);
 		return (item instanceof CmdItem) ? (CmdItem)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	@SuppressWarnings("unchecked")
 	public BaseOption<Object> findOption(String path){
 		BaseItem item = find(path);
 		return (item instanceof BaseOption) ? (BaseOption<Object>)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	public Base64Option findBase64Option(String path){
 		BaseItem item = find(path);
 		return (item instanceof Base64Option) ? (Base64Option)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	public BoolOption findBoolOption(String path){
 		BaseItem item = find(path);
 		return (item instanceof BoolOption) ? (BoolOption)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	public IPv4Option findIPv4Option(String path){
 		BaseItem item = find(path);
 		return (item instanceof IPv4Option) ? (IPv4Option)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	public MACOption findMACOption(String path){
 		BaseItem item = find(path);
 		return (item instanceof MACOption) ? (MACOption)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	public IntOption findIntOption(String path){
 		BaseItem item = find(path);
 		return (item instanceof IntOption) ? (IntOption)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	public FloatOption findFloatOption(String path){
 		BaseItem item = find(path);
 		return (item instanceof FloatOption) ? (FloatOption)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	public DateOption findDateOption(String path){
 		BaseItem item = find(path);
 		return (item instanceof DateOption) ? (DateOption)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	public StringOption findStringOption(String path){
 		BaseItem item = find(path);
 		return (item instanceof StringOption) ? (StringOption)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	public PasswordOption findPasswordOption(String path){
 		BaseItem item = find(path);
 		return (item instanceof PasswordOption) ? (PasswordOption)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	public UrlOption findUrlOption(String path){
 		BaseItem item = find(path);
 		return (item instanceof UrlOption) ? (UrlOption)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	public ImageOption findImageOption(String path){
 		BaseItem item = find(path);
 		return (item instanceof ImageOption) ? (ImageOption)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	@SuppressWarnings("unchecked")
 	public <T>CheckOption<T> findCheckOption(String path){
 		BaseItem item = find(path);
 		return (item instanceof CheckOption) ? (CheckOption<T>)item: null;
 	}
+	/**
+	 * @param path
+	 * @return
+	 * @see #find(String)
+	 */
 	@SuppressWarnings("unchecked")
 	public <T>SwitchOption<T> findSwitchOption(String path){
 		BaseItem item = find(path);

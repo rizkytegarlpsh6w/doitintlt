@@ -17,15 +17,13 @@ import gu.dtalk.Ack.Status;
  * @author guyadong
  *
  */
-public class TextRender implements IClientRender {
+public class TextRender implements IMessageRender {
 
 	private PrintStream stream = System.out;
 	
 	public TextRender() {
 	}
-	/* （非 Javadoc）
-	 * @see gu.dtalk.client.ClientRender#rendeAck(gu.dtalk.Ack, boolean)
-	 */
+
 	@Override
 	public void rendeAck(Ack<?> ack, boolean renderValueIfOk){
 		Status status = ack.getStatus();
@@ -46,9 +44,7 @@ public class TextRender implements IClientRender {
 		}
 		stream.append('\n');
 	}
-	/* （非 Javadoc）
-	 * @see gu.dtalk.client.ClientRender#rendeItem(gu.dtalk.MenuItem)
-	 */
+
 	@Override
 	public void rendeItem(MenuItem menu){
 		stream.println("=========Device Menu============");
@@ -78,7 +74,7 @@ public class TextRender implements IClientRender {
 		}
 		stream.println("==Press number to seleect menu item(按数字选项菜单)==");
 	}
-	public IClientRender setStream(PrintStream stream) {
+	public IMessageRender setStream(PrintStream stream) {
 		if(null != stream){
 			this.stream = stream;
 		}

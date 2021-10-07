@@ -7,16 +7,16 @@ public class TextMessageAdapter <T> implements IMessageAdapter<T>{
 
 	private long lastRespTimestamp;
 	private T lastRespObj;
-	protected IClientRender render = new TextRender();
+	protected IMessageRender render = new TextRender();
 	
 	public TextMessageAdapter() {
 	}
 
-	public IClientRender getRender() {
+	public IMessageRender getRender() {
 		return render;
 	}
 
-	public void setRender(IClientRender render) {
+	public void setRender(IMessageRender render) {
 		if(null != render){
 			this.render = render;
 		}

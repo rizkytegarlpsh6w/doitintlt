@@ -208,7 +208,7 @@ public class SampleTerminal {
 		}else{
 			BaseItem currentLevel = checkNotNull(renderEngine.getCurrentLevel(),"currentLevel is null");
 			// 如果没有根据path找到对应的item则抛出异常
-			BaseItem item = checkNotNull(currentLevel.getChildByPath(path),"NOT FOUND item %s",path);
+			BaseItem item = checkNotNull(currentLevel.find(path),"NOT FOUND item %s",path);
 			json.fluentPut(ITEM_FIELD_NAME, item.getName())
 				.fluentPut(ITEM_FIELD_PATH,path)
 				.fluentPut(ITEM_FIELD_CATALOG, item.getCatalog());
@@ -321,7 +321,7 @@ public class SampleTerminal {
 	    					
 	    				}while(ack != null && !Status.OK.equals(ack.getStatus()));
 	    	    		// 刷新当前菜单
-	    	    		renderEngine.getRender().rendeItem(renderEngine.getCurrentLevel());
+	    				syncPublishReq(makeItemJSON(renderEngine.getCurrentLevel().getPath()));
 	    				break;
 	    			}
 					case CMD:{

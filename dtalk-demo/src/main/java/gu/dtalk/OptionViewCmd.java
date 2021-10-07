@@ -23,7 +23,7 @@ public class OptionViewCmd implements CmdItem.ICmdAdapter{
 				.<String, Object>of(
 						"name",optionType.name(),
 						"regex",optionType.regex,
-						"optClass",optionType.optClass.getSimpleName());
+						"optClass",optionType.optClass.getName());
 		
 		return m;
 	}
