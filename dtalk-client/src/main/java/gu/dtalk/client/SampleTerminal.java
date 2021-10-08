@@ -235,6 +235,7 @@ public class SampleTerminal {
 			return true;
 		}catch(Exception e){
 			System.out.println(e.getMessage());
+			System.exit(0);
 		}
 		return false;
 	}
