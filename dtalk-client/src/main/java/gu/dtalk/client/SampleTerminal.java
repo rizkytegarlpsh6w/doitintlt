@@ -2,7 +2,6 @@ package gu.dtalk.client;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
@@ -14,12 +13,12 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableMap;
 import gu.dtalk.ConnectReq;
 import gu.dtalk.CmdItem;
 import gu.dtalk.BaseItem;
 import gu.dtalk.BaseOption;
 import gu.dtalk.ItemType;
+import gu.dtalk.redis.RedisConfig;
 import gu.dtalk.Ack;
 import gu.dtalk.Ack.Status;
 import gu.simplemq.Channel;
@@ -27,7 +26,6 @@ import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
 import gu.simplemq.redis.RedisPublisher;
 import gu.simplemq.redis.RedisSubscriber;
-import gu.simplemq.redis.JedisPoolLazy.PropName;
 import net.gdface.utils.FaceUtilits;
 import net.gdface.utils.NetworkUtil;
 import static gu.dtalk.CommonConstant.*;
@@ -36,13 +34,6 @@ import static com.google.common.base.Preconditions.*;
 
 public class SampleTerminal {
 	private static final Logger logger = LoggerFactory.getLogger(SampleTerminal.class);
-	/** redis 连接参数 */
-	final static Map<PropName, Object> redisParam = 
-			ImmutableMap.<PropName, Object>of(
-					/** redis 主机名 */PropName.host,REDIS_HOST,
-					/** redis 端口号 */PropName.port,REDIS_PORT,
-					/** redis 密码    */PropName.password,REDIS_PASSWORD
-					);
 	private String reqChannel = null;
 	final RedisSubscriber subscriber;
 	final RedisPublisher publisher;
@@ -411,7 +402,7 @@ public class SampleTerminal {
 		}
 		try{
 			// 创建redis连接实例
-			JedisPoolLazy.createDefaultInstance( redisParam );
+			JedisPoolLazy.createDefaultInstance( RedisConfig.readRedisParam() );
 
 			SampleTerminal client = new SampleTerminal(devmac);
 			client.connect();
