@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import gu.dtalk.engine.ItemEngine;
 import gu.dtalk.engine.SampleConnector;
-import gu.dtalk.redis.RedisConfig;
+import gu.dtalk.redis.RedisConfigType;
 import gu.simplemq.Channel;
 import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
@@ -50,7 +50,7 @@ public class Demo {
 		try{
 			System.out.println("Device talk Demo starting(设备模拟器启动)");
 			// 创建redis连接实例
-			JedisPoolLazy.createDefaultInstance( RedisConfig.readRedisParam() );
+			JedisPoolLazy.createDefaultInstance( RedisConfigType.LOCALHOST.readRedisParam() );
 			
 			new Demo().start();
 			System.out.println("PRESS 'quit' OR 'CTRL-C' to exit");

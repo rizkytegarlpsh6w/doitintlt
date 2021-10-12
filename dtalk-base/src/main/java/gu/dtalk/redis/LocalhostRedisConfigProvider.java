@@ -5,7 +5,7 @@ import static gu.dtalk.CommonConstant.*;
  * @author guyadong
  *
  */
-public class DefaultRedisConfigProvider implements RedisConfigProvider {
+public class LocalhostRedisConfigProvider implements RedisConfigProvider {
 
 	@Override
 	public String getHost() {
@@ -54,6 +54,11 @@ public class DefaultRedisConfigProvider implements RedisConfigProvider {
 
 	@Override
 	public void setTimeout(long timeout) {
+	}
+	
+	@Override
+	public final RedisConfigType type() {
+		return RedisConfigType.LOCALHOST;
 	}
 
 }

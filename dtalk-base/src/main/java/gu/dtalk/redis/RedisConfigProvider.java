@@ -17,7 +17,7 @@ public interface RedisConfigProvider {
 	void setHost(String host);
 	/**
 	 * 
-	 * @return 返回redis端口号,<=0使用默认redis端口
+	 * @return 返回redis端口号,<=0使用默认redis端口6379
 	 */
 	int getPort();
 	/**
@@ -51,4 +51,5 @@ public interface RedisConfigProvider {
 	 */
 	long getTimeout();
 	void setTimeout(long timeout);
+	RedisConfigType type();
 }

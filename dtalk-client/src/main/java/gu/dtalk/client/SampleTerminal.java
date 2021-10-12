@@ -18,7 +18,7 @@ import gu.dtalk.CmdItem;
 import gu.dtalk.BaseItem;
 import gu.dtalk.BaseOption;
 import gu.dtalk.ItemType;
-import gu.dtalk.redis.RedisConfig;
+import gu.dtalk.redis.RedisConfigType;
 import gu.dtalk.Ack;
 import gu.dtalk.Ack.Status;
 import gu.simplemq.Channel;
@@ -402,7 +402,7 @@ public class SampleTerminal {
 		}
 		try{
 			// 创建redis连接实例
-			JedisPoolLazy.createDefaultInstance( RedisConfig.readRedisParam() );
+			JedisPoolLazy.createDefaultInstance( RedisConfigType.LOCALHOST.readRedisParam() );
 
 			SampleTerminal client = new SampleTerminal(devmac);
 			client.connect();

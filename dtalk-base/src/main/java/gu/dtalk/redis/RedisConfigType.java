@@ -1,36 +1,54 @@
 package gu.dtalk.redis;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.ImmutableMap.Builder;
 
-import static com.google.common.base.Preconditions.*;
 import gu.simplemq.redis.JedisPoolLazy.PropName;
 
-public class RedisConfig {
-	/**
-	 * SPI(Service Provider Interface)机制加载 {@link RedisConfigProvider}实例,
-	 * 没有找到返回{@link DefaultRedisConfigProvider}实例
-	 * @return
-	 */
-	public static RedisConfigProvider getRedisConfigProvider(){
-		ServiceLoader<RedisConfigProvider> providers = ServiceLoader.load(RedisConfigProvider.class);
-		Iterator<RedisConfigProvider> itor = providers.iterator();
-		if(!itor.hasNext()){
-			return new DefaultRedisConfigProvider();
+public enum RedisConfigType{
+	/** 本机配置(仅用于测试) */LOCALHOST(new LocalhostRedisConfigProvider())
+	/** 局域网配置 */,LAN(new LocalRedisConfigProvider())
+	/** 公有云配置 */,CLOUD(new CloudRedisConfigProvider())
+	/** 私有云配置 */,WAN;
+	private final RedisConfigProvider defImpl;
+	private RedisConfigProvider instance;
+	private RedisConfigType(){
+		this(null);
+	}
+	private RedisConfigType(RedisConfigProvider defImpl) {
+		this.defImpl = defImpl;
+	}
+	private synchronized RedisConfigProvider findRedisConfigProvider(){
+		if(instance == null && defImpl != instance){
+			ServiceLoader<RedisConfigProvider> providers = ServiceLoader.load(RedisConfigProvider.class);
+			Iterator<RedisConfigProvider> itor = providers.iterator();
+			Optional<RedisConfigProvider> find = Iterators.tryFind(itor, new Predicate<RedisConfigProvider>() {
+
+				@Override
+				public boolean apply(RedisConfigProvider input) {
+					return input.type() == RedisConfigType.this;
+				}
+			});
+			instance =  find.isPresent() ? find.get() : this.defImpl;
 		}
-		return itor.next();
+		return instance;
 	}
 	/**
 	 *根据SPI加载的{@link RedisConfigProvider}实例提供的参数创建Redis连接参数
 	 * @return
 	 */
-	public static Map<PropName, Object> readRedisParam(){
-		RedisConfigProvider config = getRedisConfigProvider();
+	public Map<PropName, Object> readRedisParam(){
+		RedisConfigProvider config = findRedisConfigProvider();
 		String host = config.getHost();
 		int port =config.getPort();
 		String password = config.getPassword();
@@ -53,8 +71,8 @@ public class RedisConfig {
 		}
 		return builder.build();
 	}
-	public static void saveRedisParam(Map<PropName, Object> param){
-		RedisConfigProvider config = getRedisConfigProvider();
+	public void saveRedisParam(Map<PropName, Object> param){
+		RedisConfigProvider config = findRedisConfigProvider();
 		String host = (String) param.get(PropName.host);
 		if(host != null){
 			config.setHost(host);
