@@ -53,7 +53,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	public boolean isReadOnly() {
 		return readOnly;
 	}
-	public BaseOption<T> setReadonly(boolean readOnly) {
+	public BaseOption<T> setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
 		return this;
 	}
@@ -201,6 +201,16 @@ public abstract class BaseOption<T> extends BaseItem {
 					this.observable.deleteObserver(listener);
 				}
 			}
+		}
+		return this;
+	}
+	@Override
+	BaseOption<T> setParent(BaseItem parent) {
+		super.setParent(parent);
+		// 父类为CmdItem时，disable,readOnly属性无效
+		if(parent instanceof CmdItem){
+			setDisable(false);
+			setReadOnly(false);
 		}
 		return this;
 	}

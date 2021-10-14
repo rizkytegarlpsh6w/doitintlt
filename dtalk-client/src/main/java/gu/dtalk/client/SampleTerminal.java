@@ -385,6 +385,7 @@ public class SampleTerminal {
 			System.exit(-1);
 		}
 	}
+
 	public static void main(String []args){
 		System.out.println("Text terminal for Device Talk is starting(设备交互字符终端启动)");
 		String devmac = null;
@@ -401,8 +402,11 @@ public class SampleTerminal {
 			devmac = inputMac();
 		}
 		try{
+			RedisConfigType config = RedisConfigType.lookupRedisConnect(null);
+			checkArgument(config != null,"NOT FOUND VALID REDIS SERVER");
+			logger.info("use config={}",config.toString());
 			// 创建redis连接实例
-			JedisPoolLazy.createDefaultInstance( RedisConfigType.LOCALHOST.readRedisParam() );
+			JedisPoolLazy.createDefaultInstance( config.readRedisParam() );
 
 			SampleTerminal client = new SampleTerminal(devmac);
 			client.connect();

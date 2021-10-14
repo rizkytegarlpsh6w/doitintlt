@@ -1,13 +1,15 @@
 package gu.dtalk.redis;
 
+import java.net.URI;
+
 /**
- * redis服务器参数SPI(Service Provider Interface)加载接口
+ * redis服务器参数SPI(Service Provider Interface)读写接口
  * @author guyadong
  *
  */
 public interface RedisConfigProvider {
 	/**
-	 * @return 返回redis主机名,不可为{@code null}
+	 * @return 返回redis主机名,当{@link #getURI()}返回{@code null}时，不可为{@code null}
 	 */
 	String getHost();
 	/**
@@ -49,7 +51,26 @@ public interface RedisConfigProvider {
 	 * 
 	 * @return 返回redis超时连接参数,<=0使用默认值
 	 */
-	long getTimeout();
-	void setTimeout(long timeout);
+	int getTimeout();
+	/**
+	 * 保存redis超时连接参数
+	 * @param timeout
+	 */
+	void setTimeout(int timeout);
+	/**
+	 * 以{@link URI}对象返回连接redis数据库所需要的host/port/password/database参数，
+	 * 此方法不为{@code null}时，忽略{@link #getHost()},{@link #getPort()},{@link #getPassword()},{@link #getDatabase()}方法返回的参数
+	 * @return
+	 */
+	URI getURI();
+	/**
+	 * 以{@link URI}对象保存接redis数据库所需要的host/port/password/database参数，
+	 * @param uri
+	 */
+	void setURI(URI uri);
+	/**
+	 * 返回当前配置的连接类型,不可为{@code null}
+	 * @return
+	 */
 	RedisConfigType type();
 }

@@ -26,7 +26,7 @@ public class OptionBuilder<T,O extends BaseOption<T>> {
 		return this;
 	}
 	public OptionBuilder<T,O> readonly(boolean readOnly) {
-		option.setReadonly(readOnly);
+		option.setReadOnly(readOnly);
 		return this;
 	}
 	public OptionBuilder<T,O> required(boolean required) {

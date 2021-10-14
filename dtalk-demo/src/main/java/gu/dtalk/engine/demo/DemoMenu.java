@@ -38,11 +38,11 @@ public class DemoMenu extends RootMenu{
 				.addChilds(
 						ItemBuilder.builder(StringOption.class).name("name").uiName("设备名称").instance(),
 						ItemBuilder.builder(StringOption.class).name("sn").uiName("设备序列号").instance().asValue("001122334455"),
-						ItemBuilder.builder(IPv4Option.class).name("IP").uiName("IP地址").instance().setValue(ip).setReadonly(true),
-						ItemBuilder.builder(MACOption.class).name("mac").uiName("物理地址").instance().setReadonly(true).setValue(mac).setReadonly(true),
-						ItemBuilder.builder(StringOption.class).name("gps").uiName("位置(GPS)").instance().setReadonly(true),
+						ItemBuilder.builder(IPv4Option.class).name("IP").uiName("IP地址").instance().setValue(ip).setReadOnly(true),
+						ItemBuilder.builder(MACOption.class).name("mac").uiName("物理地址").instance().setReadOnly(true).setValue(mac).setReadOnly(true),
+						ItemBuilder.builder(StringOption.class).name("gps").uiName("位置(GPS)").instance().setReadOnly(true),
 						ItemBuilder.builder(PasswordOption.class).name("password").uiName("连接密码").instance().setValue(DEVINFO_PROVIDER.getPassword()),
-						ItemBuilder.builder(StringOption.class).name("version").uiName("版本号").instance().setReadonly(true).setValue("unknow"))
+						ItemBuilder.builder(StringOption.class).name("version").uiName("版本号").instance().setReadOnly(true).setValue("unknow"))
 				.instance();
 		MenuItem redis = 
 			ItemBuilder.builder(MenuItem.class)
@@ -90,7 +90,7 @@ public class DemoMenu extends RootMenu{
 		return this;
 	}
 	public DemoMenu register(ValueListener<Object> listener){
-		listener.register(this);
+		listener.registerTo(this);
 		return this;
 	}
 }

@@ -1,6 +1,6 @@
 package gu.dtalk.event;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 
 import gu.dtalk.BaseItem;
 import gu.dtalk.BaseOption;
@@ -8,20 +8,20 @@ import gu.dtalk.BaseOption;
 
 public abstract class ValueListener<T> extends BaseObserver<ValueChangeEvent<BaseOption<T>>> {
 
-	public ValueListener<T> register(BaseOption<T> option){
+	public ValueListener<T> registerTo(BaseOption<T> option){
 		if(option != null){
 			option.addListener(this);
 		}
 		return this;
 	}
 	@SuppressWarnings("unchecked")
-	public void register(BaseItem root){
-		checkNotNull(root);
+	public void registerTo(BaseItem root){
+		checkArgument(root != null);
 		if(root instanceof BaseOption){
-			register((BaseOption<T>)root);
+			registerTo((BaseOption<T>)root);
 		}else{
 			for (BaseItem child : root.getChilds()) {
-				register(child);
+				registerTo(child);
 			}
 		}
 	}

@@ -5,6 +5,8 @@ import static gu.dtalk.CommonConstant.*;
  * @author guyadong
  *
  */
+
+import java.net.URI;
 public class LocalhostRedisConfigProvider implements RedisConfigProvider {
 
 	@Override
@@ -28,7 +30,7 @@ public class LocalhostRedisConfigProvider implements RedisConfigProvider {
 	}
 
 	@Override
-	public long getTimeout() {
+	public int getTimeout() {
 		return 0;
 	}
 
@@ -53,12 +55,20 @@ public class LocalhostRedisConfigProvider implements RedisConfigProvider {
 	}
 
 	@Override
-	public void setTimeout(long timeout) {
+	public void setTimeout(int timeout) {
 	}
 	
+	@Override
+	public URI getURI(){
+		return null;
+	}
+
+	@Override
+	public void setURI(URI uri){
+	}
+
 	@Override
 	public final RedisConfigType type() {
 		return RedisConfigType.LOCALHOST;
 	}
-
 }

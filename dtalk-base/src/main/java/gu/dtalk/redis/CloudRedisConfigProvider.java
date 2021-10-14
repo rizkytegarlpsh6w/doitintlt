@@ -1,5 +1,7 @@
 package gu.dtalk.redis;
 
+import java.net.URI;
+
 /**
  * 仅有云配置
  * @author guyadong
@@ -48,14 +50,21 @@ public class CloudRedisConfigProvider implements RedisConfigProvider {
 	}
 
 	@Override
-	public long getTimeout() {
+	public int getTimeout() {
 		return 0;
 	}
 
 	@Override
-	public void setTimeout(long timeout) {
+	public void setTimeout(int timeout) {
 
 	}
+	public URI getURI() {
+		return null;
+	}
+
+	public void setURI(URI uri) {
+	}
+
 	@Override
 	public final RedisConfigType type(){
 		return RedisConfigType.CLOUD;
