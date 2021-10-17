@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.ImmutableMap.Builder;
 
+import gu.dtalk.exception.DtalkException;
 import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.JedisPoolLazy.PropName;
 import gu.simplemq.redis.JedisUtils;
@@ -158,15 +159,16 @@ public enum RedisConfigType{
 	}
 
 	/**
-	 * 按照如下优先顺序测试配置的redis连接，返回第一个能建立有效连接的配置，否则返回{@code null}<br>
+	 * 按照如下优先顺序测试配置的redis连接，返回第一个能建立有效连接的配置，否则抛出异常<br>
 	 * <li>{@link RedisConfigType#CUSTOM}</li>
 	 * <li>{@link RedisConfigType#LAN}</li>
 	 * <li>{@link RedisConfigType#CLOUD}</li>
 	 * <li>{@link RedisConfigType#LOCALHOST}</li>
 	 * @param logger 日志对象,可为{@code null}
 	 * @return
+	 * @throws DtalkException 没有找到有效redis连接
 	 */
-	public static RedisConfigType lookupRedisConnect(Logger logger){
+	public static RedisConfigType lookupRedisConnect(Logger logger) throws DtalkException{
 		if(RedisConfigType.CUSTOM.testConnect(logger)){
 			return RedisConfigType.CUSTOM;
 		}else if(RedisConfigType.LAN.testConnect(logger)){
@@ -176,9 +178,21 @@ public enum RedisConfigType{
 		}else if(RedisConfigType.LOCALHOST.testConnect(logger)){
 			return RedisConfigType.LOCALHOST;
 		}
-		return null;
+		throw new DtalkException("NOT FOUND VALID REDIS SERVER");
 	}
 
+	/**
+	 * 与{@link #lookupRedisConnect(Logger)}功能相似,不同的时当没有找到有效redis连接时,不抛出异常,返回{@code null}
+	 * @param logger
+	 * @return 返回第一个能建立有效连接的配置,否则返回{@code null}
+	 */
+	public static RedisConfigType lookupRedisConnectUnchecked(Logger logger) {
+		try {
+			return lookupRedisConnect(logger);
+		} catch (DtalkException e) {
+			return null;
+		}
+	}
 	@Override
 	public	String toString(){
 		StringBuffer buffer = new StringBuffer();

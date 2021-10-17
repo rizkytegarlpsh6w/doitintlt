@@ -16,7 +16,6 @@ import gu.simplemq.redis.RedisFactory;
 import gu.simplemq.redis.RedisSubscriber;
 import net.gdface.utils.NetworkUtil;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static gu.dtalk.CommonUtils.*;
 import static gu.dtalk.engine.SampleConnector.*;
 
@@ -33,6 +32,9 @@ public class Demo {
 		connAdapter = new SampleConnector(pool).setItemAdapter(new ItemEngine(pool).setRoot(root));
 		devMac = DEVINFO_PROVIDER.getMac();
 	}
+	/**
+	 * 启动连接
+	 */
 	private void start(){
 		System.out.printf("DEVICE MAC address(设备地址): %s\n",NetworkUtil.formatMac(devMac, ":"));
 		String connchname = getConnChannel(devMac);
@@ -57,7 +59,6 @@ public class Demo {
 		try{
 			System.out.println("Device talk Demo starting(设备模拟器启动)");
 			RedisConfigType config = RedisConfigType.lookupRedisConnect(null);
-			checkArgument(config != null,"NOT FOUND VALID REDIS SERVER");
 			logger.info("use config={}",config.toString());
 			// 创建redis连接实例
 			JedisPoolLazy.createDefaultInstance( config.readRedisParam() );

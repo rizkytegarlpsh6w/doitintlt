@@ -403,7 +403,6 @@ public class SampleTerminal {
 		}
 		try{
 			RedisConfigType config = RedisConfigType.lookupRedisConnect(null);
-			checkArgument(config != null,"NOT FOUND VALID REDIS SERVER");
 			logger.info("use config={}",config.toString());
 			// 创建redis连接实例
 			JedisPoolLazy.createDefaultInstance( config.readRedisParam() );
@@ -417,8 +416,8 @@ public class SampleTerminal {
 			client.waitTextRenderEngine();
 			client.cmdInteractive();
 		}catch (Exception e) {
-			//System.out.println(e.getMessage());
-			logger.error(e.getMessage(),e);
+			System.out.println(e.getMessage());
+//			logger.error(e.getMessage(),e);
 			return ;
 		}
 	}
