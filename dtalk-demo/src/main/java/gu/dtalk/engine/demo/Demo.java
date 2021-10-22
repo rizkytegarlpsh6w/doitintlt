@@ -25,7 +25,7 @@ public class Demo {
 	private final SampleConnector connAdapter;
 	private final RedisSubscriber subscriber;
 	private final byte[] devMac;
-	public Demo() {
+	public Demo(RedisConfigType configType) {
 		JedisPoolLazy pool = JedisPoolLazy.getDefaultInstance();
 		subscriber = RedisFactory.getSubscriber(pool);
 		DemoMenu root = new DemoMenu().init().register(DemoListener.INSTANCE);
@@ -63,7 +63,7 @@ public class Demo {
 			// 创建redis连接实例
 			JedisPoolLazy.createDefaultInstance( config.readRedisParam() );
 			
-			new Demo().start();
+			new Demo(config).start();
 			System.out.println("PRESS 'quit' OR 'CTRL-C' to exit");
 			waitquit();
 		}catch (Exception e) {

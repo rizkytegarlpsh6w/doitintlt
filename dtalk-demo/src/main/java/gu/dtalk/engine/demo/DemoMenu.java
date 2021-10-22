@@ -12,6 +12,7 @@ import gu.dtalk.RootMenu;
 import gu.dtalk.StringOption;
 import gu.dtalk.SwitchOption;
 import gu.dtalk.event.ValueListener;
+import gu.dtalk.redis.RedisConfigType;
 
 import static gu.dtalk.CommonConstant.*;
 import static gu.dtalk.engine.SampleConnector.DEVINFO_PROVIDER;
@@ -25,7 +26,7 @@ import gu.dtalk.DateOption;
 import gu.dtalk.IPv4Option;
 
 public class DemoMenu extends RootMenu{
-
+	private RedisConfigType configType;
 	public DemoMenu() {
 	}
 	public DemoMenu init(){
@@ -91,6 +92,10 @@ public class DemoMenu extends RootMenu{
 	}
 	public DemoMenu register(ValueListener<Object> listener){
 		listener.registerTo(this);
+		return this;
+	}
+	public DemoMenu setConfigType(RedisConfigType configType) {
+		this.configType = configType;
 		return this;
 	}
 }
