@@ -134,27 +134,18 @@ public enum RedisConfigType{
 		}
 	}
 	/**
-	 * @param logger 日志对象,可为{@code null}
 	 * @return
 	 */
-	public boolean testConnect(Logger logger){
+	public boolean testConnect(){
 		// 创建redis连接实例
 		Map<PropName, Object> props = readRedisParam();
 		if(props == null){
 			return false;
 		}
-		if(logger != null){
-			logger.info("try to connect {}...", this);
-		}else{
-			System.out.printf("try to connect %s...", this);
-		}
+		System.out.printf("try to connect %s...", this);
 		
-		boolean connectable = JedisUtils.testConnect(JedisPoolLazy.initParameters(props));
-		if(logger != null){
-			logger.info(connectable?"OK":"FAIL");
-		}else{
-			System.out.println(connectable?"OK":"FAIL");
-		}
+		boolean connectable = JedisUtils.testConnect(props);
+		System.out.println(connectable?"OK":"FAIL");
 		return connectable;
 	}
 
@@ -164,31 +155,30 @@ public enum RedisConfigType{
 	 * <li>{@link RedisConfigType#LAN}</li>
 	 * <li>{@link RedisConfigType#CLOUD}</li>
 	 * <li>{@link RedisConfigType#LOCALHOST}</li>
-	 * @param logger 日志对象,可为{@code null}
 	 * @return
 	 * @throws DtalkException 没有找到有效redis连接
 	 */
-	public static RedisConfigType lookupRedisConnect(Logger logger) throws DtalkException{
-		if(RedisConfigType.CUSTOM.testConnect(logger)){
+	public static RedisConfigType lookupRedisConnect() throws DtalkException{
+		if(RedisConfigType.CUSTOM.testConnect()){
 			return RedisConfigType.CUSTOM;
-		}else if(RedisConfigType.LAN.testConnect(logger)){
+		}else if(RedisConfigType.LAN.testConnect()){
 			return RedisConfigType.LAN;
-		}else if(RedisConfigType.CLOUD.testConnect(logger)){
+		}else if(RedisConfigType.CLOUD.testConnect()){
 			return RedisConfigType.CLOUD;
-		}else if(RedisConfigType.LOCALHOST.testConnect(logger)){
+		}else if(RedisConfigType.LOCALHOST.testConnect()){
 			return RedisConfigType.LOCALHOST;
 		}
 		throw new DtalkException("NOT FOUND VALID REDIS SERVER");
 	}
 
 	/**
-	 * 与{@link #lookupRedisConnect(Logger)}功能相似,不同的时当没有找到有效redis连接时,不抛出异常,返回{@code null}
+	 * 与{@link #lookupRedisConnect()}功能相似,不同的时当没有找到有效redis连接时,不抛出异常,返回{@code null}
 	 * @param logger
 	 * @return 返回第一个能建立有效连接的配置,否则返回{@code null}
 	 */
 	public static RedisConfigType lookupRedisConnectUnchecked(Logger logger) {
 		try {
-			return lookupRedisConnect(logger);
+			return lookupRedisConnect();
 		} catch (DtalkException e) {
 			return null;
 		}
@@ -201,7 +191,6 @@ public enum RedisConfigType{
 		if(param==null){
 			buffer.append("null");
 		}else{
-			param = JedisPoolLazy.initParameters(param);
 			buffer.append(JedisUtils.getCanonicalURI(param).toString());
 		}
 		return buffer.toString();

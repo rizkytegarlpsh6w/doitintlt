@@ -3,7 +3,6 @@ package gu.dtalk.engine.demo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,7 @@ public class Demo {
 	private final RedisSubscriber subscriber;
 	private final byte[] devMac;
 	public Demo(RedisConfigType configType) {
-		JedisPoolLazy pool = JedisPoolLazy.getDefaultInstance();
+		JedisPoolLazy pool = JedisPoolLazy.getInstance(configType.readRedisParam(),false);
 		subscriber = RedisFactory.getSubscriber(pool);
 		DemoMenu root = new DemoMenu().init().register(DemoListener.INSTANCE);
 		connAdapter = new SampleConnector(pool).setItemAdapter(new ItemEngine(pool).setRoot(root));
@@ -58,7 +57,7 @@ public class Demo {
 	public static void main(String []args){
 		try{
 			System.out.println("Device talk Demo starting(设备模拟器启动)");
-			RedisConfigType config = RedisConfigType.lookupRedisConnect(null);
+			RedisConfigType config = RedisConfigType.lookupRedisConnect();
 			logger.info("use config={}",config.toString());
 			// 创建redis连接实例
 			JedisPoolLazy.createDefaultInstance( config.readRedisParam() );

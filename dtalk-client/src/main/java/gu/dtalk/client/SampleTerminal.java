@@ -402,7 +402,7 @@ public class SampleTerminal {
 			devmac = inputMac();
 		}
 		try{
-			RedisConfigType config = RedisConfigType.lookupRedisConnect(null);
+			RedisConfigType config = RedisConfigType.lookupRedisConnect();
 			logger.info("use config={}",config.toString());
 			// 创建redis连接实例
 			JedisPoolLazy.createDefaultInstance( config.readRedisParam() );
