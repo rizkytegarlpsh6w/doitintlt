@@ -3,7 +3,7 @@ package gu.dtalk.redis;
 import java.net.URI;
 
 /**
- * 仅有云配置
+ * 公有云配置
  * @author guyadong
  *
  */

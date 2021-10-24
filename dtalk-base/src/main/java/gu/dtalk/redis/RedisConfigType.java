@@ -17,7 +17,6 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.ImmutableMap.Builder;
 
 import gu.dtalk.exception.DtalkException;
-import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.JedisPoolLazy.PropName;
 import gu.simplemq.redis.JedisUtils;
 
@@ -134,10 +133,10 @@ public enum RedisConfigType{
 		}
 	}
 	/**
-	 * @return
+	 * 测试redis连接
+	 * @return 连接成功返回{@code true},否则返回{@code false}
 	 */
 	public boolean testConnect(){
-		// 创建redis连接实例
 		Map<PropName, Object> props = readRedisParam();
 		if(props == null){
 			return false;

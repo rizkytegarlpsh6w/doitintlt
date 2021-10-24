@@ -13,21 +13,24 @@ import gu.dtalk.StringOption;
 import gu.dtalk.SwitchOption;
 import gu.dtalk.event.ValueListener;
 import gu.dtalk.redis.RedisConfigType;
+import gu.simplemq.redis.JedisPoolLazy.PropName;
 
-import static gu.dtalk.CommonConstant.*;
 import static gu.dtalk.engine.SampleConnector.DEVINFO_PROVIDER;
 
 import java.util.Date;
+import java.util.Map;
 
 import gu.dtalk.BoolOption;
 import gu.dtalk.CheckOption;
 import gu.dtalk.CmdItem;
 import gu.dtalk.DateOption;
 import gu.dtalk.IPv4Option;
+import static com.google.common.base.Preconditions.*;
 
 public class DemoMenu extends RootMenu{
-	private RedisConfigType configType;
-	public DemoMenu() {
+	private Map<PropName, Object> redisparam;
+	public DemoMenu(RedisConfigType configType) {
+		redisparam = checkNotNull(configType,"configType is null").readRedisParam();
 	}
 	public DemoMenu init(){
 		byte[] mac = DEVINFO_PROVIDER.getMac();
@@ -50,10 +53,10 @@ public class DemoMenu extends RootMenu{
 				.name("redis")
 				.uiName("REDIS 服务器")
 				.addChilds(
-						ItemBuilder.builder(StringOption.class).name("host").uiName("主机名称").instance().setValue(REDIS_HOST),
-						ItemBuilder.builder(IntOption.class).name("port").uiName("端口号").instance().setValue(REDIS_PORT),
+						ItemBuilder.builder(StringOption.class).name("host").uiName("主机名称").instance().setValue((String) redisparam.get(PropName.host)),
+						ItemBuilder.builder(IntOption.class).name("port").uiName("端口号").instance().setValue((Integer) redisparam.get(PropName.port)),
 						ItemBuilder.builder(IntOption.class).name("db").uiName("数据库").instance().setValue(0),
-						ItemBuilder.builder(PasswordOption.class).name("password").uiName("连接密码").instance().setValue(REDIS_PASSWORD))
+						ItemBuilder.builder(PasswordOption.class).name("password").uiName("连接密码").instance().setValue((String) redisparam.get(PropName.password)))
 				.instance();
 		MenuItem test = 
 			ItemBuilder.builder(MenuItem.class)
@@ -94,8 +97,5 @@ public class DemoMenu extends RootMenu{
 		listener.registerTo(this);
 		return this;
 	}
-	public DemoMenu setConfigType(RedisConfigType configType) {
-		this.configType = configType;
-		return this;
-	}
+
 }

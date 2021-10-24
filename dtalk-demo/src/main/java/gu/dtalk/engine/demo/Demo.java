@@ -27,7 +27,7 @@ public class Demo {
 	public Demo(RedisConfigType configType) {
 		JedisPoolLazy pool = JedisPoolLazy.getInstance(configType.readRedisParam(),false);
 		subscriber = RedisFactory.getSubscriber(pool);
-		DemoMenu root = new DemoMenu().init().register(DemoListener.INSTANCE);
+		DemoMenu root = new DemoMenu(configType).init().register(DemoListener.INSTANCE);
 		connAdapter = new SampleConnector(pool).setItemAdapter(new ItemEngine(pool).setRoot(root));
 		devMac = DEVINFO_PROVIDER.getMac();
 	}
