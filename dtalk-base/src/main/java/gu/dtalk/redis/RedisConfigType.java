@@ -28,6 +28,7 @@ public enum RedisConfigType{
 	private final RedisConfigProvider defImpl;
 	private volatile RedisConfigProvider instance;
 	private volatile Map<PropName, Object> parameters;
+	private boolean connectable = false;
 	private RedisConfigType(){
 		this(null);
 	}
@@ -139,12 +140,12 @@ public enum RedisConfigType{
 	public boolean testConnect(){
 		Map<PropName, Object> props = readRedisParam();
 		if(props == null){
-			return false;
+			return connectable = false;
 		}
-		System.out.printf("try to connect %s...", this);
+		System.out.printf("try to connect %s...\n", this);
 		
-		boolean connectable = JedisUtils.testConnect(props);
-		System.out.println(connectable?"OK":"FAIL");
+		connectable = JedisUtils.testConnect(props);
+		//System.out.println(connectable?"OK":"FAIL");
 		return connectable;
 	}
 
@@ -158,7 +159,7 @@ public enum RedisConfigType{
 	 * @throws DtalkException 没有找到有效redis连接
 	 */
 	public static RedisConfigType lookupRedisConnect() throws DtalkException{
-		if(RedisConfigType.CUSTOM.testConnect()){
+/*		if(RedisConfigType.CUSTOM.testConnect()){
 			return RedisConfigType.CUSTOM;
 		}else if(RedisConfigType.LAN.testConnect()){
 			return RedisConfigType.LAN;
@@ -166,6 +167,31 @@ public enum RedisConfigType{
 			return RedisConfigType.CLOUD;
 		}else if(RedisConfigType.LOCALHOST.testConnect()){
 			return RedisConfigType.LOCALHOST;
+		}*/
+		Thread[] threads = new Thread[values().length];
+		int index = 0;
+		for (final RedisConfigType type : values()) {
+			threads[index] = new Thread(){
+
+				@Override
+				public void run() {
+					type.testConnect();
+				}
+				
+			};
+			threads[index].start();
+			index++;
+		}
+		try {
+			for(Thread thread:threads){
+				thread.join();
+			}
+		} catch (InterruptedException e) {
+		}
+		for (final RedisConfigType type : values()) {
+			if(type.connectable){
+				return type;
+			}
 		}
 		throw new DtalkException("NOT FOUND VALID REDIS SERVER");
 	}
