@@ -7,8 +7,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
 
-import org.slf4j.Logger;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
@@ -201,7 +199,7 @@ public enum RedisConfigType{
 	 * @param logger
 	 * @return 返回第一个能建立有效连接的配置,否则返回{@code null}
 	 */
-	public static RedisConfigType lookupRedisConnectUnchecked(Logger logger) {
+	public static RedisConfigType lookupRedisConnectUnchecked() {
 		try {
 			return lookupRedisConnect();
 		} catch (DtalkException e) {
