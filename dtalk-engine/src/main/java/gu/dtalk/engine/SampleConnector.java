@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +13,6 @@ import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.Strings;
 
 import gu.dtalk.Ack;
-import gu.dtalk.CommonUtils;
 import gu.dtalk.ConnectReq;
 import gu.dtalk.DeviceInfoProvider;
 import gu.simplemq.Channel;
@@ -35,7 +33,7 @@ import static gu.dtalk.CommonUtils.*;
  * @author guyadong
  *
  */
-public class SampleConnector implements IMessageAdapter<String> {
+public class SampleConnector implements IMessageAdapter<String>, RequestValidator {
 	private static final Logger logger = LoggerFactory.getLogger(SampleConnector.class);
 	private static class SingletonTimer{
 		private static final Timer instnace = new Timer(true);
@@ -48,13 +46,17 @@ public class SampleConnector implements IMessageAdapter<String> {
 		return timer;
 	}
 	
-	private ConnectReq curconnect;
+	/**
+	 * 当前连接的CLIENT端MAC地址
+	 */
+	private String curMAC;
 	private final RedisPublisher ackPublisher;
 	private String workChannel;
 	private long idleTimeLimit = DEFAULT_IDLE_TIME_MILLS;
 	private long timerPeriod = 2000;
 	private ItemAdapter itemAdapter;
 	private final RedisSubscriber subscriber;
+	private RequestValidator requestValidator;
 	public final static DeviceInfoProvider DEVINFO_PROVIDER = getDeviceInfoProvider();
 	/**
 	 * SPI(Service Provider Interface)机制加载 {@link DeviceInfoProvider}实例,没有找到返回默认实例
@@ -72,7 +74,7 @@ public class SampleConnector implements IMessageAdapter<String> {
 	public SampleConnector(JedisPoolLazy pool) {
 		ackPublisher = RedisFactory.getPublisher(pool);
 		subscriber = RedisFactory.getSubscriber(pool);
-		
+		requestValidator = this;
 		// 定时检查itemAdapter工作状态，当itemAdapter 空闲超时，则中止频道
 		getTimer().schedule(new TimerTask() {
 			
@@ -91,6 +93,21 @@ public class SampleConnector implements IMessageAdapter<String> {
 		}, 0, timerPeriod);
 
 	}
+	
+	@Override
+	public String validate(String connstr) throws Exception {
+		ConnectReq req = BaseJsonEncoder.getEncoder().fromJson(connstr, ConnectReq.class);
+		checkArgument(req != null,"NULL REQUEST");
+		
+		String admPwd = checkNotNull(DEVINFO_PROVIDER.getPassword(),"admin password for device is null");
+		checkArgument(!Strings.isNullOrEmpty(req.mac),"NULL REQUEST MAC ADDRESS");
+		checkArgument(!Strings.isNullOrEmpty(req.pwd),"NULL REQUEST PASSWORD");
+		checkArgument(!Strings.isNullOrEmpty(admPwd),"NULL ADMIN PASSWORD");
+		String pwdmd5 = FaceUtilits.getMD5String(admPwd.getBytes());
+
+		checkState(pwdmd5.equalsIgnoreCase(req.pwd),"INVALID REQUEST PASSWORD");
+		return req.mac;
+	}
 	/** 
 	 * 处理来自管理端的连接请求<br>
 	 * 如果收到的数据无法解析成{@link ConnectReq}实例则忽略
@@ -101,19 +118,13 @@ public class SampleConnector implements IMessageAdapter<String> {
 	public void onSubscribe(String connstr) throws SmqUnsubscribeException {
 		logger.debug("request:"+connstr);
 		Ack<String> ack = new Ack<String>().setStatus(Ack.Status.OK);
-		ConnectReq req = null;
+		String ackChannel = null;
 		try{
-			req = BaseJsonEncoder.getEncoder().fromJson(connstr, ConnectReq.class);
-			checkArgument(req != null,"NULL REQUEST");
-			
-			String admPwd = checkNotNull(DEVINFO_PROVIDER.getPassword(),"admin password for device is null");
-			checkArgument(!Strings.isNullOrEmpty(req.mac),"NULL REQUEST MAC ADDRESS");
-			checkArgument(!Strings.isNullOrEmpty(req.pwd),"NULL REQUEST PASSWORD");
-			checkArgument(!Strings.isNullOrEmpty(admPwd),"NULL ADMIN PASSWORD");
-			String pwdmd5 = FaceUtilits.getMD5String(admPwd.getBytes());
-
-			checkState(pwdmd5.equalsIgnoreCase(req.pwd),"INVALID REQUEST PASSWORD");
-			checkState(curconnect ==null || curconnect.mac.equals(req.mac),"ANOTHER CLIENT LOCKED");
+			String reqMAC = requestValidator.validate(connstr);
+			checkArgument(!Strings.isNullOrEmpty(reqMAC),"the mac address of request client is null");
+			checkState(curMAC ==null || curMAC.equals(reqMAC),"ANOTHER CLIENT LOCKED");
+			curMAC = reqMAC;
+			ackChannel = getAckChannel(curMAC);
 			// 密码匹配则发送工作频道名
 			if(workChannel == null){
 				workChannel = String.format("%s_%d", 
@@ -123,14 +134,14 @@ public class SampleConnector implements IMessageAdapter<String> {
 
 			ack.setValue(workChannel);
 			if(null == subscriber.getChannel(workChannel)){
-				final ConnectReq request = new ConnectReq(req.mac,req.pwd);
+				checkNotNull(itemAdapter,"Dtalk ENGINE NOT READY").setAckChannel(ackChannel);
+				// 必须在另开线程执行注册，否则会造成onSubscribe调用者JedisPubSub状态异常
 				new Thread(){
 					@Override
 					public void run() {
-						Channel<JSONObject> c = new Channel<JSONObject> (workChannel,JSONObject.class,itemAdapter);
-						itemAdapter.setAckChannel(getAckChannel(request.mac));
+						Channel<JSONObject> c = new Channel<JSONObject> (workChannel,JSONObject.class,itemAdapter);						
 						subscriber.register(c);
-						System.out.printf("Connect created(建立连接) %s for client:%s\n", c.name,request.mac);
+						System.out.printf("Connect created(建立连接) %s for client:%s\n", c.name,curMAC);
 					}}.start();
 
 			}
@@ -139,9 +150,10 @@ public class SampleConnector implements IMessageAdapter<String> {
 		}catch(Exception e){
 			ack.setStatus(Ack.Status.ERROR).setErrorMessage(e.getMessage());
 		}
-		if(req!=null){
+		if(ackChannel != null){
 			// 向响应频道发送响应消息
-			Channel<Ack<String>> channel = new Channel<Ack<String>>(CommonUtils.getAckChannel(req.mac),new TypeReference<Ack<String>>() {}.getType());
+			Channel<Ack<String>> channel = 
+					new Channel<Ack<String>>(ackChannel,new TypeReference<Ack<String>>() {}.getType());
 			ackPublisher.publish(channel, ack);
 		}
 	}
@@ -156,7 +168,7 @@ public class SampleConnector implements IMessageAdapter<String> {
 	 * @param timer
 	 * @return
 	 */
-	public SampleConnector setTimer(Timer timer) {
+	public RequestValidator setTimer(Timer timer) {
 		if(timer != null){
 			this.timer = timer;
 		}
@@ -168,7 +180,7 @@ public class SampleConnector implements IMessageAdapter<String> {
 	 * @param idleTimeLimit
 	 * @return
 	 */
-	public SampleConnector setIdleTimeLimit(long idleTimeLimit) {
+	public RequestValidator setIdleTimeLimit(long idleTimeLimit) {
 		if(idleTimeLimit >0){
 			this.idleTimeLimit = idleTimeLimit;
 		}
@@ -180,10 +192,19 @@ public class SampleConnector implements IMessageAdapter<String> {
 	 * @param timerPeriod
 	 * @return
 	 */
-	public SampleConnector setTimerPeriod(long timerPeriod) {
+	public RequestValidator setTimerPeriod(long timerPeriod) {
 		if(timerPeriod > 0){
 		this.timerPeriod = timerPeriod;
 		}
+		return this;
+	}
+
+	public RequestValidator getRequestValidator() {
+		return requestValidator;
+	}
+
+	public SampleConnector setRequestValidator(RequestValidator requestValidator) {
+		this.requestValidator = checkNotNull(requestValidator);
 		return this;
 	}
 
