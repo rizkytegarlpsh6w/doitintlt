@@ -7,7 +7,7 @@ import static gu.dtalk.CommonConstant.*;
  */
 
 import java.net.URI;
-public class LocalhostRedisConfigProvider implements RedisConfigProvider {
+public class DefaultLocalhostRedisConfigProvider implements RedisConfigProvider {
 
 	@Override
 	public String getHost() {

@@ -25,9 +25,9 @@ import gu.simplemq.redis.JedisUtils;
  */
 public enum RedisConfigType{
 	/** 自定义配置 */CUSTOM
-	/** 局域网配置 */,LAN(new LocalRedisConfigProvider())
-	/** 公有云配置 */,CLOUD(new CloudRedisConfigProvider())
-	/** 本机配置(仅用于测试) */,LOCALHOST(new LocalhostRedisConfigProvider());
+	/** 局域网配置 */,LAN(new DefaultLocalRedisConfigProvider())
+	/** 公有云配置 */,CLOUD(new DefaultCloudRedisConfigProvider())
+	/** 本机配置(仅用于测试) */,LOCALHOST(new DefaultLocalhostRedisConfigProvider());
 	/**
 	 * 接口实例的默认实现
 	 */

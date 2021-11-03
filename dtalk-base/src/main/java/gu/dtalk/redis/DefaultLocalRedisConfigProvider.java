@@ -7,7 +7,7 @@ import java.net.URI;
  * @author guyadong
  *
  */
-public class LocalRedisConfigProvider implements RedisConfigProvider {
+public class DefaultLocalRedisConfigProvider implements RedisConfigProvider {
 
 	@Override
 	public String getHost() {
