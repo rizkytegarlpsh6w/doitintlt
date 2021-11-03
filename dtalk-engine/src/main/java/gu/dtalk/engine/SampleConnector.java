@@ -94,6 +94,10 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 
 	}
 	
+	/**
+	 * 将连接请求字符串解析为{@link ConnectReq}对象，通过验证密码来确定连接是否有效
+	 * @see gu.dtalk.engine.RequestValidator#validate(java.lang.String)
+	 */
 	@Override
 	public String validate(String connstr) throws Exception {
 		ConnectReq req = BaseJsonEncoder.getEncoder().fromJson(connstr, ConnectReq.class);
@@ -203,6 +207,12 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 		return requestValidator;
 	}
 
+	/**
+	 * 设置连接请求验证接口实例，如果不指定，默认使用基于{@link ConnectReq}格式的请求验证
+	 * 参见 {@link #validate(String)}
+	 * @param requestValidator 不可为{@code null}
+	 * @return
+	 */
 	public SampleConnector setRequestValidator(RequestValidator requestValidator) {
 		this.requestValidator = checkNotNull(requestValidator);
 		return this;
