@@ -8,7 +8,7 @@ import gu.dtalk.event.ValueChangeEvent;
 import gu.dtalk.event.ValueListener;
 
 public class DemoListener extends ValueListener<Object> {
-	static final DemoListener INSTANCE = new DemoListener();
+	public static final DemoListener INSTANCE = new DemoListener();
 	private static final Logger logger =LoggerFactory.getLogger(DemoListener.class);
 	public DemoListener() {
 	}

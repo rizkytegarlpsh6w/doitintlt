@@ -152,6 +152,7 @@ public enum RedisConfigType{
 			config.setURI( (URI) uri);
 		}
 	}
+	private static volatile RedisConfigType activeConfigType = null;
 	/**
 	 * 测试redis连接
 	 * @return 连接成功返回{@code true},否则返回{@code false}
@@ -180,36 +181,43 @@ public enum RedisConfigType{
 	 * @throws DtalkException 没有找到有效redis连接
 	 */
 	public static RedisConfigType lookupRedisConnect() throws DtalkException{
-		// 并发执行连接测试，以减少等待时间
-		Thread[] threads = new Thread[values().length];
-		int index = 0;
-		for (final RedisConfigType type : values()) {
-			threads[index] = new Thread(){
+		if(activeConfigType == null){
+			synchronized(RedisConfigType.class){
+				if(activeConfigType == null){
+					// 并发执行连接测试，以减少等待时间
+					Thread[] threads = new Thread[values().length];
+					int index = 0;
+					for (final RedisConfigType type : values()) {
+						threads[index] = new Thread(){
 
-				@Override
-				public void run() {
-					type.testConnect();
+							@Override
+							public void run() {
+								type.testConnect();
+							}
+
+						};
+						threads[index].start();
+						index++;
+					}
+					// 等待所有子线程结束
+					try {
+						for(Thread thread:threads){
+							thread.join();
+						}
+					} catch (InterruptedException e) {
+					}
+					// 以枚举变量定义的顺序为优先级查找第一个connectable为true的对象返回
+					// 都为false则抛出异常
+					for (final RedisConfigType type : values()) {
+						if(type.connectable){
+							return type;
+						}
+					}
+					throw new DtalkException("NOT FOUND VALID REDIS SERVER");
 				}
-				
-			};
-			threads[index].start();
-			index++;
-		}
-		// 等待所有子线程结束
-		try {
-			for(Thread thread:threads){
-				thread.join();
-			}
-		} catch (InterruptedException e) {
-		}
-		// 以枚举变量定义的顺序为优先级查找第一个connectable为true的对象返回
-		// 都为false则抛出异常
-		for (final RedisConfigType type : values()) {
-			if(type.connectable){
-				return type;
 			}
 		}
-		throw new DtalkException("NOT FOUND VALID REDIS SERVER");
+		return activeConfigType;
 	}
 
 	/**

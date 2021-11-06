@@ -2,6 +2,7 @@ package gu.dtalk.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import gu.dtalk.Ack;
 import gu.dtalk.Ack.Status;
 import gu.simplemq.Channel;
 import gu.simplemq.redis.JedisPoolLazy;
+import gu.simplemq.redis.JedisPoolLazy.PropName;
 import gu.simplemq.redis.RedisFactory;
 import gu.simplemq.redis.RedisPublisher;
 import gu.simplemq.redis.RedisSubscriber;
@@ -45,12 +47,12 @@ public class SampleTerminal {
 	/**
 	 * 构造方法
 	 * @param devmac 要连接的设备MAC地址,测试设备程序在本地运行时可为空。
+	 * @param config TODO
 	 */
-	private SampleTerminal(String devmac) {
+	public SampleTerminal(String devmac, RedisConfigType config) {
 		subscriber = RedisFactory.getSubscriber(JedisPoolLazy.getDefaultInstance());
 		publisher = RedisFactory.getPublisher(JedisPoolLazy.getDefaultInstance());
-
-		temminalMac = getDeviceMac();
+		temminalMac = getDeviceMac(config);
 		System.out.printf("TERMINAL MAC address: %s\n", NetworkUtil.formatMac(temminalMac, ":"));
 
 		ackchname = getAckChannel(temminalMac);
@@ -81,13 +83,16 @@ public class SampleTerminal {
 		}		
 
 	}
-	private static byte[] getDeviceMac(){
+	private static byte[] getDeviceMac(RedisConfigType type){
 		try {
+			HashMap<PropName, Object> param = JedisPoolLazy.initParameters(type.readRedisParam());
+			String host = (String) param.get(PropName.host);
+			int port  = (int) param.get(PropName.port);
 			// 使用localhost获取本机MAC地址会返回空数组，所以这里使用一个互联地址来获取
-			if(REDIS_HOST.equals("127.0.0.1") || REDIS_HOST.equalsIgnoreCase("localhost")){
+			if(host.equals("127.0.0.1") || host.equalsIgnoreCase("localhost")){
 				return NetworkUtil.getCurrentMac("www.cnnic.net.cn", 80);
 			}
-			return NetworkUtil.getCurrentMac(REDIS_HOST, REDIS_PORT);
+			return NetworkUtil.getCurrentMac(host, port);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -95,7 +100,7 @@ public class SampleTerminal {
 	/**
 	 * 尝试连接目标设备
 	 */
-	private void connect() {		
+	public void connect() {		
 
 /*		ackChannel.addUnregistedListener(new IUnregistedListener<Ack<String>>() {
 
@@ -293,7 +298,7 @@ public class SampleTerminal {
 	/**
 	 * 键盘命令交互
 	 */
-	private void cmdInteractive(){
+	public void cmdInteractive(){
 		
 		// 第一次进入发送命令显示根菜单
 		if(!syncPublishReq(makeItemJSON("/"))){
@@ -369,7 +374,7 @@ public class SampleTerminal {
 		}
 		return "";
 	}
-	private void waitTextRenderEngine(){
+	public void waitTextRenderEngine(){
 		int waitCount = 30;
 		TextMessageAdapter<?> adapter = (TextMessageAdapter<?>) ackChannel.getAdapter();
 		while( !(adapter instanceof RenderEngine) && waitCount > 0){
@@ -407,7 +412,7 @@ public class SampleTerminal {
 			// 创建redis连接实例
 			JedisPoolLazy.createDefaultInstance( config.readRedisParam() );
 
-			SampleTerminal client = new SampleTerminal(devmac);
+			SampleTerminal client = new SampleTerminal(devmac, config);
 			client.connect();
 			if(!client.validatePwd()){
 				return;
