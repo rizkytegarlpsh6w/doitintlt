@@ -1,6 +1,6 @@
 package gu.dtalk.redis;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.*;
 
 import java.net.URI;
 import java.util.Iterator;
@@ -13,6 +13,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.net.HostAndPort;
 
 import gu.dtalk.exception.DtalkException;
 import gu.simplemq.redis.JedisPoolLazy.PropName;
@@ -74,6 +75,20 @@ public enum RedisConfigType{
 			}
 		}
 		return instance;
+	}
+	public HostAndPort getHostAndPort(){
+		String host;
+		int port;
+		checkState(null != parameters,"redis parameters not initialized,must call readRedisParam() firstly");
+		if(parameters.get(PropName.uri) != null){
+			URI uri = (URI)parameters.get(PropName.uri);
+			host = uri.getHost();
+			port = uri.getPort();
+		}else{
+			host = (String) parameters.get(PropName.host);
+			port  = (int) parameters.get(PropName.port);	
+		}
+		return HostAndPort.fromParts(host, port);
 	}
 	/**
 	 * 根据SPI加载的{@link RedisConfigProvider}实例提供的参数创建Redis连接参数<b>

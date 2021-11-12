@@ -2,7 +2,6 @@ package gu.dtalk.client;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
@@ -11,10 +10,10 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
-import gu.dtalk.ConnectReq;
+import com.google.common.net.HostAndPort;
+
 import gu.dtalk.CmdItem;
 import gu.dtalk.BaseItem;
 import gu.dtalk.BaseOption;
@@ -24,7 +23,6 @@ import gu.dtalk.Ack;
 import gu.dtalk.Ack.Status;
 import gu.simplemq.Channel;
 import gu.simplemq.redis.JedisPoolLazy;
-import gu.simplemq.redis.JedisPoolLazy.PropName;
 import gu.simplemq.redis.RedisFactory;
 import gu.simplemq.redis.RedisPublisher;
 import gu.simplemq.redis.RedisSubscriber;
@@ -34,14 +32,14 @@ import static gu.dtalk.CommonConstant.*;
 import static gu.dtalk.CommonUtils.*;
 import static com.google.common.base.Preconditions.*;
 
-public class SampleTerminal {
-	private static final Logger logger = LoggerFactory.getLogger(SampleTerminal.class);
-	private String reqChannel = null;
+public abstract class BaseConsole {
+	protected static final Logger logger = LoggerFactory.getLogger(BaseConsole.class);
+	protected String reqChannel = null;
 	final RedisSubscriber subscriber;
 	final RedisPublisher publisher;
-	final byte[] temminalMac;
+	protected final byte[] temminalMac;
 	private final String ackchname;
-	private final String connchname;
+	protected final String connchname;
 	private final RenderEngine renderEngine = new RenderEngine();
 	private final Channel<JSONObject> ackChannel;
 	/**
@@ -49,10 +47,11 @@ public class SampleTerminal {
 	 * @param devmac 要连接的设备MAC地址,测试设备程序在本地运行时可为空。
 	 * @param config TODO
 	 */
-	public SampleTerminal(String devmac, RedisConfigType config) {
-		subscriber = RedisFactory.getSubscriber(JedisPoolLazy.getDefaultInstance());
-		publisher = RedisFactory.getPublisher(JedisPoolLazy.getDefaultInstance());
-		temminalMac = getDeviceMac(config);
+	public BaseConsole(String devmac, RedisConfigType config) {
+		JedisPoolLazy pool = JedisPoolLazy.getInstance(config.readRedisParam(),false);
+		subscriber = RedisFactory.getSubscriber(pool);
+		publisher = RedisFactory.getPublisher(pool);
+		temminalMac = getSelfMac(config);
 		System.out.printf("TERMINAL MAC address: %s\n", NetworkUtil.formatMac(temminalMac, ":"));
 
 		ackchname = getAckChannel(temminalMac);
@@ -83,11 +82,11 @@ public class SampleTerminal {
 		}		
 
 	}
-	private static byte[] getDeviceMac(RedisConfigType type){
+	private static byte[] getSelfMac(RedisConfigType type){
 		try {
-			HashMap<PropName, Object> param = JedisPoolLazy.initParameters(type.readRedisParam());
-			String host = (String) param.get(PropName.host);
-			int port  = (int) param.get(PropName.port);
+			HostAndPort hostAndPort = type.getHostAndPort();
+			String host = hostAndPort.getHost();
+			int port = hostAndPort.getPort();
 			// 使用localhost获取本机MAC地址会返回空数组，所以这里使用一个互联地址来获取
 			if(host.equals("127.0.0.1") || host.equalsIgnoreCase("localhost")){
 				return NetworkUtil.getCurrentMac("www.cnnic.net.cn", 80);
@@ -102,24 +101,10 @@ public class SampleTerminal {
 	 */
 	public void connect() {		
 
-/*		ackChannel.addUnregistedListener(new IUnregistedListener<Ack<String>>() {
-
-			@Override
-			public void apply(Channel<Ack<String>> channel) {
-				reqChannel = connectorAdapter.getReqChannel();				
-				if(!Strings.isNullOrEmpty(reqChannel)){
-					System.out.println("Request Channel:" + reqChannel);
-					Channel<JSONObject> c = new Channel<JSONObject>(ackchname,JSONObject.class)
-							.setAdapter(renderEngine.reset());	
-					subscriber.register(c);
-					cueAdapter = renderEngine;
-				}
-			}
-		});*/
 		subscriber.register(ackChannel);		
 		
 	}
-	private static String scanLine(Predicate<String>validate){
+	protected static String scanLine(Predicate<String>validate){
 		Scanner scaner = new Scanner(System.in);
 		try{
 			
@@ -151,7 +136,7 @@ public class SampleTerminal {
 	 * 输入目标设备的MAC地址
 	 * @return
 	 */
-	private static String inputMac(){
+	protected static String inputMac(){
 		System.out.println("Input MAC address of Device,such as '00:00:7f:2a:39:4A' or '00e8992730FF':"
 			+ "(input empty string if target device demo running on localhost)"
 				);
@@ -167,23 +152,6 @@ public class SampleTerminal {
 			}
 		});
 
-	}
-	private boolean validatePwd(){
-		System.out.println("Input password  of Device,default password is last 4 character of device MAC address(lowercase):");
-		ConnectReq req = new ConnectReq();
-		req.mac = FaceUtilits.toHex(temminalMac);
-		Channel<ConnectReq> conch = new Channel<>(connchname, ConnectReq.class);
-		String pwd = null;
-//		Scanner scaner = new Scanner(System.in);
-//		try{
-			while ((reqChannel == null) && !(pwd=scanLine(Predicates.<String>alwaysTrue())).isEmpty()) {
-				req.pwd = FaceUtilits.getMD5String(pwd.getBytes());
-				syncPublish(conch,req);
-			}
-			return reqChannel != null;
-/*		}finally{
-			scaner.close();
-		}*/
 	}
 	private void waitResp(long timestamp){
 		int waitCount = 30;
@@ -221,7 +189,7 @@ public class SampleTerminal {
 
 		return json;
 	}
-	private <T>boolean syncPublish(Channel<T>channel,T json){
+	protected <T>boolean syncPublish(Channel<T>channel,T json){
 		try{
 			long timestamp = System.currentTimeMillis();
 			long rc = publisher.publish(channel, json);
@@ -367,7 +335,7 @@ public class SampleTerminal {
 		}
 	    return;
 	}
-	private static String parseMac(String input){
+	protected static String parseMac(String input){
 		input = MoreObjects.firstNonNull(input, "").trim();
 		if(input.matches(MAC_REG)){
 			return input.replace(":", "").toLowerCase();
@@ -390,40 +358,18 @@ public class SampleTerminal {
 			System.exit(-1);
 		}
 	}
-
-	public static void main(String []args){
-		System.out.println("Text terminal for Device Talk is starting(设备交互字符终端启动)");
-		String devmac = null;
-		// 如果命令行提供了设备mac地址，则尝试解析该参数
-		if(args.length > 1){
-			devmac = parseMac(args[0]);
-			if(devmac.isEmpty()){
-				System.out.printf("ERROR:Invalid mac adress %s\n",devmac);
-				return ;
-			}
-		}
-		// 否则提示输入命令行参数
-		if(Strings.isNullOrEmpty(devmac)){
-			devmac = inputMac();
-		}
+	protected void start(){
 		try{
-			RedisConfigType config = RedisConfigType.lookupRedisConnect();
-			logger.info("use config={}",config.toString());
-			// 创建redis连接实例
-			JedisPoolLazy.createDefaultInstance( config.readRedisParam() );
-
-			SampleTerminal client = new SampleTerminal(devmac, config);
-			client.connect();
-			if(!client.validatePwd()){
-				return;
+			connect();
+			if(authorize()){
+				waitTextRenderEngine();
+				cmdInteractive();
 			}
-			System.out.println("PASSWORD validate passed");
-			client.waitTextRenderEngine();
-			client.cmdInteractive();
 		}catch (Exception e) {
 			System.out.println(e.getMessage());
-//			logger.error(e.getMessage(),e);
+			//			logger.error(e.getMessage(),e);
 			return ;
 		}
 	}
+	protected abstract boolean authorize();
 }

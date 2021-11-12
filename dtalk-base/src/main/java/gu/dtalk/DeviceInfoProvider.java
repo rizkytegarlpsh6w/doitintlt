@@ -1,7 +1,7 @@
 package gu.dtalk;
 
 /**
- * 授权信息访问接口<br>
+ * 设备信息访问接口<br>
  * SDK初始化时以SPI(Service Provider Interface)机制加载应用层提供的
  * {@link DeviceInfoProvider}实例,并通过接口实例获取设备信息<br>
  * 

@@ -61,7 +61,7 @@
 				<configuration>
 					<transformers>
 						<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-							<mainClass>gu.dtalk.client.SampleTerminal</mainClass>
+							<mainClass>gu.dtalk.client.BaseConsole</mainClass>
 						</transformer>
 					</transformers>
 					<shadedArtifactAttached>true</shadedArtifactAttached>

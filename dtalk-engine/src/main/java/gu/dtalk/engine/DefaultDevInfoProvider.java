@@ -14,14 +14,20 @@ public class DefaultDevInfoProvider implements DeviceInfoProvider {
 	private byte[] mac={0,0,0,0,0,0};
 	private byte[] ip = {127,0,0,1};
 	public DefaultDevInfoProvider() {
-		
+		this("www.cnnic.net.cn", 80);
+	}
+	protected DefaultDevInfoProvider(String host,int port) {		
 		try {
-			mac = NetworkUtil.getCurrentMac("www.cnnic.net.cn", 80);
-			ip  = getLocalIp("www.cnnic.net.cn", 80);
+			// 使用localhost获取本机MAC地址会返回空数组，所以这里使用一个互联地址来获取
+			if(host == null || "127.0.0.1".equals(host) || "localhost".equalsIgnoreCase(host)){
+				host = "www.cnnic.net.cn";
+				port = 80;
+			}
+			mac = NetworkUtil.getCurrentMac(host, port);
+			ip  = getLocalIp(host, port);
 		} catch (IOException e) {			
 		}
 	}
-
 	@Override
 	public String getPassword() {
 		// 返回mac地址后4位做默认密码
