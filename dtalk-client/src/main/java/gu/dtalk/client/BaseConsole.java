@@ -266,7 +266,7 @@ public abstract class BaseConsole {
 	/**
 	 * 键盘命令交互
 	 */
-	public void cmdInteractive(){
+	protected void cmdInteractive(){
 		
 		// 第一次进入发送命令显示根菜单
 		if(!syncPublishReq(makeItemJSON("/"))){
@@ -342,7 +342,7 @@ public abstract class BaseConsole {
 		}
 		return "";
 	}
-	public void waitTextRenderEngine(){
+	protected void waitTextRenderEngine(){
 		int waitCount = 30;
 		TextMessageAdapter<?> adapter = (TextMessageAdapter<?>) ackChannel.getAdapter();
 		while( !(adapter instanceof RenderEngine) && waitCount > 0){
@@ -358,7 +358,7 @@ public abstract class BaseConsole {
 			System.exit(-1);
 		}
 	}
-	protected void start(){
+	public void start(){
 		try{
 			connect();
 			if(authorize()){
