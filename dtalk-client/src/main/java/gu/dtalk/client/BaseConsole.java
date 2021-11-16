@@ -82,7 +82,7 @@ public abstract class BaseConsole {
 		}		
 
 	}
-	private static byte[] getSelfMac(RedisConfigType type){
+	protected static byte[] getSelfMac(RedisConfigType type){
 		try {
 			HostAndPort hostAndPort = type.getHostAndPort();
 			String host = hostAndPort.getHost();

@@ -78,7 +78,7 @@ public enum OptionType {
 	 * 字符串验证器,根据正则表达式判断字符串是否符合当前数据类型的格式,
 	 * 输入为null或正则表达式不匹配则返回false
 	 */
-	final Predicate<String> strValidator = new Predicate<String>() {
+	public final Predicate<String> strValidator = new Predicate<String>() {
 		@Override
 		public boolean apply(String input) {
 			if(regex.isEmpty()){
