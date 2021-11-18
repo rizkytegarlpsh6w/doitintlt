@@ -1,6 +1,9 @@
 package gu.dtalk;
 
 public class ConnectReq {
+	/**
+	 * 本机mac地址
+	 */
 	public String mac;
 	/**
 	 * 密码的MD5校验码

@@ -10,7 +10,7 @@ import gu.dtalk.event.ValueListener;
 public class DemoListener extends ValueListener<Object> {
 	public static final DemoListener INSTANCE = new DemoListener();
 	private static final Logger logger =LoggerFactory.getLogger(DemoListener.class);
-	public DemoListener() {
+	private DemoListener() {
 	}
 
 	@Override

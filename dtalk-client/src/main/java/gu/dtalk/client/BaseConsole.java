@@ -371,5 +371,10 @@ public abstract class BaseConsole {
 			return ;
 		}
 	}
+	/**
+	 * 安全验证,
+	 * 用于实现连接dtalk引擎的安全验证过程
+	 * @return 验证通过返回{@code true}，否则返回{@code false}
+	 */
 	protected abstract boolean authorize();
 }

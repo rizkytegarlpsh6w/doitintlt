@@ -4,9 +4,6 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 import java.util.Timer;
 import java.util.TimerTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
@@ -34,7 +31,6 @@ import static gu.dtalk.CommonUtils.*;
  *
  */
 public class SampleConnector implements IMessageAdapter<String>, RequestValidator {
-	private static final Logger logger = LoggerFactory.getLogger(SampleConnector.class);
 	private static class SingletonTimer{
 		private static final Timer instnace = new Timer(true);
 	}
@@ -120,7 +116,6 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	 */
 	@Override
 	public void onSubscribe(String connstr) throws SmqUnsubscribeException {
-		logger.debug("request:"+connstr);
 		Ack<String> ack = new Ack<String>().setStatus(Ack.Status.OK);
 		String ackChannel = null;
 		try{

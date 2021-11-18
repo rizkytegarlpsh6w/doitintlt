@@ -15,6 +15,12 @@ public class SampleConsole extends BaseConsole {
 	public SampleConsole(String devmac, RedisConfigType config) {
 		super(devmac, config);
 	}
+	/**
+	 * 使用密码验证连接合法性<br>
+	 * 向dtalk引擎发送包含连接密码和本机mac地址的json连接请求字符串({@link ConnectReq}),
+	 * 收到回复的请求通道名，即连接成功
+	 * @see gu.dtalk.client.BaseConsole#authorize()
+	 */
 	@Override
 	protected boolean authorize() {
 			System.out.println("Input password  of Device,default password is last 4 character of device MAC address(lowercase):");
