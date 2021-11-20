@@ -193,7 +193,10 @@ public enum RedisConfigType{
 				connectable = JedisUtils.testConnect(props);
 			}catch (Exception e) {
 			}
-			System.out.printf("%s connect %s\n",this.toString(),connectable?"OK":"FAIL");
+//			if(connectable){
+//				System.out.println(toString() + " connect OK\n");
+//			}
+//			System.out.printf("%s connect %s\n",this.toString(),connectable?"OK":"FAIL");
 		}
 		return connectable;
 	}
