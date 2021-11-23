@@ -2,10 +2,13 @@ package gu.dtalk;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import static com.google.common.base.Preconditions.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class BaseItem{
 	
@@ -25,6 +29,11 @@ public abstract class BaseItem{
 	@JSONField(deserialize = false)
 	private String description = "";
 	protected final LinkedHashMap<String,BaseItem> items = new LinkedHashMap<>();
+	private static final Function<BaseItem,String> PATH_FUN = new Function<BaseItem,String>(){
+		@Override
+		public String apply(BaseItem input) {
+			return input.getPath();
+		}};
 	public BaseItem() {
 	}
 	public String getName() {		
@@ -213,7 +222,7 @@ public abstract class BaseItem{
 	 */
 	public MenuItem findMenu(String path){
 		BaseItem item = find(path);
-		return (item instanceof MenuItem) ? (MenuItem)item: null;
+		return (item instanceof MenuItem) ? (MenuItem)item : null;
 	}
 	/**
 	 * @param path
@@ -222,7 +231,7 @@ public abstract class BaseItem{
 	 */
 	public CmdItem findCmd(String path){
 		BaseItem item = find(path);
-		return (item instanceof CmdItem) ? (CmdItem)item: null;
+		return (item instanceof CmdItem) ? (CmdItem)item : null;
 	}
 	/**
 	 * @param path
@@ -230,9 +239,9 @@ public abstract class BaseItem{
 	 * @see #find(String)
 	 */
 	@SuppressWarnings("unchecked")
-	public BaseOption<Object> findOption(String path){
+	public <T>BaseOption<T> findOption(String path){
 		BaseItem item = find(path);
-		return (item instanceof BaseOption) ? (BaseOption<Object>)item: null;
+		return (item instanceof BaseOption) ? (BaseOption<T>)item : null;
 	}
 	/**
 	 * @param path
@@ -241,7 +250,7 @@ public abstract class BaseItem{
 	 */
 	public Base64Option findBase64Option(String path){
 		BaseItem item = find(path);
-		return (item instanceof Base64Option) ? (Base64Option)item: null;
+		return (item instanceof Base64Option) ? (Base64Option)item : null;
 	}
 	/**
 	 * @param path
@@ -250,7 +259,7 @@ public abstract class BaseItem{
 	 */
 	public BoolOption findBoolOption(String path){
 		BaseItem item = find(path);
-		return (item instanceof BoolOption) ? (BoolOption)item: null;
+		return (item instanceof BoolOption) ? (BoolOption)item : null;
 	}
 	/**
 	 * @param path
@@ -259,7 +268,7 @@ public abstract class BaseItem{
 	 */
 	public IPv4Option findIPv4Option(String path){
 		BaseItem item = find(path);
-		return (item instanceof IPv4Option) ? (IPv4Option)item: null;
+		return (item instanceof IPv4Option) ? (IPv4Option)item : null;
 	}
 	/**
 	 * @param path
@@ -268,7 +277,7 @@ public abstract class BaseItem{
 	 */
 	public MACOption findMACOption(String path){
 		BaseItem item = find(path);
-		return (item instanceof MACOption) ? (MACOption)item: null;
+		return (item instanceof MACOption) ? (MACOption)item : null;
 	}
 	/**
 	 * @param path
@@ -277,7 +286,7 @@ public abstract class BaseItem{
 	 */
 	public IntOption findIntOption(String path){
 		BaseItem item = find(path);
-		return (item instanceof IntOption) ? (IntOption)item: null;
+		return (item instanceof IntOption) ? (IntOption)item : null;
 	}
 	/**
 	 * @param path
@@ -286,7 +295,7 @@ public abstract class BaseItem{
 	 */
 	public FloatOption findFloatOption(String path){
 		BaseItem item = find(path);
-		return (item instanceof FloatOption) ? (FloatOption)item: null;
+		return (item instanceof FloatOption) ? (FloatOption)item : null;
 	}
 	/**
 	 * @param path
@@ -295,7 +304,7 @@ public abstract class BaseItem{
 	 */
 	public DateOption findDateOption(String path){
 		BaseItem item = find(path);
-		return (item instanceof DateOption) ? (DateOption)item: null;
+		return (item instanceof DateOption) ? (DateOption)item : null;
 	}
 	/**
 	 * @param path
@@ -304,7 +313,7 @@ public abstract class BaseItem{
 	 */
 	public StringOption findStringOption(String path){
 		BaseItem item = find(path);
-		return (item instanceof StringOption) ? (StringOption)item: null;
+		return (item instanceof StringOption) ? (StringOption)item : null;
 	}
 	/**
 	 * @param path
@@ -313,7 +322,7 @@ public abstract class BaseItem{
 	 */
 	public PasswordOption findPasswordOption(String path){
 		BaseItem item = find(path);
-		return (item instanceof PasswordOption) ? (PasswordOption)item: null;
+		return (item instanceof PasswordOption) ? (PasswordOption)item : null;
 	}
 	/**
 	 * @param path
@@ -322,7 +331,7 @@ public abstract class BaseItem{
 	 */
 	public UrlOption findUrlOption(String path){
 		BaseItem item = find(path);
-		return (item instanceof UrlOption) ? (UrlOption)item: null;
+		return (item instanceof UrlOption) ? (UrlOption)item : null;
 	}
 	/**
 	 * @param path
@@ -331,7 +340,7 @@ public abstract class BaseItem{
 	 */
 	public ImageOption findImageOption(String path){
 		BaseItem item = find(path);
-		return (item instanceof ImageOption) ? (ImageOption)item: null;
+		return (item instanceof ImageOption) ? (ImageOption)item : null;
 	}
 	/**
 	 * @param path
@@ -341,7 +350,7 @@ public abstract class BaseItem{
 	@SuppressWarnings("unchecked")
 	public <T>CheckOption<T> findCheckOption(String path){
 		BaseItem item = find(path);
-		return (item instanceof CheckOption) ? (CheckOption<T>)item: null;
+		return (item instanceof CheckOption) ? (CheckOption<T>)item : null;
 	}
 	/**
 	 * @param path
@@ -351,7 +360,7 @@ public abstract class BaseItem{
 	@SuppressWarnings("unchecked")
 	public <T>SwitchOption<T> findSwitchOption(String path){
 		BaseItem item = find(path);
-		return (item instanceof SwitchOption) ? (SwitchOption<T>)item: null;
+		return (item instanceof SwitchOption) ? (SwitchOption<T>)item : null;
 	}
 	public List<BaseItem> getChilds() {
 		return Lists.newArrayList(items.values());
@@ -375,6 +384,9 @@ public abstract class BaseItem{
 	}
 	public int childCount() {
 		return items.size();
+	}
+	public Map<String, String> childNames(){
+		return Maps.newLinkedHashMap(Maps.transformValues(items, PATH_FUN));
 	}
 	public boolean isEmpty() {
 		return items.isEmpty();

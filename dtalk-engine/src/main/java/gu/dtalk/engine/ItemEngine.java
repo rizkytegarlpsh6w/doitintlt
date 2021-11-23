@@ -43,15 +43,6 @@ public class ItemEngine implements ItemAdapter{
 		ackPublisher = RedisFactory.getPublisher(pool);
 	}
 
-	private void updateOption(BaseOption<Object> option,BaseOption<Object> req){
-		if(option != null && req != null){
-			// 设置参数
-			checkState(!option.isReadOnly(),"READONLY VALUE");
-			Object value = req.getValue();
-			checkArgument(option.validate(value),"INVALID VALUE");
-			option.setValue(value);
-		}
-	}
 	/** 
 	 * 响应菜单命令
 	 */
@@ -81,7 +72,7 @@ public class ItemEngine implements ItemAdapter{
 
 			switch(found.getCatalog()){
 			case OPTION:{
-				updateOption((BaseOption<Object>)found,(BaseOption<Object>)req);
+				((BaseOption<Object>)found).updateFrom(req);
 				break;
 			}
 			case CMD:{
@@ -97,9 +88,8 @@ public class ItemEngine implements ItemAdapter{
 					// 执行命令
 					CmdItem cmd = (CmdItem)found;
 					CmdItem reqCmd = (CmdItem)req;
-					for(BaseOption<?> param:cmd.getParameters()){
-						updateOption((BaseOption<Object>)param, 
-								(BaseOption<Object>)reqCmd.getParameter(param.getName()));
+					for(BaseOption<Object> param:cmd.getParameters()){
+						param.updateFrom(reqCmd.getParameter(param.getName()));
 					}
 					ack.setValue(cmd.runCmd());
 					cmd.reset();

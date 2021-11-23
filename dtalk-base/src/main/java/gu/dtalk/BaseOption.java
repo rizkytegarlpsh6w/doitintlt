@@ -43,7 +43,7 @@ public abstract class BaseOption<T> extends BaseItem {
 		super();
 		this.type = checkNotNull(type);
 	}
-	Type javaType(){
+	public Type javaType(){
 		return type;
 	}
 	public abstract OptionType getType();
@@ -100,6 +100,18 @@ public abstract class BaseOption<T> extends BaseItem {
 			observable.notifyObservers(new ValueChangeEvent<BaseOption<T>>(this));
 		}
 		return this;
+	}
+	public void updateFrom(T value){
+		// 设置参数
+		checkArgument(validate(value),"INVALID VALUE");		
+		setValue(value);
+	}
+	public void updateFrom(BaseOption<T> req){
+		if(req != null){
+			// 设置参数
+			checkState(!isReadOnly(),"READONLY VALUE");
+			updateFrom(req.getValue());
+		}
 	}
 	public final T getDefaultValue() {
 		return defaultValue;
