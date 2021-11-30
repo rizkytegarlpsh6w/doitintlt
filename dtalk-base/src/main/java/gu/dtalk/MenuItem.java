@@ -45,4 +45,33 @@ public class MenuItem extends BaseItem {
 		}
 		return cmd.runCmd(parameters);
 	}
+	
+	public MenuItem readonlyOption(String optpath,boolean readonly){
+		BaseOption<Object> option = findOption(optpath);
+		if(option != null){
+			option.setReadOnly(readonly);
+		}
+		return this;
+	}
+	public MenuItem disableItem(String optpath,boolean disable){
+		BaseItem option = find(optpath);
+		if(option != null){
+			option.setDisable(disable);
+		}
+		return this;
+	}
+	public <T> T valueOf(String optpath){
+		BaseOption<T> option = findOption(optpath);
+		if(option != null){
+			return option.getValue();
+		}
+		return null;
+	}
+	public <T>MenuItem  updateValueOf(String optpath,T value){
+		BaseOption<T> option = findOption(optpath);
+		if(option != null){
+			option.updateFrom(value);
+		}
+		return this;
+	}
 }
