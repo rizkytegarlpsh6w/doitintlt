@@ -51,17 +51,45 @@ public abstract class BaseItem{
 		return this;
 	}
 
+	/**
+	 * 返回父结点
+	 * @return
+	 */
 	public BaseItem getParent() {
 		return parent;
 	}
+	/**
+	 * 检查循环引用, 如果为循环引用则抛出异常
+	 */
+	private void checkCycleRef(){
+		BaseItem node = this;
+		while(node.parent != null){
+			checkState(node.parent != this, "CYCLE REFERENCE");
+			node = node.parent;
+		}
+	}
+	/**
+	 * 设置父结点
+	 * @param parent
+	 * @return
+	 */
 	BaseItem setParent(BaseItem parent) {
 		checkArgument(parent ==null || parent.isContainer(),"INVALID parent");
 		checkArgument(parent == null || !parent.getChilds().contains(this),"DUPLICATE element in parent %s",this.getName());
 		this.parent = parent;
+		checkCycleRef();
 		refreshPath();
 		return this;
 	}
+	/**
+	 * 是否为容器(可包含item)
+	 * @return
+	 */
 	public abstract boolean isContainer();
+	/**
+	 * 返回item分类类型
+	 * @return
+	 */
 	public abstract ItemType getCatalog();
 	/**
 	 * 生成能对象在菜单中全路径名

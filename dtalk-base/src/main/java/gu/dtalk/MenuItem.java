@@ -11,6 +11,11 @@ import com.google.common.base.Strings;
 import gu.dtalk.exception.CmdExecutionException;
 import gu.dtalk.exception.UnsupportCmdException;
 
+/**
+ * 菜单对象
+ * @author guyadong
+ *
+ */
 public class MenuItem extends BaseItem {
 	public MenuItem() {
 		items.clear();
