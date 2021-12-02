@@ -60,13 +60,39 @@ public class MenuItem extends BaseItem {
 		}
 		return this;
 	}
-	public <T> T valueOf(String optpath){
+	/**
+	 * 返回选项的值，如果{@code optpath}指定的{@link BaseOption}不存在则返回{@code null}
+	 * @param optpath
+	 * @return
+	 * @see BaseOption#fetch()
+	 */
+	public <T> T fetchOption(String optpath){
+		BaseOption<T> option = findOption(optpath);
+		if(option != null){
+			return option.fetch();
+		}
+		return null;
+	}
+	/**
+	 * 返回选项的值，如果{@code optpath}指定的{@link BaseOption}不存在则返回{@code null}
+	 * @param optpath
+	 * @return
+	 * @see BaseOption#getValue()
+	 */
+	public <T> T optionValueOf(String optpath){
 		BaseOption<T> option = findOption(optpath);
 		if(option != null){
 			return option.getValue();
 		}
 		return null;
 	}
+	/**
+	 * 更新选项的值，如果{@code optpath}指定的{@link BaseOption}不存在则跳过
+	 * @param optpath
+	 * @param value
+	 * @return
+	 * @see BaseOption#updateFrom(Object)
+	 */
 	public <T>MenuItem  updateValueOf(String optpath,T value){
 		BaseOption<T> option = findOption(optpath);
 		if(option != null){

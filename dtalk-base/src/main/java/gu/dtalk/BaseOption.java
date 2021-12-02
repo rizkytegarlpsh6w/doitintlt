@@ -101,18 +101,30 @@ public abstract class BaseOption<T> extends BaseItem {
 		}
 		return this;
 	}
+	/**
+	 * 更新选项的值，如果选项为只读(readonly)或value不满足条件({@link #validate(Object)})则抛出异常
+	 * @param value
+	 */
 	public void updateFrom(T value){
-		// 设置参数
+		checkState(!isReadOnly(),"READONLY VALUE");
 		checkArgument(validate(value),"INVALID VALUE");		
 		setValue(value);
 	}
+	/**
+	 * 用选项req的值更新当前选项的值
+	 * @param req
+	 * @see #updateFrom(Object)
+	 */
 	public void updateFrom(BaseOption<T> req){
 		if(req != null){
 			// 设置参数
-			checkState(!isReadOnly(),"READONLY VALUE");
 			updateFrom(req.getValue());
 		}
 	}
+	/**
+	 * 返回缺省值
+	 * @return
+	 */
 	public final T getDefaultValue() {
 		return defaultValue;
 	}
@@ -128,6 +140,10 @@ public abstract class BaseOption<T> extends BaseItem {
 		this.defaultValue = defaultValue;
 		return this;
 	}
+	/**
+	 * 返回选项的值，如果为null则返回默认值
+	 * @return
+	 */
 	public T fetch(){
 		if(getValue() == null){
 			return getDefaultValue();

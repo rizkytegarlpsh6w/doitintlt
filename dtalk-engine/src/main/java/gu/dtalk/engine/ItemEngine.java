@@ -72,7 +72,7 @@ public class ItemEngine implements ItemAdapter{
 
 			switch(found.getCatalog()){
 			case OPTION:{
-				((BaseOption<Object>)found).updateFrom(req);
+				((BaseOption<Object>)found).updateFrom((BaseOption<Object>)req);
 				break;
 			}
 			case CMD:{

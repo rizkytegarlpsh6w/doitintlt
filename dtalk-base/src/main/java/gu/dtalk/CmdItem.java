@@ -86,6 +86,11 @@ public class CmdItem extends BaseItem {
     public static final <T> T cast(Object value,Type type){
         return (T)TypeUtils.cast(value,type,ParserConfig.getGlobalInstance());
     }
+	/**
+	 * 更新命令参数
+	 * @param parameters
+	 * @return
+	 */
 	private CmdItem updateParameter(Map<String, ?> parameters){
 		for(BaseOption<Object> param : getParameters()){
 			Object value = cast(parameters.get(param.getName()), param.javaType());
@@ -93,6 +98,11 @@ public class CmdItem extends BaseItem {
 		}	
 		return this;
 	}
+	/**
+	 * 执行命令
+	 * @return
+	 * @throws CmdExecutionException
+	 */
 	public final Object runCmd() throws CmdExecutionException{
 		synchronized (items) {
 			if(cmdAdapter !=null){
@@ -103,6 +113,12 @@ public class CmdItem extends BaseItem {
 			return null;
 		}
 	}
+	/**
+	 * 执行命令
+	 * @param parameters 命令参数
+	 * @return
+	 * @throws CmdExecutionException
+	 */
 	final Object runCmd(Map<String, ?> parameters) throws CmdExecutionException{
 		synchronized (items) {
 			updateParameter(parameters);
