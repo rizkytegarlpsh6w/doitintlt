@@ -7,7 +7,7 @@ import java.util.Observer;
  * 事件侦听器抽象类
  * @author guyadong
  *
- * @param <ARG> 事件的参数类型
+ * @param <E> 事件的参数类型
  */
 public abstract class BaseObserver<E extends ItemEvent<?>> implements Observer {
 

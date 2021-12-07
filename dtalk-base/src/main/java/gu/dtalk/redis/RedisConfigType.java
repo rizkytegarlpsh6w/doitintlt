@@ -251,7 +251,6 @@ public enum RedisConfigType{
 
 	/**
 	 * 与{@link #lookupRedisConnect()}功能相似,不同的时当没有找到有效redis连接时,不抛出异常,返回{@code null}
-	 * @param logger
 	 * @return 返回第一个能建立有效连接的配置,否则返回{@code null}
 	 */
 	public static RedisConfigType lookupRedisConnectUnchecked() {

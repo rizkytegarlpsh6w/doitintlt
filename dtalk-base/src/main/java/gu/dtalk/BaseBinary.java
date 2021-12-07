@@ -22,7 +22,7 @@ public abstract class BaseBinary extends BaseOption<byte[]> {
 		return "BINARY";
 	}
 	/**
-	 * 从input中读取字节流转为byte[]调用{@link #setValue(byte[])}
+	 * 从input中读取字节流转为byte[]调用{@link #setValue(Object)}
 	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
 	 */
 	protected <T>BaseOption<byte[]> asValue(T input) {
@@ -34,7 +34,7 @@ public abstract class BaseBinary extends BaseOption<byte[]> {
 		}
 	}
 	/**
-	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(byte[])}
+	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(Object)}
 	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
 	 */
 	protected <T>BaseOption<byte[]> asDefaultValue(T input) {

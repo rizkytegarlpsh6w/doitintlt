@@ -24,7 +24,7 @@ public class Base64Option extends BaseBinary {
 		}
 	}
 	/**
-	 * 从input中读取字节流转为byte[]调用{@link #setValue(byte[])}
+	 * 从input中读取字节流转为byte[]调用{@link #setValue(Object)}
 	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
 	 */
 	public <T>Base64Option asValue(T input) {
@@ -47,7 +47,7 @@ public class Base64Option extends BaseBinary {
 		}
 	}
 	/**
-	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(byte[])}
+	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(Object)}
 	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
 	 */
 	public <T>Base64Option asDefaultValue(T input) {

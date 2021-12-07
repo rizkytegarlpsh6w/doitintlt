@@ -80,7 +80,7 @@ public class ImageOption extends BaseBinary {
 		}
 	}
 	/**
-	 * 从input(Base64格式)中解码为byte[]调用{@link #setDefaultValue(byte[])}
+	 * 从input(Base64格式)中解码为byte[]调用{@link #setDefaultValue(Object)}
 	 * @see gu.dtalk.BaseOption#asValue(java.lang.String)
 	 */
 	@Override
@@ -102,7 +102,7 @@ public class ImageOption extends BaseBinary {
 		return this;
 	}
 	/**
-	 * 从input(Base64格式)中解码为byte[]调用{@link #setDefaultValue(byte[])}
+	 * 从input(Base64格式)中解码为byte[]调用{@link #setDefaultValue(Object)}
 	 * @see gu.dtalk.BaseOption#asDefaultValue(java.lang.String)
 	 */
 	@Override
@@ -124,7 +124,7 @@ public class ImageOption extends BaseBinary {
 		return this;
 	}
 	/**
-	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(byte[])}
+	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(Object)}
 	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
 	 */
 	public <T>ImageOption asValue(BaseLazyImage input) {
@@ -133,7 +133,7 @@ public class ImageOption extends BaseBinary {
 		return this;
 	}
 	/**
-	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(byte[])}
+	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(Object)}
 	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
 	 */
 	public <T>ImageOption asDefaultValue(BaseLazyImage input) {
