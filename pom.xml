@@ -62,13 +62,6 @@
 						<linksource>true</linksource>
 						<detectJavaApiLink>false</detectJavaApiLink>
 					</configuration>
-					<executions>
-						<execution>
-							<goals>
-								<goal>javadoc</goal>
-							</goals>
-						</execution>
-					</executions>
 				</plugin>
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
