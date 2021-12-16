@@ -244,6 +244,17 @@ public abstract class BaseItem{
 		return root.getPath().equals(path) ? this : root.getChildByPath(path);
 	}
 	/**
+	 * 根据{@code path}指定的路径查找对象,
+	 * 与{@link #find(String)}基本相同,只是当找不到指定的对象时抛出异常
+	 * @param path
+	 * @return 返回找到的{@link BaseItem}
+	 * @throws IllegalArgumentException 没找到指定的对象
+	 * @see #find(String)
+	 */
+	public BaseItem findChecked(String path){
+		return checkNotNull(find(path),"NOT FOUND %s",path);		
+	}
+	/**
 	 * @param path
 	 * @return
 	 * @see #find(String)
@@ -262,14 +273,27 @@ public abstract class BaseItem{
 		return (item instanceof CmdItem) ? (CmdItem)item : null;
 	}
 	/**
+	 * 根据path指定的路径查找对象, 先在当前对象中查找，如果找不到，从根结点查找
 	 * @param path
-	 * @return
+	 * @return 返回找到的{@link BaseItem},找不到返回{@code null}
 	 * @see #find(String)
 	 */
 	@SuppressWarnings("unchecked")
 	public <T>BaseOption<T> findOption(String path){
 		BaseItem item = find(path);
 		return (item instanceof BaseOption) ? (BaseOption<T>)item : null;
+	}
+	
+	/**
+	 * 根据{@code path}指定的路径查找对象,
+	 * 与{@link #findOption(String)}基本相同,只是当找不到指定的对象时抛出异常
+	 * @return 返回找到的{@link BaseItem}
+	 * @throws IllegalArgumentException 没找到指定的对象
+	 * @see #findOption(String)
+	 */
+	public <T>BaseOption<T> findOptionChecked(String path){
+		BaseOption<T> opt = findOption(path);
+		return checkNotNull(opt,"NOT FOUND OPTION %s",path);
 	}
 	/**
 	 * @param path
