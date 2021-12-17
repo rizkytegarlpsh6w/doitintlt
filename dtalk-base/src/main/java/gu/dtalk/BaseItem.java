@@ -247,36 +247,52 @@ public abstract class BaseItem{
 	 * 根据{@code path}指定的路径查找对象,
 	 * 与{@link #find(String)}基本相同,只是当找不到指定的对象时抛出异常
 	 * @param path
-	 * @return 返回找到的{@link BaseItem}
+	 * @return 返回找到的{@link BaseItem}对象
 	 * @throws IllegalArgumentException 没找到指定的对象
-	 * @see #find(String)
 	 */
 	public BaseItem findChecked(String path){
 		return checkNotNull(find(path),"NOT FOUND %s",path);		
 	}
 	/**
+	 * 根据path指定的路径查找menu对象, 先在当前对象中查找，如果找不到，从根结点查找
 	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @return 返回找到的{@link CmdItem}对象,找不到返回null
 	 */
 	public MenuItem findMenu(String path){
 		BaseItem item = find(path);
 		return (item instanceof MenuItem) ? (MenuItem)item : null;
 	}
 	/**
+	 * 根据path指定的路径查找menu对象, 与{@link #findCmd(String)}基本相同,只是当找不到指定的对象时抛出异常
 	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @return 返回找到的{@link MenuItem}对象
+	 * @throws IllegalArgumentException 没找到指定的对象
+	 */
+	public MenuItem findMenuChecked(String path){
+		return checkNotNull(findMenu(path),"NOT FOUND MENU %s",path);
+	}
+	/**
+	 * 根据path指定的路径查找cmd对象, 先在当前对象中查找，如果找不到，从根结点查找
+	 * @param path
+	 * @return 返回找到的{@link CmdItem}对象,找不到返回null
 	 */
 	public CmdItem findCmd(String path){
 		BaseItem item = find(path);
 		return (item instanceof CmdItem) ? (CmdItem)item : null;
 	}
 	/**
+	 * 根据path指定的路径查找cmd对象, 与{@link #findCmd(String)}基本相同,只是当找不到指定的对象时抛出异常
+	 * @param path
+	 * @return 返回找到的{@link CmdItem}对象
+	 * @throws IllegalArgumentException 没找到指定的对象
+	 */
+	public CmdItem findCmdChecked(String path){
+		return checkNotNull(findCmd(path),"NOT FOUND CMD %s",path);
+	}
+	/**
 	 * 根据path指定的路径查找对象, 先在当前对象中查找，如果找不到，从根结点查找
 	 * @param path
 	 * @return 返回找到的{@link BaseItem},找不到返回{@code null}
-	 * @see #find(String)
 	 */
 	@SuppressWarnings("unchecked")
 	public <T>BaseOption<T> findOption(String path){
@@ -285,7 +301,7 @@ public abstract class BaseItem{
 	}
 	
 	/**
-	 * 根据{@code path}指定的路径查找对象,
+	 * 根据{@code path}指定的路径查找option对象,
 	 * 与{@link #findOption(String)}基本相同,只是当找不到指定的对象时抛出异常
 	 * @return 返回找到的{@link BaseItem}
 	 * @throws IllegalArgumentException 没找到指定的对象
