@@ -3,6 +3,7 @@ package gu.dtalk;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.google.common.base.Function;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -92,6 +94,7 @@ public class CmdItem extends BaseItem {
 	 * @return
 	 */
 	private CmdItem updateParameter(Map<String, ?> parameters){
+		parameters = MoreObjects.firstNonNull(parameters, Collections.<String, Object>emptyMap());
 		for(BaseOption<Object> param : getParameters()){
 			Object value = cast(parameters.get(param.getName()), param.javaType());
 			param.updateFrom(value);
@@ -120,9 +123,9 @@ public class CmdItem extends BaseItem {
 	 * @throws CmdExecutionException
 	 */
 	final Object runCmd(Map<String, ?> parameters) throws CmdExecutionException{
-		synchronized (items) {
-			updateParameter(parameters);
+		synchronized (items) {			
 			if(cmdAdapter !=null){
+				updateParameter(parameters);
 				// 将 parameter 转为 Map<String, Object>
 				Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
 				return cmdAdapter.apply(objParams);
