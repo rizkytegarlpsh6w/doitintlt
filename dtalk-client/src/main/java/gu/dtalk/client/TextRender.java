@@ -72,7 +72,7 @@ public class TextRender implements IMessageRender {
 				stream.println(checkOption.contentOfOptions());
 			}
 		}
-		stream.println("==Press number to seleect menu item(按数字选项菜单)==");
+		stream.println("==Press number to seleect menu item,'.' show current menu(按数字选项菜单,'.'显示当前菜单)==");
 	}
 	public IMessageRender setStream(PrintStream stream) {
 		if(null != stream){

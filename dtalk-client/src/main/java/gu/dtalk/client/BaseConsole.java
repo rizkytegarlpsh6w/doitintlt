@@ -176,12 +176,19 @@ public abstract class BaseConsole {
 			json.fluentPut(ITEM_FIELD_PATH, path)
 				.fluentPut(ITEM_FIELD_CATALOG, ItemType.MENU);			
 		}else{
+			BaseItem item;
 			BaseItem currentLevel = checkNotNull(renderEngine.getCurrentLevel(),"currentLevel is null");
-			// 如果没有根据path找到对应的item则抛出异常
-			BaseItem item = checkNotNull(currentLevel.find(path),"NOT FOUND item %s",path);
+			if(".".equals(path)){
+				// 如果没有根据path找到对应的item则抛出异常
+				item = currentLevel;
+				path = item.getPath();
+			}else{
+				// 如果没有根据path找到对应的item则抛出异常
+				item = checkNotNull(currentLevel.find(path),"NOT FOUND item %s",path);
+			}
 			json.fluentPut(ITEM_FIELD_NAME, item.getName())
-				.fluentPut(ITEM_FIELD_PATH,path)
-				.fluentPut(ITEM_FIELD_CATALOG, item.getCatalog());
+			.fluentPut(ITEM_FIELD_PATH,path)
+			.fluentPut(ITEM_FIELD_CATALOG, item.getCatalog());
 			if(item instanceof BaseOption<?>){
 				json.put(OPTION_FIELD_TYPE, ((BaseOption<?>)item).getType());
 			}
@@ -304,25 +311,20 @@ public abstract class BaseConsole {
 	    				syncPublishReq(makeItemJSON(renderEngine.getCurrentLevel().getPath()));
 	    				break;
 	    			}
-					case CMD:{
-						Ack<?> ack = null;
-						do{
-							// 执行命令
-							if(inputCmd(scaner,json)){
-								syncPublishReq(json);
-							}else{
-								// 输入空行则返回
-								break;
-							}
-							if(isQuit(json)){
-								return;
-							}
-							// 获取响应消息内容,如果输入响应错误则提示继续
-	    					ack = renderEngine.getLastAck();
-	    					
-						}while(ack != null && !Status.OK.equals(ack.getStatus()));
-						break;
-					}
+	    			case CMD:{
+	    				// 执行命令
+	    				if(inputCmd(scaner,json)){
+	    					syncPublishReq(json);
+	    				}else{
+	    					// 输入空行则返回
+	    					break;
+	    				}
+	    				if(isQuit(json)){
+	    					return;
+	    				}
+
+	    				break;
+	    			}
 					default:
 						break;
 					}

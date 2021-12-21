@@ -65,6 +65,7 @@ public class MenuItem extends BaseItem {
 		}
 		return this;
 	}
+
 	/**
 	 * 返回选项的值，如果{@code optpath}指定的{@link BaseOption}不存在则返回{@code null}
 	 * @param optpath
