@@ -12,11 +12,13 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import gu.dtalk.exception.CmdExecutionException;
+import static com.google.common.base.Preconditions.*;
 
 public class CmdItem extends BaseItem {
 
@@ -41,6 +43,12 @@ public class CmdItem extends BaseItem {
 	};
 	@JSONField(serialize = false,deserialize = false)
 	private ICmdAdapter cmdAdapter;
+	
+	/**
+	 * 任务队列名<br>
+	 * 该字段不为空时，对象支持队列任务
+	 */
+	private String taskQueue;
 	public CmdItem() {
 	}
 
@@ -109,9 +117,13 @@ public class CmdItem extends BaseItem {
 	public final Object runCmd() throws CmdExecutionException{
 		synchronized (items) {
 			if(cmdAdapter !=null){
-				// 将 parameter 转为 Map<String, Object>
-				Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
-				return cmdAdapter.apply(objParams);
+				try {
+					// 将 parameter 转为 Map<String, Object>
+					Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
+					return cmdAdapter.apply(objParams);					
+				} finally {
+					reset();
+				}
 			}
 			return null;
 		}
@@ -126,9 +138,13 @@ public class CmdItem extends BaseItem {
 		synchronized (items) {			
 			if(cmdAdapter !=null){
 				updateParameter(parameters);
-				// 将 parameter 转为 Map<String, Object>
-				Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
-				return cmdAdapter.apply(objParams);
+				try {
+					// 将 parameter 转为 Map<String, Object>
+					Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
+					return cmdAdapter.apply(objParams);
+				} finally {
+					reset();
+				}
 			}
 			return null;
 		}
@@ -140,11 +156,52 @@ public class CmdItem extends BaseItem {
 	
 	/**
 	 * 设置所有参数为{@code null}
+	 * @return 返回当前对象
 	 */
-	public void reset(){
+	public CmdItem reset(){
 		for (BaseOption<Object> item : getParameters()) {
 			item.setValue(null);
 		}
+		return this;
+	}
+	
+	/**
+	 * 将当前命令作为任务对象注册到指定的任务队列，可以执行队列中的任务<br>
+	 * {@link #cmdAdapter}为{@code null}时无效
+	 * @param queue
+	 * @return 返回当前对象
+	 */
+	public CmdItem asTaskAdapter(String queue){
+		if(cmdAdapter != null){
+			new TaskAdapter(queue)
+				.setCmdAdapter(cmdAdapter)
+				.register();
+			this.taskQueue = queue;
+		}
+		return this;
+	}
+	/**
+	 * 将当前命令作为任务对象注册到指定的任务队列，可以执行队列中的任务<br>
+	 * {@link #cmdAdapter}为{@code null}时无效
+	 * @param taskAdatperClass 任务对象类,必须有(String)构造方法,应用层可以继承{@link TaskAdapter}
+	 * 	重写{@link TaskAdapter#makeAck(Object, Exception, String, Long)}方法,返回不同的响应对象
+	 * @return 返回当前对象
+	 */
+	public CmdItem asTaskAdapter(String queue,Class<? extends TaskAdapter> taskAdatperClass){
+		if(cmdAdapter != null){
+			try {
+				checkNotNull(taskAdatperClass,"taskAdatperClass is null")
+					.getConstructor(String.class)
+					.newInstance(queue)
+					.setCmdAdapter(cmdAdapter)
+					.register();
+				this.taskQueue = queue;
+			} catch (Exception e) {
+				Throwables.throwIfUnchecked(e);
+				throw new RuntimeException(e);
+			}
+		}
+		return this;
 	}
 	/**
 	 * 设备命令执行接口
@@ -153,10 +210,24 @@ public class CmdItem extends BaseItem {
 	 */
 	public static interface ICmdAdapter {
 		/**
+		 * 执行设备命令
 		 * @param input 以值对(key-value)形式提供的输入参数
 		 * @return 命令返回值，没有返回值则返回{@code null}
 		 * @throws CmdExecutionException 命令执行失败
 		 */
 		Object apply(Map<String, Object> input) throws CmdExecutionException;
+	}
+	/**
+	 * @return taskQueue
+	 */
+	public String getTaskQueue() {
+		return taskQueue;
+	}
+
+	/**
+	 * @param taskQueue 要设置的 taskQueue
+	 */
+	public void setTaskQueue(String taskQueue) {
+		this.taskQueue = taskQueue;
 	}
 }

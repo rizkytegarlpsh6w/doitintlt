@@ -92,7 +92,6 @@ public class ItemEngine implements ItemAdapter{
 						param.updateFrom(reqCmd.getParameter(param.getName()));
 					}
 					ack.setValue(cmd.runCmd());
-					cmd.reset();
 				}
 				break;
 			}
