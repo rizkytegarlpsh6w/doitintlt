@@ -3,8 +3,8 @@ package gu.dtalk;
 import redis.clients.jedis.Protocol;
 
 public class CommonConstant {
-	public static final String ACK_SUFFIX="_ack";
-	public static final String CONNECT_SUFFIX="_connect";
+	public static final String ACK_SUFFIX="_dtalk_ack";
+	public static final String CONNECT_SUFFIX="_dtalk_connect";
 	/**
 	 * 默认空闲时间限制(毫秒),超过此时间，自动中断连接
 	 */
