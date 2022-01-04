@@ -12,9 +12,8 @@ public class DemoListener extends ValueListener<Object> {
 	private static final Logger logger =LoggerFactory.getLogger(DemoListener.class);
 	private DemoListener() {
 	}
-
 	@Override
-	protected void doUpdte(ValueChangeEvent<BaseOption<Object>> event) {
+	protected void doUpdate(ValueChangeEvent<BaseOption<Object>> event) {
 		logger.info("VALUE UPDATE {}({}) = {}",
 				event.option().getUiName(),
 				event.option().getPath(),

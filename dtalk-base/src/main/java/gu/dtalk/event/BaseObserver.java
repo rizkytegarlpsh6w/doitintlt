@@ -13,7 +13,11 @@ public abstract class BaseObserver<E extends ItemEvent<?>> implements Observer {
 
 	public BaseObserver() {
 	}
-	protected abstract void doUpdte(E event);
+	/**
+	 * 执行更新事件
+	 * @param event
+	 */
+	protected abstract void doUpdate(E event);
 	@SuppressWarnings("unchecked")
 	@Override
 	public final void update(Observable o, Object arg) {
@@ -24,7 +28,7 @@ public abstract class BaseObserver<E extends ItemEvent<?>> implements Observer {
 		} catch (Exception e) {		
 			return;
 		}
-		doUpdte(event);
+		doUpdate(event);
 	}
 
 }
