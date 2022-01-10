@@ -14,15 +14,31 @@ import gu.dtalk.event.ValueListener;
 import static com.google.common.base.Preconditions.*;
 
 /**
+ * 用于参数配置和命令参数的选项对象
  * @author guyadong
  *
  * @param <T> 实例封装的数据类型
  */
 public abstract class BaseOption<T> extends BaseItem {
+	/**
+	 * 选项值
+	 */
 	private T optionValue;
+	/**
+	 * 选项默认值
+	 */
 	private T defaultValue;
+	/**
+	 * 该选项是否为必须的
+	 */
 	private boolean required;
+	/**
+	 * 该选项是否为只读的
+	 */
 	private boolean readOnly;
+	/**
+	 * 当前选项的java类型
+	 */
 	protected final Type type;
 	/**
 	 * 侦听器管理对象
@@ -43,16 +59,36 @@ public abstract class BaseOption<T> extends BaseItem {
 		super();
 		this.type = checkNotNull(type);
 	}
+	/**
+	 * @return 当前选项的java类型
+	 */
 	public Type javaType(){
 		return type;
 	}
+	/**
+	 * @return 当前选项的类型
+	 */
 	public abstract OptionType getType();
+	/**
+	 * 设置当前选项的类型，
+	 * 默认实现不会修改当前选项的类型
+	 * @param type
+	 * @return 当前对象
+	 */
 	BaseOption<T> setType(OptionType type){
 		return this;
 	}
+	/**
+	 * @return 该选项是否为只读的
+	 */
 	public boolean isReadOnly() {
 		return readOnly;
 	}
+	/**
+	 * 设置该选项是否为只读的
+	 * @param readOnly
+	 * @return 当前对象
+	 */
 	public BaseOption<T> setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
 		return this;
@@ -84,13 +120,17 @@ public abstract class BaseOption<T> extends BaseItem {
 			return false;
 		}
 	}
+	/**
+	 * @return 选项值
+	 */
 	public final T getValue() {
 		return	optionValue;
 	}
 	/**
-	 * 设置指定的值，同时验证数据有效性，失败抛出异常
+	 * 设置指定的值<br>
+	 * 如果值有改变则向observer发送{@link ValueChangeEvent}消息
 	 * @param value
-	 * @return
+	 * @return 当前对象
 	 * @throws IllegalArgumentException 数值验证失败
 	 * @see #validate(Object)
 	 */
@@ -104,6 +144,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	/**
 	 * 更新选项的值，如果选项为只读(readonly)或value不满足条件({@link #validate(Object)})则抛出异常
 	 * @param value
+	 * @see #setValue(Object)
 	 */
 	public void updateFrom(T value){
 		checkState(!isReadOnly(),"READONLY VALUE");
@@ -122,8 +163,7 @@ public abstract class BaseOption<T> extends BaseItem {
 		}
 	}
 	/**
-	 * 返回缺省值
-	 * @return
+	 * @return 返回缺省值
 	 */
 	public final T getDefaultValue() {
 		return defaultValue;
@@ -162,14 +202,25 @@ public abstract class BaseOption<T> extends BaseItem {
 		return this;
 	}
 
+	/**
+	 * @return 该选项是否为必须的
+	 */
 	public boolean isRequired() {
 		return required;
 	}
 
+	/**
+	 * 设置该选项是否为必须的
+	 * @param required
+	 * @return 当前对象
+	 */
 	public BaseOption<T> setRequired(boolean required) {
 		this.required = required;
 		return this;
 	}	
+	/**
+	 * @return 将选项的值转为用于显示的字符串
+	 */
 	public String contentOfValue(){
 		return optionValue == null ? "": optionValue.toString();
 	}

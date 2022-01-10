@@ -18,17 +18,47 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 菜单选项抽象类<br>
+ * 所有选项的基类
+ * @author guyadong
+ *
+ */
 public abstract class BaseItem{
 	
+	/**
+	 * 条目名称([a-zA-Z0-9_],不允许有空格)
+	 */
 	private String name;
+	/**
+	 * 条目的界面显示名称,如果不指定则使用{@link #name}
+	 */
 	private String uiName;
+	/**
+	 * 当前对象父节点
+	 */
 	@JSONField(serialize = false,deserialize = false)
 	private BaseItem parent;
+	/**
+	 * 当前对象在整个菜单树形结构中的全路径
+	 */
 	private String path = null;
+	/**
+	 * 当前条目是否禁用
+	 */
 	private boolean disable=false;
+	/**
+	 * 对当前条目的说明文字
+	 */
 	@JSONField(deserialize = false)
 	private String description = "";
+	/**
+	 * 当前条目下的子条目
+	 */
 	protected final LinkedHashMap<String,BaseItem> items = new LinkedHashMap<>();
+	/**
+	 * 从{@link BaseItem}对象中返回条目路径的转换器
+	 */
 	private static final Function<BaseItem,String> PATH_FUN = new Function<BaseItem,String>(){
 		@Override
 		public String apply(BaseItem input) {
@@ -36,6 +66,9 @@ public abstract class BaseItem{
 		}};
 	public BaseItem() {
 	}
+	/**
+	 * @return 条目名称
+	 */
 	public String getName() {		
 		return name;
 	}
@@ -82,19 +115,17 @@ public abstract class BaseItem{
 		return this;
 	}
 	/**
-	 * 是否为容器(可包含item)
-	 * @return
+	 * @return  是否为容器(可包含item)
 	 */
 	public abstract boolean isContainer();
 	/**
-	 * 返回item分类类型
-	 * @return
+	 * @return 返回item分类类型
 	 */
 	public abstract ItemType getCatalog();
 	/**
 	 * 生成能对象在菜单中全路径名
 	 * @param indexInstead 是否用索引值代替名字
-	 * @return
+	 * @return 全路径名
 	 */
 	private String createPath(boolean indexInstead){
 		List<String> list = new ArrayList<>();
@@ -107,6 +138,9 @@ public abstract class BaseItem{
 		}
 		return "/" + Joiner.on('/').join(Lists.reverse(list));
 	}
+	/**
+	 * 重新计算当前条目及子条目的路径
+	 */
 	private void refreshPath(){		
 		this.path = createPath(false);
 		for(BaseItem child:items.values()){
@@ -130,33 +164,66 @@ public abstract class BaseItem{
 		}
 		return path;
 	}
+	/**
+	 * @return 当前对象在整个菜单树形结构中的全路径
+	 */
 	public String getPath() {
 		if(path == null){
 			refreshPath();
 		}
 		return path;
 	}
+	/**
+	 * 设置当前对象在整个菜单树形结构中的全路径
+	 * @param path
+	 * @return 当前对象
+	 */
 	public BaseItem setPath(String path) {
 		this.path = normalizePath(path);
 		return this;
 	}
+	/**
+	 * @return 当前条目是否禁用
+	 */
 	public boolean isDisable() {
 		return disable;
 	}
+	/**
+	 * 设置当前条目是否禁用
+	 * @param disable
+	 * @return 当前对象
+	 */
 	public BaseItem setDisable(boolean disable) {
 		this.disable = disable;
 		return this;
 	}
+	/**
+	 * @return 对当前条目的说明文字
+
+	 */
 	public String getDescription() {
 		return description;
 	}
+	/**
+	 * 设置对当前条目的说明文字
+	 * @param description
+	 * @return 当前对象
+	 */
 	public BaseItem setDescription(String description) {
 		this.description = description;
 		return this;
 	}
+	/**
+	 * @return 条目的界面显示名称
+	 */
 	public String getUiName() {
 		return Strings.isNullOrEmpty(uiName) ? name : uiName;
 	}
+	/**
+	 * 设置条目的界面显示名称
+	 * @param uiName
+	 * @return 当前对象
+	 */
 	public BaseItem setUiName(String uiName) {
 		this.uiName = uiName;
 		return this;
@@ -191,16 +258,21 @@ public abstract class BaseItem{
 			return false;
 		return true;
 	}
-	public BaseItem getChildByPath(String input){
-		input = MoreObjects.firstNonNull(input, "").trim();
-		String relpath = input;
-		if(input.startsWith("/")){
-			if(input.startsWith(getPath())){
-				relpath = input.substring(getPath().length());
+	/**
+	 * 返回{@code path}指定的路径查找当前对象下的子条目<br>
+	 * @param path
+	 * @return 返回子条目，没有找到返回{@code null}
+	 */
+	public BaseItem getChildByPath(String path){
+		path = MoreObjects.firstNonNull(path, "").trim();
+		String relpath = path;
+		if(path.startsWith("/")){
+			if(path.startsWith(getPath())){
+				relpath = path.substring(getPath().length());
 			}else{
 				String inxpath = createPath(true); 
-				if(input.startsWith(inxpath)){
-					relpath = input.substring(inxpath.length());
+				if(path.startsWith(inxpath)){
+					relpath = path.substring(inxpath.length());
 				}else{
 					return null;
 				}
@@ -430,16 +502,35 @@ public abstract class BaseItem{
 		BaseItem item = find(path);
 		return (item instanceof SwitchOption) ? (SwitchOption<T>)item : null;
 	}
+	/**
+	 * 返回所有子条目
+	 * @return
+	 */
 	public List<BaseItem> getChilds() {
 		return Lists.newArrayList(items.values());
 	}
+	/**
+	 * 设置子条目(会清除原有的子条目)
+	 * @param childs
+	 * @return 当前对象
+	 */
 	public BaseItem setChilds(List<BaseItem> childs) {
 		items.clear();
 		return addChilds(childs);
 	}
+	/**
+	 * 添加子条目
+	 * @param childs
+	 * @return 当前对象
+	 */
 	public BaseItem addChilds(BaseItem ... childs) {
 		return addChilds(Arrays.asList(childs));
 	}
+	/**
+	 * 添加子条目
+	 * @param childs
+	 * @return 当前对象
+	 */
 	public BaseItem addChilds(Collection<BaseItem> childs) {
 		childs = MoreObjects.firstNonNull(childs, Collections.<BaseItem>emptyList());
 		for(BaseItem child:childs){
@@ -450,15 +541,30 @@ public abstract class BaseItem{
 		}
 		return this;
 	}
+	/**
+	 * @return 返回子条目的数量
+	 */
 	public int childCount() {
 		return items.size();
 	}
+	/**
+	 * @return 所有子条目的名称-路径映射
+	 */
 	public Map<String, String> childNames(){
 		return Maps.newLinkedHashMap(Maps.transformValues(items, PATH_FUN));
 	}
+	/**
+	 * @return 是否有子条目
+	 */
 	public boolean isEmpty() {
 		return items.isEmpty();
 	}
+	/**
+	 * 根据{@code name}指定的条目名称查找当前对象下的子条目<br>
+	 * 如果{@code name}为数字则为子条目索引
+	 * @param name
+	 * @return 子条目，没找到返回{@code null}
+	 */
 	public BaseItem getChild(final String name) {
 		BaseItem item = items.get(name);
 		if (null == item ){
