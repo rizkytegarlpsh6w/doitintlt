@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Observable;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -260,25 +261,23 @@ public abstract class BaseOption<T> extends BaseItem {
 	 * @param listeners
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	@SafeVarargs
 	public final BaseOption<T> addListener(ValueListener<T> ...listeners) {
-		if(listeners != null){
-			for (ValueListener<T> listener : listeners) {
-				if(listener != null){
-					this.observable.addObserver(listener);
-				}
+		for (ValueListener<T> listener : MoreObjects.firstNonNull(listeners, new ValueListener[0])) {
+			if(listener != null){
+				this.observable.addObserver(listener);
 			}
 		}
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@SafeVarargs
 	public final BaseOption<T> deleteListener(ValueListener<T> ...listeners) {
-		if(listeners != null){
-			for (ValueListener<T> listener : listeners) {
-				if(listener != null){
-					this.observable.deleteObserver(listener);
-				}
+		for (ValueListener<T> listener : MoreObjects.firstNonNull(listeners, new ValueListener[0])) {
+			if(listener != null){
+				this.observable.deleteObserver(listener);
 			}
 		}
 		return this;
