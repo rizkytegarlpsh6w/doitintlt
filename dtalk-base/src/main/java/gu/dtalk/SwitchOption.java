@@ -11,6 +11,12 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import static com.google.common.base.Preconditions.*;
 
+/**
+ * 单选列表选项
+ * @author guyadong
+ *
+ * @param <E>
+ */
 public class SwitchOption<E> extends CheckOption<E> {
 	@JSONField(serialize = false,deserialize = false)
 	private final Predicate<Set<Integer>> switchValidator = new Predicate<Set<Integer>>() {

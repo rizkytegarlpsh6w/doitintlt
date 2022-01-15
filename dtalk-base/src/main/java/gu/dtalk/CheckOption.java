@@ -24,6 +24,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import static com.google.common.base.Preconditions.*;
+/**
+ * 多选列表选项
+ * @author guyadong
+ *
+ * @param <E>
+ */
 public class CheckOption<E> extends BaseOption<Set<Integer>> {
 	@JSONField(serialize = false,deserialize = false)
 	private final Predicate<Set<Integer>> checkValidator = new Predicate<Set<Integer>>() {

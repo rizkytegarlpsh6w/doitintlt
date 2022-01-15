@@ -4,6 +4,11 @@ import com.google.common.base.Throwables;
 
 import net.gdface.utils.FaceUtilits;
 
+/**
+ * 二进制数据选项基类
+ * @author guyadong
+ *
+ */
 public abstract class BaseBinary extends BaseOption<byte[]> {
 
 	public BaseBinary() {

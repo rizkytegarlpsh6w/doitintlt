@@ -7,6 +7,11 @@ import net.gdface.image.BaseLazyImage;
 import net.gdface.utils.FaceUtilits;
 import net.gdface.utils.Judge;
 
+/**
+ * 图像类型选项
+ * @author guyadong
+ *
+ */
 public class ImageOption extends BaseBinary {
 	private volatile boolean updated = false;
 	private BaseLazyImage image;

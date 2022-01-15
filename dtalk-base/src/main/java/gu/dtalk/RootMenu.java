@@ -2,6 +2,11 @@ package gu.dtalk;
 
 import static gu.dtalk.CommonConstant.*;
 
+/**
+ * 根菜单 
+ * @author guyadong
+ *
+ */
 public class RootMenu extends MenuItem {
 
 	public RootMenu() {

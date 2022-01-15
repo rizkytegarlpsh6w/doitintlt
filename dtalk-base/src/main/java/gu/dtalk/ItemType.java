@@ -5,6 +5,11 @@ import static com.google.common.base.Preconditions.*;
 
 import java.util.Map;
 
+/**
+ * 菜单选项类型
+ * @author guyadong
+ *
+ */
 public enum ItemType {
 	/** 参数类型 */OPTION,
 	/** 命令 */CMD,

@@ -1,5 +1,10 @@
 package gu.dtalk;
 
+/**
+ * 基于密码验证的连接请求
+ * @author guyadong
+ *
+ */
 public class ConnectReq {
 	/**
 	 * 本机mac地址

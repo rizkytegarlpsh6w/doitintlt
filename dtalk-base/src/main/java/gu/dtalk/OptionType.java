@@ -25,6 +25,11 @@ import net.gdface.utils.FaceUtilits;
 import static gu.dtalk.CommonConstant.*;
 import static com.google.common.base.Preconditions.*;
 
+/**
+ * 选项类型
+ * @author guyadong
+ *
+ */
 public enum OptionType {
 	/** 字符串  */
 	STRING(StringOption.class),

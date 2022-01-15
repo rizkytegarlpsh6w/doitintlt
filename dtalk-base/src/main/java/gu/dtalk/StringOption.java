@@ -2,6 +2,11 @@ package gu.dtalk;
 
 import static com.google.common.base.Preconditions.*;
 
+/**
+ * 通用字符串类型选项
+ * @author guyadong
+ *
+ */
 public class StringOption extends BaseOption<String> {
 	
 	private OptionType optionType;

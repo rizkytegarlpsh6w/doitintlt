@@ -1,5 +1,10 @@
 package gu.dtalk;
 
+/**
+ * 数据转换异常
+ * @author guyadong
+ *
+ */
 public class TransformException extends Exception {
 
 	/**

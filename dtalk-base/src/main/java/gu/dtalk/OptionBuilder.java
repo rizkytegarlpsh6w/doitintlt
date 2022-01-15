@@ -9,6 +9,13 @@ import com.google.common.base.Throwables;
 
 import gu.dtalk.event.ValueListener;
 
+/**
+ * 选项实例构造器
+ * @author guyadong
+ *
+ * @param <T> 选项的数据类型
+ * @param <O>选项的实现类型
+ */
 public class OptionBuilder<T,O extends BaseOption<T>> {
 
 	private final O option;

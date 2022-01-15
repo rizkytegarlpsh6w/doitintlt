@@ -4,6 +4,11 @@ import java.net.URL;
 
 import com.alibaba.fastjson.TypeReference;
 
+/**
+ * URL类型选项
+ * @author guyadong
+ *
+ */
 public class UrlOption extends BaseOption<URL> {
 	
 	public UrlOption() {

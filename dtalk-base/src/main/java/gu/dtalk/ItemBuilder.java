@@ -8,6 +8,12 @@ import java.util.List;
 
 import com.google.common.base.Throwables;
 
+/**
+ * 菜单条目构造器
+ * @author guyadong
+ *
+ * @param <T>
+ */
 public class ItemBuilder<T extends BaseItem> {
 
 	protected final T item;

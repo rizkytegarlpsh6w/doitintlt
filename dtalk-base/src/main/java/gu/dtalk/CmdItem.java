@@ -20,6 +20,11 @@ import com.google.common.collect.Maps;
 import gu.dtalk.exception.CmdExecutionException;
 import static com.google.common.base.Preconditions.*;
 
+/**
+ * 设备命令条目
+ * @author guyadong
+ *
+ */
 public class CmdItem extends BaseItem {
 
 	private static final Function<BaseItem, BaseOption<Object>> TO_OPTION = new Function<BaseItem,BaseOption<Object>>(){

@@ -4,6 +4,11 @@ import com.google.common.base.Throwables;
 
 import net.gdface.utils.FaceUtilits;
 
+/**
+ * base64格式二进制数据选项
+ * @author guyadong
+ *
+ */
 public class Base64Option extends BaseBinary {
 
 	public Base64Option() {
