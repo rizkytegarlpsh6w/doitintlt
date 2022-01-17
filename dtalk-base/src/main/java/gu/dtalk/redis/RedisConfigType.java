@@ -25,7 +25,7 @@ import gu.simplemq.redis.JedisUtils;
  *
  */
 public enum RedisConfigType{
-	/** 自定义配置 */CUSTOM
+	/** 自定义配置 */CUSTOM(new DefaultCustomRedisConfigProvider())
 	/** 局域网配置 */,LAN(new DefaultLocalRedisConfigProvider())
 	/** 公有云配置 */,CLOUD(new DefaultCloudRedisConfigProvider())
 	/** 本机配置(仅用于测试) */,LOCALHOST(new DefaultLocalhostRedisConfigProvider());
@@ -70,7 +70,11 @@ public enum RedisConfigType{
 							return input.type() == RedisConfigType.this;
 						}
 					});
-					instance =  find.isPresent() ? find.get() : this.defImpl;
+					instance = find.isPresent() ? find.get() : this.defImpl;
+					// host uri都为null则 instance无效设置为null
+					if(null != instance && instance.getHost()==null && instance.getURI() == null){
+						instance = null;
+					}
 				}
 			}
 		}

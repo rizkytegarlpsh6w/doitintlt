@@ -19,6 +19,11 @@ public class CommonUtils {
 	public static String getAckChannel(byte[] mac){
 		return getAckChannel(FaceUtilits.toHex(mac));
 	}
+	/**
+	 * 生成连接频道名
+	 * @param mac
+	 * @return
+	 */
 	public static String getConnChannel(String mac){
 		return mac + CONNECT_SUFFIX;
 	}

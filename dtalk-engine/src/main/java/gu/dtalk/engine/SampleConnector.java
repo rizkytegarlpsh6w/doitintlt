@@ -26,7 +26,9 @@ import static com.google.common.base.Preconditions.*;
 import static gu.dtalk.CommonUtils.*;
 
 /**
- * 管理端连接控制器简单实现
+ * 设备端连接控制器简单实现<br>
+ * 接收连接请求并验证请求合法性，如果连接请求有效，则将请求频道名封装到{@link Ack}中发送给管理端<br>
+ * 管理端有了请求频道名才可以向设备端发送菜单命令(item)请求.
  * @author guyadong
  *
  */
@@ -45,9 +47,12 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	/**
 	 * 当前连接的CLIENT端MAC地址
 	 */
-	private String curMAC;
+	private String connectedMAC;
 	private final RedisPublisher ackPublisher;
-	private String workChannel;
+	/**
+	 * 当前连接的CLIENT端的请求频道
+	 */
+	private String requestChannel;
 	private long idleTimeLimit = DEFAULT_IDLE_TIME_MILLS;
 	private long timerPeriod = 2000;
 	private ItemAdapter itemAdapter;
@@ -76,13 +81,13 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 			
 			@Override
 			public void run() {
-				Channel<?> c = subscriber.getChannel(workChannel);
+				Channel<?> c = subscriber.getChannel(requestChannel);
 				if(null != c){
 					ItemAdapter adapter = (ItemAdapter) c.getAdapter();
 					long lasthit = adapter.lastHitTime();
 					if(System.currentTimeMillis() - lasthit > idleTimeLimit){
-						subscriber.unregister(workChannel);
-						workChannel = null;
+						subscriber.unregister(requestChannel);
+						requestChannel = null;
 					}
 				}
 			}
@@ -121,26 +126,31 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 		try{
 			String reqMAC = requestValidator.validate(connstr);
 			checkArgument(!Strings.isNullOrEmpty(reqMAC),"the mac address of request client is null");
-			checkState(curMAC ==null || curMAC.equals(reqMAC),"ANOTHER CLIENT LOCKED");
-			curMAC = reqMAC;
-			ackChannel = getAckChannel(curMAC);
-			// 密码匹配则发送工作频道名
-			if(workChannel == null){
-				workChannel = String.format("%s_%d", 
+			checkState(connectedMAC ==null || connectedMAC.equals(reqMAC),"ANOTHER CLIENT LOCKED");
+			connectedMAC = reqMAC;
+			ackChannel = getAckChannel(connectedMAC);
+			// 密码匹配则发送请求频道名
+			if(requestChannel == null){
+				// 生成请求频道名
+				requestChannel = String.format("%s_%d", 
 						FaceUtilits.toHex(DEVINFO_PROVIDER.getMac()),
 						System.currentTimeMillis()&0xffff);
 			}
-
-			ack.setValue(workChannel);
-			if(null == subscriber.getChannel(workChannel)){
+			// 请求频道名作为响应消息返回值
+			ack.setValue(requestChannel);
+			if(null == subscriber.getChannel(requestChannel)){
 				checkNotNull(itemAdapter,"Dtalk ENGINE NOT READY").setAckChannel(ackChannel);
+				final String ac = ackChannel;
 				// 必须在另开线程执行注册，否则会造成onSubscribe调用者JedisPubSub状态异常
 				new Thread(){
 					@Override
 					public void run() {
-						Channel<JSONObject> c = new Channel<JSONObject> (workChannel,JSONObject.class,itemAdapter);						
+						// 订阅请求频道用于命令发送
+						Channel<JSONObject> c = new Channel<JSONObject> (requestChannel,JSONObject.class,itemAdapter);						
 						subscriber.register(c);
-						System.out.printf("Connect created(建立连接) %s for client:%s\n", c.name,curMAC);
+						System.out.printf("Connect created(建立连接)for client:%s\n",connectedMAC);
+						System.out.printf("request channel %s \n"
+								                 + "ack channel       %s:\n", c.name,ac);
 					}}.start();
 
 			}

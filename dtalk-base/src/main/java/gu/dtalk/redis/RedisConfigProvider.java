@@ -4,12 +4,14 @@ import java.net.URI;
 
 /**
  * redis服务器参数SPI(Service Provider Interface)读写接口
+ * {@link #getHost()}和{@link #getURI()}不可同时为{@code null},否则视为无效实例被忽略
  * @author guyadong
  *
  */
 public interface RedisConfigProvider {
 	/**
-	 * @return 返回redis主机名,当{@link #getURI()}返回{@code null}时，不可为{@code null}
+	 * @return 返回redis主机名,当{@link #getURI()}返回{@code null}时，不可为{@code null},
+	 * 否则视为无效，实例被忽略
 	 */
 	String getHost();
 	/**

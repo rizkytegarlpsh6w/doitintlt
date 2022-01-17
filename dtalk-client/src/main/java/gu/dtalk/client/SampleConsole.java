@@ -5,10 +5,13 @@ import com.google.common.base.Strings;
 
 import gu.dtalk.ConnectReq;
 import gu.dtalk.exception.DtalkException;
+import gu.dtalk.redis.DefaultCustomRedisConfigProvider;
 import gu.dtalk.redis.RedisConfigType;
 import gu.simplemq.Channel;
 import gu.simplemq.redis.JedisPoolLazy;
 import net.gdface.utils.FaceUtilits;
+
+import static gu.dtalk.client.SampleConsoleConfig.*;
 
 public class SampleConsole extends BaseConsole {
 
@@ -40,6 +43,8 @@ public class SampleConsole extends BaseConsole {
 		}
 
 	public static void main(String []args){
+		CONSOLE_CONFIG.parseCommandLine(args);
+		DefaultCustomRedisConfigProvider.initredisParameters(CONSOLE_CONFIG.getRedisParameters());
 		System.out.println("Text terminal for Device Talk is starting(设备交互字符终端启动)");
 		String devmac = null;
 		// 如果命令行提供了设备mac地址，则尝试解析该参数
@@ -66,7 +71,7 @@ public class SampleConsole extends BaseConsole {
 		JedisPoolLazy.createDefaultInstance( config.readRedisParam() );
 
 		SampleConsole client = new SampleConsole(devmac, config);
-		client.start();
+		client.setStackTrace(CONSOLE_CONFIG.isTrace()).start();
 
 	}
 

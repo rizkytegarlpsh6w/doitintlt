@@ -7,6 +7,11 @@ import static gu.dtalk.CommonConstant.*;
  */
 
 import java.net.URI;
+/**
+ * 本机(LOCALHOST)配置默认实现
+ * @author guyadong
+ *
+ */
 public class DefaultLocalhostRedisConfigProvider implements RedisConfigProvider {
 
 	@Override

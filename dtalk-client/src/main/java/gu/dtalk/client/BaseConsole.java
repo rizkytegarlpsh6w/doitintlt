@@ -32,20 +32,44 @@ import static gu.dtalk.CommonConstant.*;
 import static gu.dtalk.CommonUtils.*;
 import static com.google.common.base.Preconditions.*;
 
+/**
+ * 字符终端实现基类
+ * @author guyadong
+ *
+ */
 public abstract class BaseConsole {
 	protected static final Logger logger = LoggerFactory.getLogger(BaseConsole.class);
-	protected String reqChannel = null;
 	final RedisSubscriber subscriber;
 	final RedisPublisher publisher;
+	/**
+	 * 请求频道名,用于终端向设备端发送菜单命令(item)请求
+	 * 这个频道名,在与设备端成功连接后,由设备端提供
+	 */
+	protected String reqChannel = null;
+	/**
+	 * 终端的MAC地址
+	 */
 	protected final byte[] temminalMac;
+	/**
+	 * 响应频道名,用于终端接收设备端的响应消息
+	 * 这是个与终端MAC地址相关的常量,设备端只要知道终端的MAC就能得到它的响应频道名
+	 */
 	private final String ackchname;
+	/**
+	 * 连接频道名,用于终端向设备端发送连接请求
+	 * 这是个与设备端MAC地址相关的常量,终端只要知道设备端的MAC就能得到它的连接频道名
+	 */
 	protected final String connchname;
 	private final RenderEngine renderEngine = new RenderEngine();
 	private final Channel<JSONObject> ackChannel;
 	/**
+	 * 出错时是否显示详细调用堆栈
+	 */
+	private boolean stackTrace = false;
+	/**
 	 * 构造方法
 	 * @param devmac 要连接的设备MAC地址,测试设备程序在本地运行时可为空。
-	 * @param config TODO
+	 * @param config redis连接配置类型
 	 */
 	public BaseConsole(String devmac, RedisConfigType config) {
 		JedisPoolLazy pool = JedisPoolLazy.getInstance(config.readRedisParam(),false);
@@ -74,12 +98,6 @@ public abstract class BaseConsole {
 		System.out.printf("DEVICE MAC address: %s\n", devmac);
 
 		connchname = getConnChannel(devmac);
-		Channel<String> testch = new Channel<String>(connchname, String.class);
-		long rc = publisher.publish(testch, "\"hello\"");
-		checkState(rc != 0,"TARGET DEVICE NOT online");
-		if(rc>1){
-			System.out.println("DUPLIDATED TARGET DEVICE WITH same MAC address");
-		}		
 
 	}
 	protected static byte[] getSelfMac(RedisConfigType type){
@@ -227,7 +245,8 @@ public abstract class BaseConsole {
 		checkArgument(item instanceof BaseOption<?>);
 		BaseOption<?> option = (BaseOption<?>)item;
 		String desc = Strings.isNullOrEmpty(option.getDescription()) ? "" : "("+option.getDescription()+")"; 
-		System.out.printf("INPUT VALUE for %s%s:", option.getUiName(),desc);
+		// 显示提示信息
+		System.out.printf("INPUT VALUE for %s(%s)%s(input empty for skip):",option.getUiName(),option.getName(),desc);
 		String value = scanLine(new Predicate<String>() {
 
 			@Override
@@ -360,16 +379,30 @@ public abstract class BaseConsole {
 			System.exit(-1);
 		}
 	}
+	/**
+	 * 启动终端
+	 */
 	public void start(){
 		try{
+			Channel<String> testch = new Channel<String>(connchname, String.class);
+			long rc = publisher.publish(testch, "\"hello,dtalk\"");
+			// 目标设备没有上线
+			checkState(rc != 0,"TARGET DEVICE NOT online");
+			if(rc>1){
+				// 有两个设备侦听同一个连接频道
+				System.out.println("WARN:DUPLICATED TARGET DEVICE WITH same MAC address");
+			}		
 			connect();
 			if(authorize()){
 				waitTextRenderEngine();
 				cmdInteractive();
 			}
 		}catch (Exception e) {
-			System.out.println(e.getMessage());
-			//			logger.error(e.getMessage(),e);
+			if(stackTrace){
+				logger.error(e.getMessage(),e);	
+			}else{
+				System.out.println(e.getMessage());
+			}
 			return ;
 		}
 	}
@@ -379,4 +412,12 @@ public abstract class BaseConsole {
 	 * @return 验证通过返回{@code true}，否则返回{@code false}
 	 */
 	protected abstract boolean authorize();
+	/**
+	 * @param stackTrace 要设置的 stackTrace
+	 * @return 
+	 */
+	public BaseConsole setStackTrace(boolean stackTrace) {
+		this.stackTrace = stackTrace;
+		return this;
+	}
 }

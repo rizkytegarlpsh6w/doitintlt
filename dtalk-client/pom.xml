@@ -41,7 +41,12 @@
 			<artifactId>common-image</artifactId>
 			<version>${common-java.version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>common-cli</artifactId>
+			<version>${common-java.version}</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>dtalk-base</artifactId>
@@ -61,7 +66,7 @@
 				<configuration>
 					<transformers>
 						<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-							<mainClass>gu.dtalk.client.BaseConsole</mainClass>
+							<mainClass>gu.dtalk.client.SampleConsole</mainClass>
 						</transformer>
 					</transformers>
 					<shadedArtifactAttached>true</shadedArtifactAttached>
@@ -78,6 +83,24 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>templating-maven-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>filter-bat</id>
+							<phase>package</phase>
+							<goals>
+								<goal>filter-sources</goal>
+							</goals>
+							<configuration>
+								<sourceDirectory>${project.basedir}/shell.template</sourceDirectory>
+								<outputDirectory>${project.build.directory}</outputDirectory>
+								<overwrite>true</overwrite>
+							</configuration>
+						</execution>
+					</executions>
 			</plugin>
 		</plugins>
 	</build>
