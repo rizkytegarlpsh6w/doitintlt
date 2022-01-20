@@ -40,6 +40,11 @@
 			<artifactId>dtalk-engine</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>common-cli</artifactId>
+			<version>${common-java.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

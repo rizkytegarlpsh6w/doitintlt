@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import gu.dtalk.engine.ItemEngine;
 import gu.dtalk.engine.SampleConnector;
+import gu.dtalk.redis.DefaultCustomRedisConfigProvider;
 import gu.dtalk.redis.RedisConfigType;
 import gu.simplemq.Channel;
 import gu.simplemq.redis.JedisPoolLazy;
@@ -17,6 +18,7 @@ import net.gdface.utils.NetworkUtil;
 
 import static gu.dtalk.CommonUtils.*;
 import static gu.dtalk.engine.SampleConnector.*;
+import static gu.dtalk.engine.demo.DemoConfig.*;
 
 public class Demo {
 	private static final Logger logger = LoggerFactory.getLogger(Demo.class);
@@ -54,8 +56,11 @@ public class Demo {
 
 		}
 	}
-	public static void main(String []args){
+	public static void main(String []args){		
 		try{
+			DEMO_CONFIG.parseCommandLine(args);
+			DefaultCustomRedisConfigProvider.initredisParameters(DEMO_CONFIG.getRedisParameters());
+
 			System.out.println("Device talk Demo starting(设备模拟器启动)");
 			RedisConfigType config = RedisConfigType.lookupRedisConnect();
 			logger.info("use config={}",config.toString());
@@ -66,9 +71,11 @@ public class Demo {
 			System.out.println("PRESS 'quit' OR 'CTRL-C' to exit");
 			waitquit();
 		}catch (Exception e) {
-			//System.out.println(e.getMessage());
-			e.printStackTrace();
-			return ;
+			if(DEMO_CONFIG.isTrace()){
+				e.printStackTrace();	
+			}else{
+				System.out.println(e.getMessage());
+			}
 		}
 	}
 
