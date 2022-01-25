@@ -13,6 +13,11 @@ import net.gdface.utils.FaceUtilits;
 
 import static gu.dtalk.client.SampleConsoleConfig.*;
 
+/**
+ * 简单字符终端实现
+ * @author guyadong
+ *
+ */
 public class SampleConsole extends BaseConsole {
 
 	public SampleConsole(String devmac, RedisConfigType config) {

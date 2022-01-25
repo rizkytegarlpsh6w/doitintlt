@@ -20,6 +20,11 @@ import static gu.dtalk.CommonUtils.*;
 import static gu.dtalk.engine.SampleConnector.*;
 import static gu.dtalk.engine.demo.DemoConfig.*;
 
+/**
+ * dtalk引擎演示
+ * @author guyadong
+ *
+ */
 public class Demo {
 	private static final Logger logger = LoggerFactory.getLogger(Demo.class);
 
