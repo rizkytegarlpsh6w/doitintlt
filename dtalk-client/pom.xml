@@ -95,7 +95,7 @@
 							</goals>
 							<configuration>
 								<sourceDirectory>${project.basedir}/shell.template</sourceDirectory>
-								<outputDirectory>${project.build.directory}</outputDirectory>
+								<outputDirectory>${project.build.directory}/shell</outputDirectory>
 								<overwrite>true</overwrite>
 							</configuration>
 						</execution>
