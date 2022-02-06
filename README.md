@@ -26,11 +26,10 @@ dtalk就是为了实现上述的目标而开发的一个Redis发布订阅(pub/su
 
 ![](manual/images/network.png)
 
+
 ## 软件架构
 
-dtalk在代码结构分为两大块，用运行于前端设备的`dtalk-engine`，和运行于管理端的`dtalk-client`，
-
-dtalk各模块的简介如下：
+dtalk在代码结构分为两大块，用运行于前端设备的`dtalk-engine`，和运行于管理端的`dtalk-client`,dtalk各模块的简介如下：
 
 	├─dtalk-base   dtalk共用模块
 	├─dtalk-client dtalk字符终端实现
@@ -50,11 +49,11 @@ dtalk各模块的简介如下：
 
 `dtalk-client` 实现简单的字符终端的命令行运行程序，提供与设备端的菜单引擎的交互界面。连接设备端的菜单引擎，以菜单形式显示菜单内容，向菜单引擎发送菜单命令请求，并显示响应内容
 
+设备端和管理端之间的通讯的数据格式为结构化的JSON，应用项目可以基于javascript在web浏览上以更丰富的形式呈现设备端的菜单
 
 ### dtalk-demo
 
 `dtalk-demo` 基于`dtalk-engine`实现了一个简单的dtalk设备端模拟器,模拟一台运行了dtalk引擎的前端设备的命令行执行程序，使用`dtalk-client`可以连接`dtalk-demo`，演示dtalk的工作机制。
-
 
 ## 安装教程
 
