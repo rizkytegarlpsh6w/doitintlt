@@ -26,6 +26,10 @@ dtalk就是为了实现上述的目标而开发的一个Redis发布订阅(pub/su
 
 ![](manual/images/network.png)
 
+### 开发手册 
+
+
+关于 dtalk 更详细的说明参见 [《dtalk 开发手册》](manual/MANUAL.md)
 
 ## 软件架构
 
