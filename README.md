@@ -71,6 +71,26 @@ dtalk在代码结构分为两大块，用运行于前端设备的`dtalk-engine`�
 
 本项目编译的二进制jar包已经发布到maven中央仓库，maven或gradle项目中无须编译就可以直接在自己的项目直接引用.
 
+比如maven引用dtalk-client
+
+		<!-- https://mvnrepository.com/artifact/com.gitee.l0km/dtalk-client -->
+		<dependency>
+		    <groupId>com.gitee.l0km</groupId>
+		    <artifactId>dtalk-client</artifactId>
+		    <version>0.1.3</version>
+		</dependency>
+
+引用dtal-engine
+
+		<!-- https://mvnrepository.com/artifact/com.gitee.l0km/dtalk-engine -->
+		<dependency>
+		    <groupId>com.gitee.l0km</groupId>
+		    <artifactId>dtalk-engine</artifactId>
+		    <version>0.1.3</version>
+		</dependency>
+
+
+
 参见maven中央仓库 
 
 [https://mvnrepository.com/artifact/com.gitee.l0km/dtalk-client](https://mvnrepository.com/artifact/com.gitee.l0km/dtalk-client)
@@ -92,14 +112,10 @@ dtalk在代码结构分为两大块，用运行于前端设备的`dtalk-engine`�
 下载uber-jar包，在命令执行就可以启动dtalk设备模拟器
 
 		java -jar dtalk-demo-0.1.3-standalone.jar
-
-    	cd dtalk
-    	dtalk-demo\demo.bat
-
 	
 ![](manual/images/engine.png)
 
-执行 `engine.bat -h` 可显示帮助信息
+执行 `java -jar dtalk-demo-0.1.3-standalone.jar -h` 可显示帮助信息
 
 ![](manual/images/engine02.png)
 #### 启动 `dtalk-client`
@@ -111,7 +127,7 @@ dtalk在代码结构分为两大块，用运行于前端设备的`dtalk-engine`�
 
 ![](manual/images/console.png)
 
-执行 `console.bat -h` 可显示帮助信息
+执行 `java -jar dtalk-client-0.1.3-standalone.jar -h` 可显示帮助信息
 
 ![](manual/images/console02.png)
 
@@ -120,7 +136,7 @@ dtalk在代码结构分为两大块，用运行于前端设备的`dtalk-engine`�
 
 #### 编译
 
-    	# 克隆源码
+    	# git克隆源码
     	git clone https://gitee.com/l0km/dtalk.git
     	cd dtalk
     	# 编译
