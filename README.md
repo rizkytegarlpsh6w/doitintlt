@@ -33,7 +33,7 @@ dtalk就是为了实现上述的目标而开发的一个Redis发布订阅(pub/su
 
 ## 软件架构
 
-dtalk在代码结构分为两大块，用运行于前端设备的`dtalk-engine`，和运行于管理端的`dtalk-client`,dtalk各模块的简介如下：
+dtalk在代码结构上分为两大块，用运行于前端设备的`dtalk-engine`，和运行于管理端的`dtalk-client`,dtalk各模块的简介如下：
 
 	├─dtalk-base   dtalk共用模块
 	├─dtalk-client dtalk字符终端实现
