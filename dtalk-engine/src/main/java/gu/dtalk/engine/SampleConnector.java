@@ -132,7 +132,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 			// 密码匹配则发送请求频道名
 			if(requestChannel == null){
 				// 生成请求频道名
-				requestChannel = String.format("%s_%d", 
+				requestChannel = String.format("%s_dtalk_%d", 
 						FaceUtilits.toHex(DEVINFO_PROVIDER.getMac()),
 						System.currentTimeMillis()&0xffff);
 			}
