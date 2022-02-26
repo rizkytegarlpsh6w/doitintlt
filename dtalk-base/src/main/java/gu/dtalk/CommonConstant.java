@@ -2,6 +2,11 @@ package gu.dtalk;
 
 import redis.clients.jedis.Protocol;
 
+/**
+ * dtalk共用常量
+ * @author guyadong
+ *
+ */
 public class CommonConstant {
 	public static final String ACK_SUFFIX="_dtalk_ack";
 	public static final String CONNECT_SUFFIX="_dtalk_connect";

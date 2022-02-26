@@ -204,12 +204,8 @@ public abstract class BaseConsole {
 				// 如果没有根据path找到对应的item则抛出异常
 				item = checkNotNull(currentLevel.find(path),"NOT FOUND item %s",path);
 			}
-			json.fluentPut(ITEM_FIELD_NAME, item.getName())
-			.fluentPut(ITEM_FIELD_PATH,path)
-			.fluentPut(ITEM_FIELD_CATALOG, item.getCatalog());
-			if(item instanceof BaseOption<?>){
-				json.put(OPTION_FIELD_TYPE, ((BaseOption<?>)item).getType());
-			}
+			json.fluentPut(ITEM_FIELD_PATH,path)
+				.fluentPut(ITEM_FIELD_CATALOG, item.getCatalog());
 		}
 
 		return json;

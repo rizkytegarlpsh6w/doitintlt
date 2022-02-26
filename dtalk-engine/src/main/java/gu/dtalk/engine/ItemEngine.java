@@ -6,8 +6,10 @@ import com.google.common.base.MoreObjects;
 import gu.dtalk.Ack;
 import gu.dtalk.CmdItem;
 import gu.dtalk.CommonUtils;
+import gu.dtalk.CommonConstant;
 import gu.dtalk.BaseItem;
 import gu.dtalk.MenuItem;
+import gu.dtalk.OptionType;
 import gu.dtalk.BaseOption;
 import gu.dtalk.ItemType;
 import gu.dtalk.RootMenu;
@@ -20,6 +22,7 @@ import gu.simplemq.redis.RedisFactory;
 import static com.google.common.base.Preconditions.*;
 import static gu.dtalk.CommonConstant.*;
 import static gu.dtalk.CommonUtils.*;
+
 
 /**
  * 消息驱动的菜单引擎，根据收到的请求执行对应的动作<br>
@@ -43,6 +46,51 @@ public class ItemEngine implements ItemAdapter{
 		ackPublisher = RedisFactory.getPublisher(pool);
 	}
 
+	/**
+	 * 归一化输入的{@link JSONObject}对象<br>
+	 * 根据{@value} CommonConstant#ITEM_FIELD_NAME}或{@value CommonConstant#ITEM_FIELD_PATH}字段的值
+	 * 查找是否存在指定的item,如果不存在抛出异常,
+	 * 如果没有定义{@value CommonConstant#ITEM_FIELD_NAME}或{@value CommonConstant#ITEM_FIELD_PATH}则抛出异常<br>
+	 * 如果 {@link JSONObject}没有指定{@value CommonConstant#ITEM_FIELD_CATALOG}字段，
+	 * 则设置为找到的item的对应字段.<br>
+	 * 找到的item为{@link BaseOption}对象,且 {@link JSONObject}没有指定{@value CommonConstant#OPTION_FIELD_TYPE}字段，
+	 * 则设置为找到的item的对应字段.
+	 * @param jsonObject
+	 * @return 返回归一化的{@code jsonObject}，
+	 * 保证有定义{@value CommonConstant#ITEM_FIELD_NAME},{@value CommonConstant#ITEM_FIELD_PATH}字段
+	 * @throws IllegalArgumentException
+	 */
+	private JSONObject normalize(JSONObject jsonObject){
+		String name = jsonObject.getString(ITEM_FIELD_NAME);
+		String path = jsonObject.getString(ITEM_FIELD_PATH);
+		checkArgument(name != null || path != null,"NOT DEFINED path or name");
+		BaseItem start = MoreObjects.firstNonNull(currentLevel, root);
+		BaseItem found;
+		if(path != null){
+			found = start.findChecked(path);
+		}else if(name != null){
+			found = start.findChecked(name);
+		}else{
+			throw new IllegalArgumentException("NOT DEFINED " + ITEM_FIELD_PATH +" or " + ITEM_FIELD_NAME);
+		}
+		if(jsonObject.containsKey(ITEM_FIELD_CATALOG)){
+			checkArgument(found.getCatalog().equals(jsonObject.getObject(ITEM_FIELD_CATALOG, ItemType.class)),"MISMATCH CATALOG");
+		}else{
+			jsonObject.fluentPut(ITEM_FIELD_CATALOG, found.getCatalog());
+		}
+		if((found instanceof BaseOption)){
+			BaseOption<?> opt = (BaseOption<?>)found;
+			if(jsonObject.containsKey(OPTION_FIELD_TYPE)){
+				checkArgument(opt.getType().equals(jsonObject.getObject(OPTION_FIELD_TYPE,OptionType.class)),"MISMATCH TYPE");
+			}else{
+				jsonObject.fluentPut(OPTION_FIELD_TYPE, opt.getType());
+			}
+		}
+		if(name == null){
+			jsonObject.fluentPut(ITEM_FIELD_NAME, found.getName());
+		}
+		return jsonObject;
+	}
 	/** 
 	 * 响应菜单命令
 	 */
@@ -53,7 +101,7 @@ public class ItemEngine implements ItemAdapter{
 		boolean isQuit = false;
 		Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK);
 		try{
-			BaseItem req = ItemType.parseItem(jsonObject);
+			BaseItem req = ItemType.parseItem(normalize(jsonObject));
 			BaseItem found = null;
 			if(currentLevel != null){
 				found = currentLevel.getChild(req.getName());
@@ -109,6 +157,7 @@ public class ItemEngine implements ItemAdapter{
 			ack.setErrorMessage("DISCONNECT");
 			throw e;
 		}catch(Exception e){
+			e.printStackTrace();
 			ack.setStatus(Ack.Status.ERROR).setErrorMessage(e.getMessage());
 		}
 		// 向ack频道发送返回值消息

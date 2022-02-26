@@ -323,7 +323,7 @@ public abstract class BaseItem{
 	 * @throws IllegalArgumentException 没找到指定的对象
 	 */
 	public BaseItem findChecked(String path){
-		return checkNotNull(find(path),"NOT FOUND %s",path);		
+		return checkNotNull(find(path),"NOT FOUND ITEM %s",path);		
 	}
 	/**
 	 * 根据path指定的路径查找menu对象, 先在当前对象中查找，如果找不到，从根结点查找
