@@ -306,10 +306,10 @@ document.addEventListener("DOMContentLoaded", function() {
         var level = parseInt(header.tagName.replace('H', ''), 10)-1;
         // 通过两个where循环对栈进行调整,确保stack中标题级数与当前标题级数相同
         while(stack.length < level){
-            stack.push(0);
+        	stack.push(0);
         }
         while(stack.length > level){
-            stack.pop();
+        	stack.pop();
         }
         // 最小一级标题标号步进+1
         stack[stack.length-1]++;
@@ -332,7 +332,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </head>
 <body>
-<h1>dtalk(Device Talk)开发手册</h1>
+<h1>dtalk(Device Talk)开发手册(更新中)</h1>
 <h2>术语</h2>
 <table>
 <thead>
@@ -355,7 +355,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	<td align="left">设备端执行的指定动作的条目，可以包含一个或多个由option对象描述的参数，可以有返回值</td>
 </tr>
 <tr>
-	<td align="left">菜单</td>
+	<td align="left">菜单,menu</td>
 	<td align="left">包含一个或多个opton或cmd的菜单条目</td>
 </tr>
 <tr>
@@ -401,13 +401,13 @@ document.addEventListener("DOMContentLoaded", function() {
 <p>管理端收到这个菜单数据后，可以以自己想要的形式呈现给用户。在dtalk实现的简单字符终端中，以简单的列表形式显示设备端管理菜单 。如果在浏览器上用js实现，可以实现更好看的呈现方式。</p>
 <p>管理端有了这个菜单，就可以知道该设备有哪些参数可以设置修改，有哪些命令可以执行，每个命令的含义是啥，都需要什么样的参数。</p>
 <p>我们把运行在设备端，响应管理的dtalk请求的模块称为dtalk引擎或设备命令引擎。</p>
-<p>我们把运行在管理端，向用户呈现管理菜单，向设备发送dtlk请求，并将收到的响应显示给用户的模块称为dtalk console，或命令console。</p>
+<p>我们把运行在管理端，向用户呈现管理菜单，向设备端发送dtlk请求，并将收到的响应显示给用户的模块称为dtalk console，或命令console。</p>
 <p>设备端有哪些命令和选项，可以根据项目的需要定义，定制设备命令菜单。dtalk engine(命令引擎)负责向管理端发送这个菜单，并执行管理端的设备命令请求。</p>
 <p>也就是说，设备端的命令和参数选项完全是自由灵活的，动态定义的。</p>
 <h2>建立连接</h2>
 <p>如下图,设备端运行后，会订阅只属于自己的连接请求频道，这个频道的频道名是常量,名字格式-- <code>${设备端MAC地址}_dtalk_connect</code>,管理端要连接某台设备，必须要知道这台设备的MAC地址，有了MAC地址，就可以向这台设备发送连接请求，设备端收到连接请求后，会验证连接请求是否有效，如果有效则允许管理连接，就会向命令响应频道发送命令请求频道名(request channel)，这个频道名是动态生成的，名字格式--<code>${设备端MAC地址}_dtalk_[\d]+}</code>(后缀是个随机数)。</p>
 <p>管理端启动后，会订阅只属于自己的命令响应频道名，这个频道的频道名是常量,名字格式---<code>${管理端MAC地址}_dtalk_ack</code>。管理端通过响应频道收到连接成功的信号后，也同时会收到命令请求频道名(request channel),有了这个request channel，管理端才能向设备端发送设备命令请求。</p>
-<p>管理端到设备端的连接是独占的，设备端以管理端连接时提供的管理端MAC地址来区分管理端，不允许有两个不同的管理端同时连接到同一台设备。如果已经有一个管理端电脑连接到了设备端，那么另一台管理端电脑连接该设备时就会报错:<code>ANOTHER CLIENT LOCKED</code></p>
+<p>管理端到设备端的连接是独占的，设备端以管理端连接时提供的管理端MAC地址来区分管理端，不允许有两个不同的管理端同时连接到同一台设备。如果已经有一个管理端电脑A连接到了设备端，那么另一台管理端电脑B尝试连接该设备时就会报错:<code>ANOTHER CLIENT LOCKED</code></p>
 <p><img src="images/connect.png" /></p>
 <h3>验证连接</h3>
 <p>设备如何验证管理端的连接请求是否合法呢？</p>
@@ -425,7 +425,8 @@ document.addEventListener("DOMContentLoaded", function() {
 <p>设备端根据管理端提供的连接密码，与本机保存的密码相比较，如果匹配则允许连接，否则报错<code>INVALID REQUEST PASSWORD</code>。</p>
 <h3>设备端实现</h3>
 <p>关于建立连接的设备端实现参见<a href="../dtalk-engine/src/main/java/gu/dtalk/engine/SampleConnector.java">gu.dtalk.engine.SampleConnector</a></p>
-<p>这只是dtalk提供的默认连接实现，应用程序在使用dtalk的时候，可以根据业务需求实现<a href="..//dtalk-engine/src/main/java/gu/dtalk/engine/RequestValidator.java">gu.dtalk.engine.RequestValidator</a> 接口，实现不同的连接验证方式。比如<a href="https://gitee.com/l0km/facelog">facelog</a>项目在使用dtalk时就重写了此方法，参见<a href="https://gitee.com/l0km/facelog/blob/master/facelog-client-base/src/main/java/net/gdface/facelog/client/dtalk/TokenRequestValidator.java">net.gdface.facelog.client.dtalk.TokenRequestValidator</a></p>
+<p>这只是dtalk提供的默认连接实现，应用程序在使用dtalk的时候，可以根据业务需求实现<a href="..//dtalk-engine/src/main/java/gu/dtalk/engine/RequestValidator.java">gu.dtalk.engine.RequestValidator</a> 接口，实现不同的连接验证方式。</p>
+<p>比如<a href="https://gitee.com/l0km/facelog">facelog</a>项目在使用dtalk时就重写了此方法，参见<a href="https://gitee.com/l0km/facelog/blob/master/facelog-client-base/src/main/java/net/gdface/facelog/client/dtalk/TokenRequestValidator.java">net.gdface.facelog.client.dtalk.TokenRequestValidator</a></p>
 <h3>管理端实现</h3>
 <p>关于建立连接的管理端实现参见 <a href="../dtalk-client/src/main/java/gu/dtalk/client/SampleConsole.java">gu.dtalk.client.SampleConsole#authorize()</a>方法</p>
 <h2>命令交互</h2>
