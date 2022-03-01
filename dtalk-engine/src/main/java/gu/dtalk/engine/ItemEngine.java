@@ -1,5 +1,6 @@
 package gu.dtalk.engine;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.MoreObjects;
@@ -56,38 +57,47 @@ public class ItemEngine implements ItemAdapter{
 	 * 找到的item为{@link BaseOption}对象,且 {@link JSONObject}没有指定{@value CommonConstant#OPTION_FIELD_TYPE}字段，
 	 * 则设置为找到的item的对应字段.
 	 * @param jsonObject
+	 * @param start 搜索起始对象
 	 * @return 返回归一化的{@code jsonObject}，
 	 * 保证有定义{@value CommonConstant#ITEM_FIELD_NAME},{@value CommonConstant#ITEM_FIELD_PATH}字段
 	 * @throws IllegalArgumentException
 	 */
-	private JSONObject normalize(JSONObject jsonObject){
+	private static JSONObject normalize(JSONObject jsonObject, BaseItem start){
 		String name = jsonObject.getString(ITEM_FIELD_NAME);
 		String path = jsonObject.getString(ITEM_FIELD_PATH);
 		checkArgument(name != null || path != null,"NOT DEFINED path or name");
-		BaseItem start = MoreObjects.firstNonNull(currentLevel, root);
-		BaseItem found;
+		BaseItem node;
 		if(path != null){
-			found = start.findChecked(path);
+			node = start.findChecked(path);
 		}else if(name != null){
-			found = start.findChecked(name);
+			node = start.findChecked(name);
 		}else{
 			throw new IllegalArgumentException("NOT DEFINED " + ITEM_FIELD_PATH +" or " + ITEM_FIELD_NAME);
 		}
 		if(jsonObject.containsKey(ITEM_FIELD_CATALOG)){
-			checkArgument(found.getCatalog().equals(jsonObject.getObject(ITEM_FIELD_CATALOG, ItemType.class)),"MISMATCH CATALOG");
+			checkArgument(node.getCatalog().equals(jsonObject.getObject(ITEM_FIELD_CATALOG, ItemType.class)),
+					"MISMATCH CATALOG %s",
+					node.getPath());
 		}else{
-			jsonObject.fluentPut(ITEM_FIELD_CATALOG, found.getCatalog());
+			jsonObject.fluentPut(ITEM_FIELD_CATALOG, node.getCatalog());
 		}
-		if((found instanceof BaseOption)){
-			BaseOption<?> opt = (BaseOption<?>)found;
+		if((node instanceof BaseOption)){
+			BaseOption<?> opt = (BaseOption<?>)node;
 			if(jsonObject.containsKey(OPTION_FIELD_TYPE)){
-				checkArgument(opt.getType().equals(jsonObject.getObject(OPTION_FIELD_TYPE,OptionType.class)),"MISMATCH TYPE");
+				checkArgument(opt.getType().equals(jsonObject.getObject(OPTION_FIELD_TYPE,OptionType.class)),
+						"MISMATCH TYPE %s",
+						node.getPath());
 			}else{
 				jsonObject.fluentPut(OPTION_FIELD_TYPE, opt.getType());
 			}
 		}
 		if(name == null){
-			jsonObject.fluentPut(ITEM_FIELD_NAME, found.getName());
+			jsonObject.fluentPut(ITEM_FIELD_NAME, node.getName());
+		}
+		for(Object child:MoreObjects.firstNonNull(jsonObject.getJSONArray(ITEM_FIELD_CHILDS),new JSONArray())){
+			checkArgument(child instanceof JSONObject,"INVALID JSON FORMAT FOR CHILD OF %s",
+					node.getPath());
+			normalize((JSONObject)child, node);
 		}
 		return jsonObject;
 	}
@@ -101,7 +111,7 @@ public class ItemEngine implements ItemAdapter{
 		boolean isQuit = false;
 		Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK);
 		try{
-			BaseItem req = ItemType.parseItem(normalize(jsonObject));
+			BaseItem req = ItemType.parseItem(normalize(jsonObject, MoreObjects.firstNonNull(currentLevel, root)));
 			BaseItem found = null;
 			if(currentLevel != null){
 				found = currentLevel.getChild(req.getName());

@@ -115,6 +115,18 @@ public class CmdItem extends BaseItem {
 		return this;
 	}
 	/**
+	 * 参数 检查，如果参数为required,而输入参数中不包含这个参数，则抛出异常
+	 * @param input
+	 * @return input
+	 */
+	private Map<String, Object> checkRequired(Map<String, Object> input){
+		for(BaseOption<Object> param : getParameters()){
+			checkArgument(!param.isRequired() || input.containsKey(param.getName()),
+					"MISS REQUIRED PARAM %s",param.getName());
+		}
+		return input;
+	}
+	/**
 	 * 执行命令
 	 * @return
 	 * @throws CmdExecutionException
@@ -125,7 +137,7 @@ public class CmdItem extends BaseItem {
 				try {
 					// 将 parameter 转为 Map<String, Object>
 					Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
-					return cmdAdapter.apply(objParams);					
+					return cmdAdapter.apply(checkRequired(objParams));					
 				} finally {
 					reset();
 				}
@@ -146,7 +158,7 @@ public class CmdItem extends BaseItem {
 				try {
 					// 将 parameter 转为 Map<String, Object>
 					Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
-					return cmdAdapter.apply(objParams);
+					return cmdAdapter.apply(checkRequired(objParams));
 				} finally {
 					reset();
 				}

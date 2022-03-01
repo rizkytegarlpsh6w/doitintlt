@@ -87,4 +87,24 @@ public class ItemTest {
 			e.printStackTrace();
 		}
 	}
+	@Test
+	public void test6Menu(){
+		MenuItem menu1 = ItemBuilder.builder(MenuItem.class).name("menu1").uiName("菜单1").addChilds(
+				ItemBuilder.builder(MenuItem.class).name("menu1_1").uiName("菜单1.1").addChilds(
+						OptionType.STRING.builder().name("option1").uiName("选项1").instance(),
+						OptionType.INTEGER.builder().name("option2").uiName("选项2").instance()
+						).instance()
+				).instance();
+		MenuItem menu2 = ItemBuilder.builder(MenuItem.class).name("menu2").uiName("菜单2").addChilds(
+				ItemBuilder.builder(MenuItem.class).name("menu2_1").uiName("菜单2.1").addChilds(
+							ItemBuilder.builder(CmdItem.class).name("cmd1").uiName("命令1").instance().addParameters(
+									OptionType.STRING.builder().name("param1").uiName("命令参数1").instance()
+									)
+						).instance()
+				).instance();
+		RootMenu root = new RootMenu();
+		root.addChilds(menu1,menu2);
+		
+		logger.info(BaseJsonEncoder.getEncoder().toJsonString(root));
+	}
 }

@@ -37,6 +37,7 @@ public class CommonConstant {
 	public static final String ITEM_FIELD_CATALOG="catalog";
 	public static final String ITEM_FIELD_PATH="path";
 	public static final String ITEM_FIELD_NAME="name";
+	public static final String ITEM_FIELD_CHILDS="childs";
 	public static final String OPTION_FIELD_TYPE="type";
 	public static final String OPTION_FIELD_VALUE="value";
 	public static final String OPTION_FIELD_DEFAULT="defaultValue";
