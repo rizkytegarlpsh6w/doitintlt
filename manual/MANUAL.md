@@ -6,7 +6,7 @@
 |:---------|:-----------------|
 |条目,item|dtalk设备端菜单数据组织的基本单元|
 |(参数)选项,option|存储指定数据类型的数据条目对象,没有子条目|
-|命令,cmd|设备端执行的指定动作的条目，可以包含一个或多个由option对象描述的参数，可以有返回值|
+|(设备)命令,cmd|设备端执行的指定动作的条目，可以包含一个或多个由option对象描述的参数，可以有返回值|
 |菜单,menu|包含一个或多个opton或cmd的菜单条目|
 |菜单命令|由管理端发送的一个item|
 
@@ -108,7 +108,75 @@ dtalk默认的实现方式是密码验证
 
 ## 命令交互
 
+管理端与设备端命令交互的过程，就是管理发送菜单请求，设备端响应菜单请求的过程。
+
+下面的json字符是一个完整的menu菜单
+
+		{"catalog":"MENU","container":true,"description":"","disable":false,"empty":false,"name":"","path":"/","uiName":"",
+		  	"childs":[
+			  	{"catalog":"CMD","childs":[],"container":true,"description":"","disable":false,"empty":true,"name":"quit","path":"/quit","taskQueue":null,"uiName":"quit"},
+			  	{"catalog":"MENU","container":true,"description":"","disable":false,"empty":false,"name":"menu1","path":"/menu1","uiName":"菜单1",
+				 	"childs":[
+				  	{"catalog":"CMD","childs":[],"container":true,"description":"","disable":false,"empty":true,"name":"back","path":"/","taskQueue":null,"uiName":"back"},
+				  	{"catalog":"MENU","container":true,"description":"","disable":false,"empty":false,"name":"menu1_1","path":"/menu1/menu1_1","uiName":"菜单1.1",
+					 	"childs":[
+					  		{"catalog":"CMD","childs":[],"container":true,"description":"","disable":false,"empty":true,"name":"back","path":"/","taskQueue":null,"uiName":"back"},
+					  		{"catalog":"OPTION","childs":[],"container":false,"defaultValue":null,"description":"","disable":false,"empty":true,"name":"option1","path":"/menu1/menu1_1/option1","readOnly":false,"required":false,"type":"STRING","uiName":"选项1","value":null},
+					  		{"catalog":"OPTION","childs":[],"container":false,"defaultValue":0,"description":"","disable":false,"empty":true,"name":"option2","path":"/menu1/menu1_1/option2","readOnly":false,"required":false,"type":"INTEGER","uiName":"选项2","value":null}
+						]}]},
+			  	{"catalog":"MENU","container":true,"description":"","disable":false,"empty":false,"name":"menu2","path":"/menu2","uiName":"菜单2",
+				 	"childs":[
+					  	{"catalog":"CMD","childs":[],"container":true,"description":"","disable":false,"empty":true,"name":"back","path":"/","taskQueue":null,"uiName":"back"},
+					  	{"catalog":"MENU","container":true,"description":"","disable":false,"empty":false,"name":"menu2_1","path":"/menu2/menu2_1","uiName":"菜单2.1",
+						 	"childs":[
+							  	{"catalog":"CMD","childs":[],"container":true,"description":"","disable":false,"empty":true,"name":"back","path":"/","taskQueue":null,"uiName":"back"},
+								{"catalog":"CMD","container":true,"description":"","disable":false,"empty":true,"name":"cmd1","path":"/menu2/menu2_1/cmd1","taskQueue":null,"uiName":"命令1",
+									"childs":[
+										{"catalog": "OPTION","childs": [],"container": false,"defaultValue": null,"description": "","disable": false,"empty": true,"name": "param1","path": "/menu2/menu2_1/cmd1/param1","readOnly": false,"required": false,"type": "STRING","uiName": "命令参数1","value": null}
+									]
+								}
+							]}]}
+			]
+		}
+
+
+如下图，管理端通过命令请求频道发送菜单命令，设备端收到菜单命令后，根据菜单命令的类型执行相应的动作
+
+
 ![](images/frame01.png)
+
+### MENU
+
+如果菜单命令是一个菜单(menu)，则设备端将对应的菜单内容(通过命令响应频道)返回给管理端，如下就是一条管理端发送给设备端的菜单(menu)命令.
+
+	{"catalog":"MENU","path":"/"}
+
+该命令只有两个字段:
+
+1. `path`代表要执行的命令(在设备端菜单树形结构中)的全路径。"/"即为根菜单。
+2. `catalog`指定了该命令的类型为菜单(menu)，这个字段可以省略，设备端根据`path`就可以找到对应的menu,并将menu数据作为响应数据(ack)通过命令响应频道发送给管理端
+
+
+### OPTION
+
+如果菜单命令是一个选项(option)，则设备端会修改指定option的值，如下就是一条管理端发送给设备端的option菜单命令.
+
+	{"catalog":"OPTION","path":"/menu1/menu1_1/option1","value":"HELLO"}
+	#NOTE: 'catalog'字段可以省略
+
+设备端收到这条命令后，就会将搜索`path`指定的选项,将该选项的值设置为`HELLO`
+
+
+### CMD
+
+如果菜单命令是一个(设备)命令(cmd)，则设备端会执行指定的设备命令，如下就是一条管理端发送给设备端的cmd菜单命令.
+
+	{"catalog":"CMD","path":"/menu2/menu2_1/cmd1" "childs":[{"name": "param1","value":"HELLO"}]}
+	#NOTE: 'catalog'字段可以省略
+
+设备端收到这条命令后，会执行指定的动作，设备命令的内容由应用程序实现，比如设备重启，比如远程升级
+
+上面这个例子中，`cmd1`这个设备命令定义了一个参数`param1`作为子节点
 
 关于命令交互的设备端实现参见 [gu.dtalk.engine.ItemEngine](../dtalk-engine/src/main/java/gu/dtalk/engine/ItemEngine.java)
 

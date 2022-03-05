@@ -351,7 +351,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	<td align="left">存储指定数据类型的数据条目对象,没有子条目</td>
 </tr>
 <tr>
-	<td align="left">命令,cmd</td>
+	<td align="left">(设备)命令,cmd</td>
 	<td align="left">设备端执行的指定动作的条目，可以包含一个或多个由option对象描述的参数，可以有返回值</td>
 </tr>
 <tr>
@@ -430,7 +430,63 @@ document.addEventListener("DOMContentLoaded", function() {
 <h3>管理端实现</h3>
 <p>关于建立连接的管理端实现参见 <a href="../dtalk-client/src/main/java/gu/dtalk/client/SampleConsole.java">gu.dtalk.client.SampleConsole#authorize()</a>方法</p>
 <h2>命令交互</h2>
+<p>管理端与设备端命令交互的过程，就是管理发送菜单请求，设备端响应菜单请求的过程。</p>
+<p>下面的json字符是一个完整的menu菜单</p>
+<pre><code>    {&quot;catalog&quot;:&quot;MENU&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:false,&quot;name&quot;:&quot;&quot;,&quot;path&quot;:&quot;/&quot;,&quot;uiName&quot;:&quot;&quot;,
+        &quot;childs&quot;:[
+            {&quot;catalog&quot;:&quot;CMD&quot;,&quot;childs&quot;:[],&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;quit&quot;,&quot;path&quot;:&quot;/quit&quot;,&quot;taskQueue&quot;:null,&quot;uiName&quot;:&quot;quit&quot;},
+            {&quot;catalog&quot;:&quot;MENU&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:false,&quot;name&quot;:&quot;menu1&quot;,&quot;path&quot;:&quot;/menu1&quot;,&quot;uiName&quot;:&quot;菜单1&quot;,
+                &quot;childs&quot;:[
+                {&quot;catalog&quot;:&quot;CMD&quot;,&quot;childs&quot;:[],&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;back&quot;,&quot;path&quot;:&quot;/&quot;,&quot;taskQueue&quot;:null,&quot;uiName&quot;:&quot;back&quot;},
+                {&quot;catalog&quot;:&quot;MENU&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:false,&quot;name&quot;:&quot;menu1_1&quot;,&quot;path&quot;:&quot;/menu1/menu1_1&quot;,&quot;uiName&quot;:&quot;菜单1.1&quot;,
+                    &quot;childs&quot;:[
+                        {&quot;catalog&quot;:&quot;CMD&quot;,&quot;childs&quot;:[],&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;back&quot;,&quot;path&quot;:&quot;/&quot;,&quot;taskQueue&quot;:null,&quot;uiName&quot;:&quot;back&quot;},
+                        {&quot;catalog&quot;:&quot;OPTION&quot;,&quot;childs&quot;:[],&quot;container&quot;:false,&quot;defaultValue&quot;:null,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;option1&quot;,&quot;path&quot;:&quot;/menu1/menu1_1/option1&quot;,&quot;readOnly&quot;:false,&quot;required&quot;:false,&quot;type&quot;:&quot;STRING&quot;,&quot;uiName&quot;:&quot;选项1&quot;,&quot;value&quot;:null},
+                        {&quot;catalog&quot;:&quot;OPTION&quot;,&quot;childs&quot;:[],&quot;container&quot;:false,&quot;defaultValue&quot;:0,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;option2&quot;,&quot;path&quot;:&quot;/menu1/menu1_1/option2&quot;,&quot;readOnly&quot;:false,&quot;required&quot;:false,&quot;type&quot;:&quot;INTEGER&quot;,&quot;uiName&quot;:&quot;选项2&quot;,&quot;value&quot;:null}
+                    ]}]},
+            {&quot;catalog&quot;:&quot;MENU&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:false,&quot;name&quot;:&quot;menu2&quot;,&quot;path&quot;:&quot;/menu2&quot;,&quot;uiName&quot;:&quot;菜单2&quot;,
+                &quot;childs&quot;:[
+                    {&quot;catalog&quot;:&quot;CMD&quot;,&quot;childs&quot;:[],&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;back&quot;,&quot;path&quot;:&quot;/&quot;,&quot;taskQueue&quot;:null,&quot;uiName&quot;:&quot;back&quot;},
+                    {&quot;catalog&quot;:&quot;MENU&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:false,&quot;name&quot;:&quot;menu2_1&quot;,&quot;path&quot;:&quot;/menu2/menu2_1&quot;,&quot;uiName&quot;:&quot;菜单2.1&quot;,
+                        &quot;childs&quot;:[
+                            {&quot;catalog&quot;:&quot;CMD&quot;,&quot;childs&quot;:[],&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;back&quot;,&quot;path&quot;:&quot;/&quot;,&quot;taskQueue&quot;:null,&quot;uiName&quot;:&quot;back&quot;},
+                            {&quot;catalog&quot;:&quot;CMD&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;cmd1&quot;,&quot;path&quot;:&quot;/menu2/menu2_1/cmd1&quot;,&quot;taskQueue&quot;:null,&quot;uiName&quot;:&quot;命令1&quot;,
+                                &quot;childs&quot;:[
+                                    {&quot;catalog&quot;: &quot;OPTION&quot;,&quot;childs&quot;: [],&quot;container&quot;: false,&quot;defaultValue&quot;: null,&quot;description&quot;: &quot;&quot;,&quot;disable&quot;: false,&quot;empty&quot;: true,&quot;name&quot;: &quot;param1&quot;,&quot;path&quot;: &quot;/menu2/menu2_1/cmd1/param1&quot;,&quot;readOnly&quot;: false,&quot;required&quot;: false,&quot;type&quot;: &quot;STRING&quot;,&quot;uiName&quot;: &quot;命令参数1&quot;,&quot;value&quot;: null}
+                                ]
+                            }
+                        ]}]}
+        ]
+    }
+</code></pre>
+
+<p>如下图，管理端通过命令请求频道发送菜单命令，设备端收到菜单命令后，根据菜单命令的类型执行相应的动作</p>
 <p><img src="images/frame01.png" /></p>
+<h3>MENU</h3>
+<p>如果菜单命令是一个菜单(menu)，则设备端将对应的菜单内容(通过命令响应频道)返回给管理端，如下就是一条管理端发送给设备端的菜单(menu)命令.</p>
+<pre><code>{&quot;catalog&quot;:&quot;MENU&quot;,&quot;path&quot;:&quot;/&quot;}
+</code></pre>
+
+<p>该命令只有两个字段:</p>
+<ol>
+<li><code>path</code>代表要执行的命令(在设备端菜单树形结构中)的全路径。&quot;/&quot;即为根菜单。</li>
+<li><code>catalog</code>指定了该命令的类型为菜单(menu)，这个字段可以省略，设备端根据<code>path</code>就可以找到对应的menu,并将menu数据作为响应数据(ack)通过命令响应频道发送给管理端</li>
+</ol>
+<h3>OPTION</h3>
+<p>如果菜单命令是一个选项(option)，则设备端会修改指定option的值，如下就是一条管理端发送给设备端的option菜单命令.</p>
+<pre><code>{&quot;catalog&quot;:&quot;OPTION&quot;,&quot;path&quot;:&quot;/menu1/menu1_1/option1&quot;,&quot;value&quot;:&quot;HELLO&quot;}
+#NOTE: 'catalog'字段可以省略
+</code></pre>
+
+<p>设备端收到这条命令后，就会将搜索<code>path</code>指定的选项,将该选项的值设置为<code>HELLO</code></p>
+<h3>CMD</h3>
+<p>如果菜单命令是一个(设备)命令(cmd)，则设备端会执行指定的设备命令，如下就是一条管理端发送给设备端的cmd菜单命令.</p>
+<pre><code>{&quot;catalog&quot;:&quot;CMD&quot;,&quot;path&quot;:&quot;/menu2/menu2_1/cmd1&quot; &quot;childs&quot;:[{&quot;name&quot;: &quot;param1&quot;,&quot;value&quot;:&quot;HELLO&quot;}]}
+#NOTE: 'catalog'字段可以省略
+</code></pre>
+
+<p>设备端收到这条命令后，会执行指定的动作，设备命令的内容由应用程序实现，比如设备重启，比如远程升级</p>
+<p>上面这个例子中，<code>cmd1</code>这个设备命令定义了一个参数<code>param1</code>作为子节点</p>
 <p>关于命令交互的设备端实现参见 <a href="../dtalk-engine/src/main/java/gu/dtalk/engine/ItemEngine.java">gu.dtalk.engine.ItemEngine</a></p>
 <p>关于命令交互的管理端实现参见 <a href="../dtalk-client/src/main/java/gu/dtalk/client/BaseConsole.java">gu.dtalk.client.BaseConsole#cmdInteractive()</a>方法</p>
 
