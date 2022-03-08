@@ -343,7 +343,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </thead>
 <tbody>
 <tr>
-	<td align="left">条目,item</td>
+	<td align="left">(菜单)条目,item</td>
 	<td align="left">dtalk设备端菜单数据组织的基本单元</td>
 </tr>
 <tr>
@@ -431,28 +431,28 @@ document.addEventListener("DOMContentLoaded", function() {
 <p>关于建立连接的管理端实现参见 <a href="../dtalk-client/src/main/java/gu/dtalk/client/SampleConsole.java">gu.dtalk.client.SampleConsole#authorize()</a>方法</p>
 <h2>命令交互</h2>
 <p>管理端与设备端命令交互的过程，就是管理发送菜单请求，设备端响应菜单请求的过程。</p>
-<p>下面的json字符是一个完整的menu菜单</p>
-<pre><code>    {&quot;catalog&quot;:&quot;MENU&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:false,&quot;name&quot;:&quot;&quot;,&quot;path&quot;:&quot;/&quot;,&quot;uiName&quot;:&quot;&quot;,
+<p>下面的json字符是一个完整的menu菜单示例</p>
+<pre><code>    {&quot;catalog&quot;:&quot;MENU&quot;,&quot;name&quot;:&quot;&quot;,&quot;path&quot;:&quot;/&quot;,&quot;uiName&quot;:&quot;&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:false,
         &quot;childs&quot;:[
-            {&quot;catalog&quot;:&quot;CMD&quot;,&quot;childs&quot;:[],&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;quit&quot;,&quot;path&quot;:&quot;/quit&quot;,&quot;taskQueue&quot;:null,&quot;uiName&quot;:&quot;quit&quot;},
-            {&quot;catalog&quot;:&quot;MENU&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:false,&quot;name&quot;:&quot;menu1&quot;,&quot;path&quot;:&quot;/menu1&quot;,&quot;uiName&quot;:&quot;菜单1&quot;,
+            {&quot;catalog&quot;:&quot;CMD&quot;,&quot;name&quot;:&quot;quit&quot;,&quot;path&quot;:&quot;/quit&quot;,&quot;childs&quot;:[],&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;taskQueue&quot;:null,&quot;uiName&quot;:&quot;quit&quot;},
+            {&quot;catalog&quot;:&quot;MENU&quot;,&quot;name&quot;:&quot;menu1&quot;,&quot;path&quot;:&quot;/menu1&quot;,&quot;uiName&quot;:&quot;菜单1&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:false,
                 &quot;childs&quot;:[
                 {&quot;catalog&quot;:&quot;CMD&quot;,&quot;childs&quot;:[],&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;back&quot;,&quot;path&quot;:&quot;/&quot;,&quot;taskQueue&quot;:null,&quot;uiName&quot;:&quot;back&quot;},
-                {&quot;catalog&quot;:&quot;MENU&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:false,&quot;name&quot;:&quot;menu1_1&quot;,&quot;path&quot;:&quot;/menu1/menu1_1&quot;,&quot;uiName&quot;:&quot;菜单1.1&quot;,
+                {&quot;catalog&quot;:&quot;MENU&quot;,&quot;name&quot;:&quot;menu1_1&quot;,&quot;path&quot;:&quot;/menu1/menu1_1&quot;,&quot;uiName&quot;:&quot;菜单1.1&quot;,,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:false
                     &quot;childs&quot;:[
-                        {&quot;catalog&quot;:&quot;CMD&quot;,&quot;childs&quot;:[],&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;back&quot;,&quot;path&quot;:&quot;/&quot;,&quot;taskQueue&quot;:null,&quot;uiName&quot;:&quot;back&quot;},
-                        {&quot;catalog&quot;:&quot;OPTION&quot;,&quot;childs&quot;:[],&quot;container&quot;:false,&quot;defaultValue&quot;:null,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;option1&quot;,&quot;path&quot;:&quot;/menu1/menu1_1/option1&quot;,&quot;readOnly&quot;:false,&quot;required&quot;:false,&quot;type&quot;:&quot;STRING&quot;,&quot;uiName&quot;:&quot;选项1&quot;,&quot;value&quot;:null},
-                        {&quot;catalog&quot;:&quot;OPTION&quot;,&quot;childs&quot;:[],&quot;container&quot;:false,&quot;defaultValue&quot;:0,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;option2&quot;,&quot;path&quot;:&quot;/menu1/menu1_1/option2&quot;,&quot;readOnly&quot;:false,&quot;required&quot;:false,&quot;type&quot;:&quot;INTEGER&quot;,&quot;uiName&quot;:&quot;选项2&quot;,&quot;value&quot;:null}
+                        {&quot;catalog&quot;:&quot;CMD&quot;,&quot;name&quot;:&quot;back&quot;,&quot;path&quot;:&quot;/&quot;,&quot;taskQueue&quot;:null,&quot;uiName&quot;:&quot;back&quot;,&quot;childs&quot;:[],&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true},
+                        {&quot;catalog&quot;:&quot;OPTION&quot;&quot;name&quot;:&quot;option1&quot;,&quot;uiName&quot;:&quot;选项1&quot;,&quot;path&quot;:&quot;/menu1/menu1_1/option1&quot;,&quot;childs&quot;:[],&quot;container&quot;:false,&quot;defaultValue&quot;:null,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,,&quot;readOnly&quot;:false,&quot;required&quot;:false,&quot;type&quot;:&quot;STRING&quot;,&quot;value&quot;:null},
+                        {&quot;catalog&quot;:&quot;OPTION&quot;,&quot;name&quot;:&quot;option2&quot;,&quot;uiName&quot;:&quot;选项2&quot;,&quot;path&quot;:&quot;/menu1/menu1_1/option2&quot;,&quot;childs&quot;:[],&quot;container&quot;:false,&quot;defaultValue&quot;:0,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;readOnly&quot;:false,&quot;required&quot;:false,&quot;type&quot;:&quot;INTEGER&quot;,&quot;value&quot;:null}
                     ]}]},
             {&quot;catalog&quot;:&quot;MENU&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:false,&quot;name&quot;:&quot;menu2&quot;,&quot;path&quot;:&quot;/menu2&quot;,&quot;uiName&quot;:&quot;菜单2&quot;,
                 &quot;childs&quot;:[
-                    {&quot;catalog&quot;:&quot;CMD&quot;,&quot;childs&quot;:[],&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;back&quot;,&quot;path&quot;:&quot;/&quot;,&quot;taskQueue&quot;:null,&quot;uiName&quot;:&quot;back&quot;},
-                    {&quot;catalog&quot;:&quot;MENU&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:false,&quot;name&quot;:&quot;menu2_1&quot;,&quot;path&quot;:&quot;/menu2/menu2_1&quot;,&quot;uiName&quot;:&quot;菜单2.1&quot;,
+                    {&quot;catalog&quot;:&quot;CMD&quot;,&quot;name&quot;:&quot;back&quot;,&quot;path&quot;:&quot;/&quot;,&quot;uiName&quot;:&quot;back&quot;,&quot;childs&quot;:[],&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;taskQueue&quot;:null},
+                    {&quot;catalog&quot;:&quot;MENU&quot;,&quot;name&quot;:&quot;menu2_1&quot;,&quot;path&quot;:&quot;/menu2/menu2_1&quot;,&quot;uiName&quot;:&quot;菜单2.1&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:false,
                         &quot;childs&quot;:[
-                            {&quot;catalog&quot;:&quot;CMD&quot;,&quot;childs&quot;:[],&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;back&quot;,&quot;path&quot;:&quot;/&quot;,&quot;taskQueue&quot;:null,&quot;uiName&quot;:&quot;back&quot;},
-                            {&quot;catalog&quot;:&quot;CMD&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;name&quot;:&quot;cmd1&quot;,&quot;path&quot;:&quot;/menu2/menu2_1/cmd1&quot;,&quot;taskQueue&quot;:null,&quot;uiName&quot;:&quot;命令1&quot;,
+                            {&quot;catalog&quot;:&quot;CMD&quot;,&quot;name&quot;:&quot;back&quot;,&quot;uiName&quot;:&quot;back&quot;,&quot;path&quot;:&quot;/&quot;,&quot;childs&quot;:[],&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;taskQueue&quot;:null},
+                            {&quot;catalog&quot;:&quot;CMD&quot;,&quot;name&quot;:&quot;cmd1&quot;,&quot;uiName&quot;:&quot;命令1&quot;,&quot;path&quot;:&quot;/menu2/menu2_1/cmd1&quot;,&quot;container&quot;:true,&quot;description&quot;:&quot;&quot;,&quot;disable&quot;:false,&quot;empty&quot;:true,&quot;taskQueue&quot;:null,
                                 &quot;childs&quot;:[
-                                    {&quot;catalog&quot;: &quot;OPTION&quot;,&quot;childs&quot;: [],&quot;container&quot;: false,&quot;defaultValue&quot;: null,&quot;description&quot;: &quot;&quot;,&quot;disable&quot;: false,&quot;empty&quot;: true,&quot;name&quot;: &quot;param1&quot;,&quot;path&quot;: &quot;/menu2/menu2_1/cmd1/param1&quot;,&quot;readOnly&quot;: false,&quot;required&quot;: false,&quot;type&quot;: &quot;STRING&quot;,&quot;uiName&quot;: &quot;命令参数1&quot;,&quot;value&quot;: null}
+                                    {&quot;catalog&quot;: &quot;OPTION&quot;,&quot;name&quot;: &quot;param1&quot;,&quot;uiName&quot;: &quot;命令参数1&quot;,&quot;path&quot;: &quot;/menu2/menu2_1/cmd1/param1&quot;,&quot;childs&quot;: [],&quot;container&quot;: false,&quot;defaultValue&quot;: null,&quot;description&quot;: &quot;&quot;,&quot;disable&quot;: false,&quot;empty&quot;: true,&quot;readOnly&quot;: false,&quot;required&quot;: false,&quot;type&quot;: &quot;STRING&quot;,&quot;value&quot;: null}
                                 ]
                             }
                         ]}]}
@@ -489,6 +489,248 @@ document.addEventListener("DOMContentLoaded", function() {
 <p>上面这个例子中，<code>cmd1</code>这个设备命令定义了一个参数<code>param1</code>作为子节点</p>
 <p>关于命令交互的设备端实现参见 <a href="../dtalk-engine/src/main/java/gu/dtalk/engine/ItemEngine.java">gu.dtalk.engine.ItemEngine</a></p>
 <p>关于命令交互的管理端实现参见 <a href="../dtalk-client/src/main/java/gu/dtalk/client/BaseConsole.java">gu.dtalk.client.BaseConsole#cmdInteractive()</a>方法</p>
+<h2>(菜单)条目定义</h2>
+<h3>(菜单)条目类型说明</h3>
+<table>
+<thead>
+<tr>
+	<th align="left">TYPE</th>
+	<th align="left">说明</th>
+	<th align="left">Java类/基类</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td align="left">OPTION</td>
+	<td align="left">参数选项，对应《术语》中的(参数)选项</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/BaseOption.java">gu.dtalk.BaseOption</a></td>
+</tr>
+<tr>
+	<td align="left">CMD</td>
+	<td align="left">(设备)命令,cmd</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/CmdItem.java">gu.dtalk.CmdItem</a></td>
+</tr>
+<tr>
+	<td align="left">MENU</td>
+	<td align="left">菜单,menu</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/MenuItem.java">gu.dtalk.MenuItem</a></td>
+</tr>
+</tbody>
+</table>
+<h3>选项(OPTION)类型说明</h3>
+<table>
+<thead>
+<tr>
+	<th align="left">TYPE</th>
+	<th align="left">说明</th>
+	<th align="left">Java类</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td align="left">STRING</td>
+	<td align="left">任意字符串</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/StringOption.java">gu.dtalk.StringOption</a></td>
+</tr>
+<tr>
+	<td align="left">INTEGER</td>
+	<td align="left">整数</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/IntOption.java">gu.dtalk.IntOption</a></td>
+</tr>
+<tr>
+	<td align="left">FLOAT</td>
+	<td align="left">浮点数</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/FloatOption.java">gu.dtalk.FloatOption</a></td>
+</tr>
+<tr>
+	<td align="left">BOOL</td>
+	<td align="left">布尔型 true/false 0/1</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/BoolOption.java">gu.dtalk.BoolOption</a></td>
+</tr>
+<tr>
+	<td align="left">DATE</td>
+	<td align="left">日期 支持的格式:yyyy-MM-dd HH:mm:ss</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/DateOption.java">gu.dtalk.DateOption</a></td>
+</tr>
+<tr>
+	<td align="left">URL</td>
+	<td align="left">url字符串</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/UrlOption.java">gu.dtalk.UrlOption</a></td>
+</tr>
+<tr>
+	<td align="left">PASSWORD</td>
+	<td align="left">密码字符串</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/PasswordOption.java">gu.dtalk.PasswordOption</a></td>
+</tr>
+<tr>
+	<td align="left">EMAIL</td>
+	<td align="left">e-mail地址</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/StringOption.java">gu.dtalk.StringOption</a></td>
+</tr>
+<tr>
+	<td align="left">MPHONE</td>
+	<td align="left">手机号码(11位)</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/StringOption.java">gu.dtalk.StringOption</a></td>
+</tr>
+<tr>
+	<td align="left">IDNUM</td>
+	<td align="left">身份证号(15位、18位数字)</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/StringOption.java">gu.dtalk.StringOption</a></td>
+</tr>
+<tr>
+	<td align="left">BASE64</td>
+	<td align="left">base64 格式二进制数据</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/Base64Option.java">gu.dtalk.Base64Option</a></td>
+</tr>
+<tr>
+	<td align="left">MAC</td>
+	<td align="left">网卡MAC地址二进制数据</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/MACOption.java">gu.dtalk.MACOption</a></td>
+</tr>
+<tr>
+	<td align="left">IP</td>
+	<td align="left">IP地址二进制数据</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/IPv4Option.java">gu.dtalk.IPv4Option</a></td>
+</tr>
+<tr>
+	<td align="left">IMAGE</td>
+	<td align="left">base64 格式JPEG/BMP/PNG格式图像</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/ImageOption.java">gu.dtalk.ImageOption</a></td>
+</tr>
+<tr>
+	<td align="left">MULTICHECK</td>
+	<td align="left">多选列表</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/CheckOption.java">gu.dtalk.CheckOption</a></td>
+</tr>
+<tr>
+	<td align="left">SWITCH</td>
+	<td align="left">单选列表</td>
+	<td align="left"><a href="../dtalk-base/src/main/java/gu/dtalk/SwitchOption.java">gu.dtalk.SwitchOption</a></td>
+</tr>
+</tbody>
+</table>
+<h3>(菜单)条目定义字段</h3>
+<table>
+<thead>
+<tr>
+	<th align="left">字段名</th>
+	<th align="left">说明</th>
+	<th align="left">MENU</th>
+	<th align="left">OPTION</th>
+	<th align="left">CMD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td align="left">catalog</td>
+	<td align="left">item分类类型，可选的值MENU,OPTION,CMD</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+</tr>
+<tr>
+	<td align="left">name</td>
+	<td align="left">条目名称([a-zA-Z0-9_],不允许有空格)</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+</tr>
+<tr>
+	<td align="left">uiName</td>
+	<td align="left">条目的界面显示名称,如果不指定则使用{@link #name}</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+</tr>
+<tr>
+	<td align="left">path</td>
+	<td align="left">当前对象在整个菜单树形结构中的全路径</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+</tr>
+<tr>
+	<td align="left">container</td>
+	<td align="left">是否为容器(可包含item),当catalog为MENU,CMD时为true</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+</tr>
+<tr>
+	<td align="left">description</td>
+	<td align="left">对当前条目的说明文字，默认值：空</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+</tr>
+<tr>
+	<td align="left">disable</td>
+	<td align="left">当前条目是否禁用,默认值:false</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+</tr>
+<tr>
+	<td align="left">childs</td>
+	<td align="left">所有子条目,当catalog为OPTION时，恒为空</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+</tr>
+<tr>
+	<td align="left">empty</td>
+	<td align="left">是否有子条目,即childs中元素不为0,当catalog为OPTION时,恒为0</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+</tr>
+<tr>
+	<td align="left">type</td>
+	<td align="left">选项的类型,可选的值参见《OPTION类型说明》</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left"></td>
+</tr>
+<tr>
+	<td align="left">readOnly</td>
+	<td align="left">是否为只读的选项,当catalog为CMD时,恒为false</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left"></td>
+</tr>
+<tr>
+	<td align="left">required</td>
+	<td align="left">是否为必须的选项，默认值:false</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left"></td>
+</tr>
+<tr>
+	<td align="left">value</td>
+	<td align="left">选项值</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left"></td>
+</tr>
+<tr>
+	<td align="left">defaultValue</td>
+	<td align="left">选项默认值</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left"></td>
+</tr>
+<tr>
+	<td align="left">taskQueue</td>
+	<td align="left">任务队列名,该字段不为空时,对象支持队列任务</td>
+	<td align="left"></td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+</tr>
+</tbody>
+</table>
+<p>NOTE:上表中后三列为Y，代表此字段适合该类型的菜单条目</p>
+<h2>任务队列</h2>
+<p>(待续)</p>
 
 </body>
 </html>

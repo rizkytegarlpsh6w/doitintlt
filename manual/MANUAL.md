@@ -4,7 +4,7 @@
 
 |术语|描述|
 |:---------|:-----------------|
-|条目,item|dtalk设备端菜单数据组织的基本单元|
+|(菜单)条目,item|dtalk设备端菜单数据组织的基本单元|
 |(参数)选项,option|存储指定数据类型的数据条目对象,没有子条目|
 |(设备)命令,cmd|设备端执行的指定动作的条目，可以包含一个或多个由option对象描述的参数，可以有返回值|
 |菜单,menu|包含一个或多个opton或cmd的菜单条目|
@@ -110,29 +110,29 @@ dtalk默认的实现方式是密码验证
 
 管理端与设备端命令交互的过程，就是管理发送菜单请求，设备端响应菜单请求的过程。
 
-下面的json字符是一个完整的menu菜单
+下面的json字符是一个完整的menu菜单示例
 
-		{"catalog":"MENU","container":true,"description":"","disable":false,"empty":false,"name":"","path":"/","uiName":"",
+		{"catalog":"MENU","name":"","path":"/","uiName":"","container":true,"description":"","disable":false,"empty":false,
 		  	"childs":[
-			  	{"catalog":"CMD","childs":[],"container":true,"description":"","disable":false,"empty":true,"name":"quit","path":"/quit","taskQueue":null,"uiName":"quit"},
-			  	{"catalog":"MENU","container":true,"description":"","disable":false,"empty":false,"name":"menu1","path":"/menu1","uiName":"菜单1",
+			  	{"catalog":"CMD","name":"quit","path":"/quit","childs":[],"container":true,"description":"","disable":false,"empty":true,"taskQueue":null,"uiName":"quit"},
+			  	{"catalog":"MENU","name":"menu1","path":"/menu1","uiName":"菜单1","container":true,"description":"","disable":false,"empty":false,
 				 	"childs":[
 				  	{"catalog":"CMD","childs":[],"container":true,"description":"","disable":false,"empty":true,"name":"back","path":"/","taskQueue":null,"uiName":"back"},
-				  	{"catalog":"MENU","container":true,"description":"","disable":false,"empty":false,"name":"menu1_1","path":"/menu1/menu1_1","uiName":"菜单1.1",
+				  	{"catalog":"MENU","name":"menu1_1","path":"/menu1/menu1_1","uiName":"菜单1.1",,"container":true,"description":"","disable":false,"empty":false
 					 	"childs":[
-					  		{"catalog":"CMD","childs":[],"container":true,"description":"","disable":false,"empty":true,"name":"back","path":"/","taskQueue":null,"uiName":"back"},
-					  		{"catalog":"OPTION","childs":[],"container":false,"defaultValue":null,"description":"","disable":false,"empty":true,"name":"option1","path":"/menu1/menu1_1/option1","readOnly":false,"required":false,"type":"STRING","uiName":"选项1","value":null},
-					  		{"catalog":"OPTION","childs":[],"container":false,"defaultValue":0,"description":"","disable":false,"empty":true,"name":"option2","path":"/menu1/menu1_1/option2","readOnly":false,"required":false,"type":"INTEGER","uiName":"选项2","value":null}
+					  		{"catalog":"CMD","name":"back","path":"/","taskQueue":null,"uiName":"back","childs":[],"container":true,"description":"","disable":false,"empty":true},
+					  		{"catalog":"OPTION""name":"option1","uiName":"选项1","path":"/menu1/menu1_1/option1","childs":[],"container":false,"defaultValue":null,"description":"","disable":false,"empty":true,,"readOnly":false,"required":false,"type":"STRING","value":null},
+					  		{"catalog":"OPTION","name":"option2","uiName":"选项2","path":"/menu1/menu1_1/option2","childs":[],"container":false,"defaultValue":0,"description":"","disable":false,"empty":true,"readOnly":false,"required":false,"type":"INTEGER","value":null}
 						]}]},
 			  	{"catalog":"MENU","container":true,"description":"","disable":false,"empty":false,"name":"menu2","path":"/menu2","uiName":"菜单2",
 				 	"childs":[
-					  	{"catalog":"CMD","childs":[],"container":true,"description":"","disable":false,"empty":true,"name":"back","path":"/","taskQueue":null,"uiName":"back"},
-					  	{"catalog":"MENU","container":true,"description":"","disable":false,"empty":false,"name":"menu2_1","path":"/menu2/menu2_1","uiName":"菜单2.1",
+					  	{"catalog":"CMD","name":"back","path":"/","uiName":"back","childs":[],"container":true,"description":"","disable":false,"empty":true,"taskQueue":null},
+					  	{"catalog":"MENU","name":"menu2_1","path":"/menu2/menu2_1","uiName":"菜单2.1","container":true,"description":"","disable":false,"empty":false,
 						 	"childs":[
-							  	{"catalog":"CMD","childs":[],"container":true,"description":"","disable":false,"empty":true,"name":"back","path":"/","taskQueue":null,"uiName":"back"},
-								{"catalog":"CMD","container":true,"description":"","disable":false,"empty":true,"name":"cmd1","path":"/menu2/menu2_1/cmd1","taskQueue":null,"uiName":"命令1",
+							  	{"catalog":"CMD","name":"back","uiName":"back","path":"/","childs":[],"container":true,"description":"","disable":false,"empty":true,"taskQueue":null},
+								{"catalog":"CMD","name":"cmd1","uiName":"命令1","path":"/menu2/menu2_1/cmd1","container":true,"description":"","disable":false,"empty":true,"taskQueue":null,
 									"childs":[
-										{"catalog": "OPTION","childs": [],"container": false,"defaultValue": null,"description": "","disable": false,"empty": true,"name": "param1","path": "/menu2/menu2_1/cmd1/param1","readOnly": false,"required": false,"type": "STRING","uiName": "命令参数1","value": null}
+										{"catalog": "OPTION","name": "param1","uiName": "命令参数1","path": "/menu2/menu2_1/cmd1/param1","childs": [],"container": false,"defaultValue": null,"description": "","disable": false,"empty": true,"readOnly": false,"required": false,"type": "STRING","value": null}
 									]
 								}
 							]}]}
@@ -181,3 +181,63 @@ dtalk默认的实现方式是密码验证
 关于命令交互的设备端实现参见 [gu.dtalk.engine.ItemEngine](../dtalk-engine/src/main/java/gu/dtalk/engine/ItemEngine.java)
 
 关于命令交互的管理端实现参见 [gu.dtalk.client.BaseConsole#cmdInteractive()](../dtalk-client/src/main/java/gu/dtalk/client/BaseConsole.java)方法
+
+
+## (菜单)条目定义
+
+### (菜单)条目类型说明
+
+|TYPE|说明|Java类/基类|
+|:---------|:-----------------|:-|
+|OPTION|参数选项，对应《术语》中的(参数)选项|[gu.dtalk.BaseOption](../dtalk-base/src/main/java/gu/dtalk/BaseOption.java)|
+|CMD|(设备)命令,cmd|[gu.dtalk.CmdItem](../dtalk-base/src/main/java/gu/dtalk/CmdItem.java)|
+|MENU|菜单,menu|[gu.dtalk.MenuItem](../dtalk-base/src/main/java/gu/dtalk/MenuItem.java)|
+
+
+### 选项(OPTION)类型说明
+
+|TYPE|说明|Java类|
+|:---------|:-----------------|:-|
+|STRING|任意字符串|[gu.dtalk.StringOption](../dtalk-base/src/main/java/gu/dtalk/StringOption.java)|
+|INTEGER|整数|[gu.dtalk.IntOption](../dtalk-base/src/main/java/gu/dtalk/IntOption.java)|
+|FLOAT|浮点数|[gu.dtalk.FloatOption](../dtalk-base/src/main/java/gu/dtalk/FloatOption.java)|
+|BOOL|布尔型 true/false 0/1|[gu.dtalk.BoolOption](../dtalk-base/src/main/java/gu/dtalk/BoolOption.java)|
+|DATE|日期 支持的格式:yyyy-MM-dd HH:mm:ss|[gu.dtalk.DateOption](../dtalk-base/src/main/java/gu/dtalk/DateOption.java)|
+|URL|url字符串|[gu.dtalk.UrlOption](../dtalk-base/src/main/java/gu/dtalk/UrlOption.java)|
+|PASSWORD|密码字符串|[gu.dtalk.PasswordOption](../dtalk-base/src/main/java/gu/dtalk/PasswordOption.java)|
+|EMAIL|e-mail地址|[gu.dtalk.StringOption](../dtalk-base/src/main/java/gu/dtalk/StringOption.java)|
+|MPHONE|手机号码(11位)|[gu.dtalk.StringOption](../dtalk-base/src/main/java/gu/dtalk/StringOption.java)|
+|IDNUM|身份证号(15位、18位数字)|[gu.dtalk.StringOption](../dtalk-base/src/main/java/gu/dtalk/StringOption.java)|
+|BASE64|base64 格式二进制数据|[gu.dtalk.Base64Option](../dtalk-base/src/main/java/gu/dtalk/Base64Option.java)|
+|MAC|网卡MAC地址二进制数据|[gu.dtalk.MACOption](../dtalk-base/src/main/java/gu/dtalk/MACOption.java)|
+|IP|IP地址二进制数据|[gu.dtalk.IPv4Option](../dtalk-base/src/main/java/gu/dtalk/IPv4Option.java)|
+|IMAGE|base64 格式JPEG/BMP/PNG格式图像|[gu.dtalk.ImageOption](../dtalk-base/src/main/java/gu/dtalk/ImageOption.java)|
+|MULTICHECK|多选列表|[gu.dtalk.CheckOption](../dtalk-base/src/main/java/gu/dtalk/CheckOption.java)|
+|SWITCH|单选列表|[gu.dtalk.SwitchOption](../dtalk-base/src/main/java/gu/dtalk/SwitchOption.java)|
+
+### (菜单)条目定义字段
+
+|字段名|说明|MENU|OPTION|CMD
+|:---------|:-----------------|:-|:-|:-|
+|catalog|item分类类型，可选的值MENU,OPTION,CMD|Y|Y|Y|
+|name|条目名称([a-zA-Z0-9_],不允许有空格)|Y|Y|Y|
+|uiName|条目的界面显示名称,如果不指定则使用{@link #name}|Y|Y|Y|
+|path|当前对象在整个菜单树形结构中的全路径|Y|Y|Y|
+|container|是否为容器(可包含item),当catalog为MENU,CMD时为true|Y|Y|Y|
+|description|对当前条目的说明文字，默认值：空|Y|Y|Y|
+|disable|当前条目是否禁用,默认值:false|Y|Y|Y|
+|childs|所有子条目,当catalog为OPTION时，恒为空|Y|Y|Y|
+|empty| 是否有子条目,即childs中元素不为0,当catalog为OPTION时,恒为0|Y|Y|Y|
+|type|选项的类型,可选的值参见《OPTION类型说明》||Y||
+|readOnly|是否为只读的选项,当catalog为CMD时,恒为false||Y||
+|required|是否为必须的选项，默认值:false||Y||
+|value|选项值||Y||
+|defaultValue|选项默认值||Y||
+|taskQueue|任务队列名,该字段不为空时,对象支持队列任务|||Y|
+
+NOTE:上表中后三列为Y，代表此字段适合该类型的菜单条目
+
+
+## 任务队列
+
+(待续)
