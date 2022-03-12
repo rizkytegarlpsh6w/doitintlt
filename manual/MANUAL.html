@@ -623,7 +623,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <tbody>
 <tr>
 	<td align="left">catalog</td>
-	<td align="left">item分类类型，可选的值MENU,OPTION,CMD</td>
+	<td align="left">item分类类型，可选的值MENU,OPTION,CMD,参见《(菜单)条目类型说明》</td>
 	<td align="left">Y</td>
 	<td align="left">Y</td>
 	<td align="left">Y</td>
@@ -729,6 +729,31 @@ document.addEventListener("DOMContentLoaded", function() {
 </tbody>
 </table>
 <p>NOTE:上表中后三列为Y，代表此字段适合该类型的菜单条目</p>
+<h3>创建菜单</h3>
+<p>dtalk提供了<a href="../dtalk-base/src/main/java/gu/dtalk/ItemBuilder.java">gu.dtalk.ItemBuilder</a>用于创建menu和cmd,提供了<a href="..dtalk-base/src/main/java/gu/dtalk/OptionBuilder.java">gu.dtalk.OptionBuilder</a></p>
+<p>如下是创建前面的示例的菜单的代码：</p>
+<pre><code>public void test6Menu(){
+    MenuItem menu1 = ItemBuilder.builder(MenuItem.class).name(&quot;menu1&quot;).uiName(&quot;菜单1&quot;).addChilds(
+            ItemBuilder.builder(MenuItem.class).name(&quot;menu1_1&quot;).uiName(&quot;菜单1.1&quot;).addChilds(
+                    OptionType.STRING.builder().name(&quot;option1&quot;).uiName(&quot;选项1&quot;).instance(),
+                    OptionType.INTEGER.builder().name(&quot;option2&quot;).uiName(&quot;选项2&quot;).instance()
+                    ).instance()
+            ).instance();
+    MenuItem menu2 = ItemBuilder.builder(MenuItem.class).name(&quot;menu2&quot;).uiName(&quot;菜单2&quot;).addChilds(
+            ItemBuilder.builder(MenuItem.class).name(&quot;menu2_1&quot;).uiName(&quot;菜单2.1&quot;).addChilds(
+                        ItemBuilder.builder(CmdItem.class).name(&quot;cmd1&quot;).uiName(&quot;命令1&quot;).instance().addParameters(
+                                OptionType.STRING.builder().name(&quot;param1&quot;).uiName(&quot;命令参数1&quot;).instance()
+                                )
+                    ).instance()
+            ).instance();
+    RootMenu root = new RootMenu();
+    root.addChilds(menu1,menu2);
+
+    logger.info(BaseJsonEncoder.getEncoder().toJsonString(root));
+}
+</code></pre>
+
+<p>完整代码参见 <a href="../dtalk-base/src/test/java/gu/dtalk/ItemTest.java">gu.dtalk.ItemTest</a></p>
 <h2>任务队列</h2>
 <p>(待续)</p>
 

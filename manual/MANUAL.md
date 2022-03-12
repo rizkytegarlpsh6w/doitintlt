@@ -219,7 +219,7 @@ dtalk默认的实现方式是密码验证
 
 |字段名|说明|MENU|OPTION|CMD
 |:---------|:-----------------|:-|:-|:-|
-|catalog|item分类类型，可选的值MENU,OPTION,CMD|Y|Y|Y|
+|catalog|item分类类型，可选的值MENU,OPTION,CMD,参见《(菜单)条目类型说明》|Y|Y|Y|
 |name|条目名称([a-zA-Z0-9_],不允许有空格)|Y|Y|Y|
 |uiName|条目的界面显示名称,如果不指定则使用{@link #name}|Y|Y|Y|
 |path|当前对象在整个菜单树形结构中的全路径|Y|Y|Y|
@@ -236,6 +236,36 @@ dtalk默认的实现方式是密码验证
 |taskQueue|任务队列名,该字段不为空时,对象支持队列任务|||Y|
 
 NOTE:上表中后三列为Y，代表此字段适合该类型的菜单条目
+
+
+### 创建菜单
+
+dtalk提供了[gu.dtalk.ItemBuilder](../dtalk-base/src/main/java/gu/dtalk/ItemBuilder.java)用于创建menu和cmd,提供了[gu.dtalk.OptionBuilder](..dtalk-base/src/main/java/gu/dtalk/OptionBuilder.java)
+
+如下是创建前面的示例的菜单的代码：
+
+	public void test6Menu(){
+		MenuItem menu1 = ItemBuilder.builder(MenuItem.class).name("menu1").uiName("菜单1").addChilds(
+				ItemBuilder.builder(MenuItem.class).name("menu1_1").uiName("菜单1.1").addChilds(
+						OptionType.STRING.builder().name("option1").uiName("选项1").instance(),
+						OptionType.INTEGER.builder().name("option2").uiName("选项2").instance()
+						).instance()
+				).instance();
+		MenuItem menu2 = ItemBuilder.builder(MenuItem.class).name("menu2").uiName("菜单2").addChilds(
+				ItemBuilder.builder(MenuItem.class).name("menu2_1").uiName("菜单2.1").addChilds(
+							ItemBuilder.builder(CmdItem.class).name("cmd1").uiName("命令1").instance().addParameters(
+									OptionType.STRING.builder().name("param1").uiName("命令参数1").instance()
+									)
+						).instance()
+				).instance();
+		RootMenu root = new RootMenu();
+		root.addChilds(menu1,menu2);
+		
+		logger.info(BaseJsonEncoder.getEncoder().toJsonString(root));
+	}
+
+完整代码参见 [gu.dtalk.ItemTest](../dtalk-base/src/test/java/gu/dtalk/ItemTest.java)
+
 
 
 ## 任务队列
