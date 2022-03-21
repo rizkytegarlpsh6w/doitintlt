@@ -129,7 +129,7 @@ public class CmdItem extends BaseItem {
 	/**
 	 * 执行命令
 	 * @return
-	 * @throws CmdExecutionException
+	 * @throws CmdExecutionException 设备命令执行异常
 	 */
 	public final Object runCmd() throws CmdExecutionException{
 		synchronized (items) {
@@ -149,7 +149,7 @@ public class CmdItem extends BaseItem {
 	 * 执行命令
 	 * @param parameters 命令参数
 	 * @return
-	 * @throws CmdExecutionException
+	 * @throws CmdExecutionException 设备命令执行异常
 	 */
 	final Object runCmd(Map<String, ?> parameters) throws CmdExecutionException{
 		synchronized (items) {			
