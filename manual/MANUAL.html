@@ -754,6 +754,47 @@ document.addEventListener("DOMContentLoaded", function() {
 </code></pre>
 
 <p>完整代码参见 <a href="../dtalk-base/src/test/java/gu/dtalk/ItemTest.java">gu.dtalk.ItemTest</a></p>
+<h3>设备命令实现</h3>
+<p>dtalk的设备命令由设备命令执行接口(<a href="../dtalk-base/src/main/java/gu/dtalk/CmdItem.java">gu.dtalk.CmdItem.ICmdAdapter</a>)定义.</p>
+<pre><code>/**
+ * 设备命令执行接口
+ * @author guyadong
+ *
+ */
+public static interface ICmdAdapter {
+    /**
+     * 执行设备命令
+     * @param input 以值对(key-value)形式提供的输入参数
+     * @return 命令返回值，没有返回值则返回{@code null}
+     * @throws CmdExecutionException 命令执行失败
+     */
+    Object apply(Map&lt;String, Object&gt; input) throws CmdExecutionException;
+}
+</code></pre>
+
+<p>应用程序实现了设备命令执行接口后，通过<code>gu.dtalk.CmdItem.setCmdAdapter</code>方法绑定到指定的设备命令。当设备端收到这个设备命令时就会执行对应的<code>ICmdAdapter</code>实例.</p>
+<p>该接口实例在<code>CmdItem</code>实例中被<code>gu.dtalk.CmdItem.runCmd</code>方法调用 </p>
+<pre><code>/**
+ * 执行命令
+ * @return
+ * @throws CmdExecutionException
+ */
+public final Object runCmd() throws CmdExecutionException{
+    synchronized (items) {
+        if(cmdAdapter !=null){
+            try {
+                // 将 parameter 转为 Map&lt;String, Object&gt;
+                Map&lt;String, Object&gt; objParams = Maps.transformValues(items, TO_VALUE);
+                return cmdAdapter.apply(checkRequired(objParams));                  
+            } finally {
+                reset();
+            }
+        }
+        return null;
+    }
+}
+</code></pre>
+
 <h2>任务队列</h2>
 <p>(待续)</p>
 

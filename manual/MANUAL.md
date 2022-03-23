@@ -266,7 +266,48 @@ dtalk提供了[gu.dtalk.ItemBuilder](../dtalk-base/src/main/java/gu/dtalk/ItemBu
 
 完整代码参见 [gu.dtalk.ItemTest](../dtalk-base/src/test/java/gu/dtalk/ItemTest.java)
 
+### 设备命令实现
 
+dtalk的设备命令由设备命令执行接口([gu.dtalk.CmdItem.ICmdAdapter](../dtalk-base/src/main/java/gu/dtalk/CmdItem.java))定义.
+
+	/**
+	 * 设备命令执行接口
+	 * @author guyadong
+	 *
+	 */
+	public static interface ICmdAdapter {
+		/**
+		 * 执行设备命令
+		 * @param input 以值对(key-value)形式提供的输入参数
+		 * @return 命令返回值，没有返回值则返回{@code null}
+		 * @throws CmdExecutionException 命令执行失败
+		 */
+		Object apply(Map<String, Object> input) throws CmdExecutionException;
+	}
+
+应用程序实现了设备命令执行接口后，通过`gu.dtalk.CmdItem.setCmdAdapter`方法绑定到指定的设备命令。当设备端收到这个设备命令时就会执行对应的`ICmdAdapter`实例.
+
+该接口实例在`CmdItem`实例中被`gu.dtalk.CmdItem.runCmd`方法调用 
+
+	/**
+	 * 执行命令
+	 * @return
+	 * @throws CmdExecutionException
+	 */
+	public final Object runCmd() throws CmdExecutionException{
+		synchronized (items) {
+			if(cmdAdapter !=null){
+				try {
+					// 将 parameter 转为 Map<String, Object>
+					Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
+					return cmdAdapter.apply(checkRequired(objParams));					
+				} finally {
+					reset();
+				}
+			}
+			return null;
+		}
+	}
 
 ## 任务队列
 
