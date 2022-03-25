@@ -125,10 +125,10 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 		String ackChannel = null;
 		try{
 			String reqMAC = requestValidator.validate(connstr);
+			ackChannel = getAckChannel(reqMAC);
 			checkArgument(!Strings.isNullOrEmpty(reqMAC),"the mac address of request client is null");
 			checkState(connectedMAC ==null || connectedMAC.equals(reqMAC),"ANOTHER CLIENT LOCKED");
 			connectedMAC = reqMAC;
-			ackChannel = getAckChannel(connectedMAC);
 			// 密码匹配则发送请求频道名
 			if(requestChannel == null){
 				// 生成请求频道名
