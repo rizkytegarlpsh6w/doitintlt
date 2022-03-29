@@ -14,6 +14,7 @@ import gu.dtalk.ConnectReq;
 import gu.dtalk.DeviceInfoProvider;
 import gu.simplemq.Channel;
 import gu.simplemq.IMessageAdapter;
+import gu.simplemq.IUnregistedListener;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
 import gu.simplemq.json.BaseJsonEncoder;
 import gu.simplemq.redis.JedisPoolLazy;
@@ -48,6 +49,16 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	 * 当前连接的CLIENT端MAC地址
 	 */
 	private String connectedMAC;
+	/**
+	 * 频道取消注册时，将{@link #connectedMAC}复位
+	 */
+	private final IUnregistedListener<JSONObject> unregistedListener = new IUnregistedListener<JSONObject>() {
+		
+		@Override
+		public void apply(Channel<JSONObject> channel) {
+			connectedMAC=null;								
+		}
+	};
 	private final RedisPublisher ackPublisher;
 	/**
 	 * 当前连接的CLIENT端的请求频道
@@ -150,6 +161,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 						// 订阅请求频道用于命令发送
 						Channel<JSONObject> c = new Channel<JSONObject> (requestChannel,JSONObject.class,itemAdapter);						
 						subscriber.register(c);
+						c.addUnregistedListener(unregistedListener);
 						System.out.printf("Connect created(建立连接)for client:%s\n",connectedMAC);
 						System.out.printf("request channel %s \n"
 								                 + "ack channel       %s:\n", c.name,ac);
