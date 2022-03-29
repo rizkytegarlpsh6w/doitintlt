@@ -126,7 +126,7 @@ public class ItemEngine implements ItemAdapter{
 				found = root.getChildByPath(req.getPath());
 			}
 			checkArgument(null != found,"UNSUPPORTED ITEM");
-			checkArgument(!found.isDisable(),"DISABLE ITEM");
+			checkArgument(!found.isDisable(),"DISABLE ITEM [%s]",found.getPath());
 
 			switch(found.getCatalog()){
 			case OPTION:{
@@ -160,7 +160,7 @@ public class ItemEngine implements ItemAdapter{
 				return;
 			}
 			default:
-				throw new IllegalStateException("UNSUPPORTED CATALOG");
+				throw new IllegalArgumentException(String.format("UNSUPPORTED CATALOG [%s] of ITEM [%s]",found.getCatalog().name(),found.getPath()));
 			}
 
 		}catch(SmqUnsubscribeException e){

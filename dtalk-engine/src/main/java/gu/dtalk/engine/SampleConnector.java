@@ -124,7 +124,9 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 		Ack<String> ack = new Ack<String>().setStatus(Ack.Status.OK);
 		String ackChannel = null;
 		try{
+			// 请求端的MAC地址或其他唯一识别ID
 			String reqMAC = requestValidator.validate(connstr);
+			checkState(!Strings.isNullOrEmpty(reqMAC),"VALIDATE FAIL");
 			ackChannel = getAckChannel(reqMAC);
 			checkArgument(!Strings.isNullOrEmpty(reqMAC),"the mac address of request client is null");
 			checkState(connectedMAC ==null || connectedMAC.equals(reqMAC),"ANOTHER CLIENT LOCKED");

@@ -108,7 +108,7 @@ public abstract class BaseItem{
 	 */
 	BaseItem setParent(BaseItem parent) {
 		checkArgument(parent ==null || parent.isContainer(),"INVALID parent");
-		checkArgument(parent == null || !parent.getChilds().contains(this),"DUPLICATE element in parent %s",this.getName());
+		checkArgument(parent == null || !parent.getChilds().contains(this),"DUPLICATE element in parent [%s]",this.getName());
 		this.parent = parent;
 		checkCycleRef();
 		refreshPath();
@@ -323,7 +323,7 @@ public abstract class BaseItem{
 	 * @throws IllegalArgumentException 没找到指定的对象
 	 */
 	public BaseItem findChecked(String path){
-		return checkNotNull(find(path),"NOT FOUND ITEM %s",path);		
+		return checkNotNull(find(path),"NOT FOUND ITEM [%s]",path);		
 	}
 	/**
 	 * 根据path指定的路径查找menu对象, 先在当前对象中查找，如果找不到，从根结点查找
@@ -341,7 +341,7 @@ public abstract class BaseItem{
 	 * @throws IllegalArgumentException 没找到指定的对象
 	 */
 	public MenuItem findMenuChecked(String path){
-		return checkNotNull(findMenu(path),"NOT FOUND MENU %s",path);
+		return checkNotNull(findMenu(path),"NOT FOUND MENU [%s]",path);
 	}
 	/**
 	 * 根据path指定的路径查找cmd对象, 先在当前对象中查找，如果找不到，从根结点查找
@@ -359,7 +359,7 @@ public abstract class BaseItem{
 	 * @throws IllegalArgumentException 没找到指定的对象
 	 */
 	public CmdItem findCmdChecked(String path){
-		return checkNotNull(findCmd(path),"NOT FOUND CMD %s",path);
+		return checkNotNull(findCmd(path),"NOT FOUND CMD [%s]",path);
 	}
 	/**
 	 * 根据path指定的路径查找对象, 先在当前对象中查找，如果找不到，从根结点查找
@@ -381,7 +381,7 @@ public abstract class BaseItem{
 	 */
 	public <T>BaseOption<T> findOptionChecked(String path){
 		BaseOption<T> opt = findOption(path);
-		return checkNotNull(opt,"NOT FOUND OPTION %s",path);
+		return checkNotNull(opt,"NOT FOUND OPTION [%s]",path);
 	}
 	/**
 	 * @param path
