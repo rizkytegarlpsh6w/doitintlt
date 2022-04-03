@@ -306,10 +306,10 @@ document.addEventListener("DOMContentLoaded", function() {
         var level = parseInt(header.tagName.replace('H', ''), 10)-1;
         // 通过两个where循环对栈进行调整,确保stack中标题级数与当前标题级数相同
         while(stack.length < level){
-        	stack.push(0);
+            stack.push(0);
         }
         while(stack.length > level){
-        	stack.pop();
+            stack.pop();
         }
         // 最小一级标题标号步进+1
         stack[stack.length-1]++;
