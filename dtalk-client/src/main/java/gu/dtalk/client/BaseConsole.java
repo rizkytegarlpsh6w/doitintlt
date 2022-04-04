@@ -334,7 +334,7 @@ public abstract class BaseConsole {
 	    					// 输入空行则返回
 	    					break;
 	    				}
-	    				if(isQuit(json)){
+	    				if(isQuit(json,renderEngine.getRoot())){
 	    					return;
 	    				}
 
