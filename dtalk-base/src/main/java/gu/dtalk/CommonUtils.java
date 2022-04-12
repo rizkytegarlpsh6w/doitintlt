@@ -81,7 +81,7 @@ public class CommonUtils {
 	}
 	/**
 	 * 归一化输入的{@link JSONObject}对象<br>
-	 * 根据{@value} CommonConstant#ITEM_FIELD_NAME}或{@value CommonConstant#ITEM_FIELD_PATH}字段的值
+	 * 根据{@value CommonConstant#ITEM_FIELD_NAME}或{@value CommonConstant#ITEM_FIELD_PATH}字段的值
 	 * 查找是否存在指定的item,如果不存在抛出异常,
 	 * 如果没有定义{@value CommonConstant#ITEM_FIELD_NAME}或{@value CommonConstant#ITEM_FIELD_PATH}则抛出异常<br>
 	 * 如果 {@link JSONObject}没有指定{@value CommonConstant#ITEM_FIELD_CATALOG}字段，
