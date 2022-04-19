@@ -21,7 +21,7 @@ public enum ItemType {
 	 * @throws IllegalArgumentException 反序列化失败
 	 */
 	public static final BaseItem parseItem(Map<String,Object> jsonObject)  {
-		ItemType catalog =TypeUtils.castToEnum(
+		ItemType catalog =TypeUtils.cast(
 				checkNotNull(jsonObject.get(ITEM_FIELD_CATALOG),"NOT FOUND %s field",ITEM_FIELD_CATALOG), 
 				ItemType.class, 
 				ParserConfig.getGlobalInstance());

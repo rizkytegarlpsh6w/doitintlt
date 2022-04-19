@@ -12,6 +12,8 @@ import java.util.concurrent.ExecutionException;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.util.TypeUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
@@ -273,7 +275,10 @@ public enum OptionType {
 		}		
 	}
 	public static BaseOption<?> parseOption(Map<String,Object> json){
-		OptionType optionType = OptionType.valueOf((String) json.get(OPTION_FIELD_TYPE));
+		OptionType optionType =TypeUtils.cast(
+				checkNotNull(json.get(OPTION_FIELD_TYPE),"NOT FOUND %s field",OPTION_FIELD_TYPE), 
+				OptionType.class, 
+				ParserConfig.getGlobalInstance());
 		optionType.refreshValueIfTransPresent(json, OPTION_FIELD_VALUE);
 		optionType.refreshValueIfTransPresent(json, OPTION_FIELD_DEFAULT);
 		return BaseJsonEncoder.getEncoder().fromJson(	JSON.toJSONString(json), optionType.optClass);

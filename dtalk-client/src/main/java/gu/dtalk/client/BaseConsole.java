@@ -18,6 +18,7 @@ import gu.dtalk.CmdItem;
 import gu.dtalk.BaseItem;
 import gu.dtalk.BaseOption;
 import gu.dtalk.ItemType;
+import gu.dtalk.MenuItem;
 import gu.dtalk.redis.RedisConfigType;
 import gu.dtalk.Ack;
 import gu.dtalk.Ack.Status;
@@ -327,6 +328,9 @@ public abstract class BaseConsole {
 	    				break;
 	    			}
 	    			case CMD:{
+	    				// 执行命令前先保存当前菜单，因为执行命令后当前菜单会变化，
+	    				// 而isQuit需要的参数是执行命令前的菜单位置
+	    				MenuItem lastLevel = renderEngine.getCurrentLevel();
 	    				// 执行命令
 	    				if(inputCmd(scaner,json)){
 	    					syncPublishReq(json);
@@ -334,7 +338,7 @@ public abstract class BaseConsole {
 	    					// 输入空行则返回
 	    					break;
 	    				}
-	    				if(isQuit(json,renderEngine.getRoot())){
+	    				if(isQuit(json,lastLevel)){
 	    					return;
 	    				}
 
