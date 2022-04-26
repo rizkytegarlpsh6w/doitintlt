@@ -3,6 +3,7 @@ package gu.dtalk.client;
 import java.io.PrintStream;
 
 import com.alibaba.fastjson.JSONArray;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 
 import gu.dtalk.Ack;
@@ -56,7 +57,7 @@ public class TextRender implements IMessageRender {
 			String content = "";
 			if(item instanceof BaseOption){
 				BaseOption<?> option = (BaseOption<?>)item;
-				content = option.contentOfValue();
+				content = MoreObjects.firstNonNull(option.contentOfValue(),"");
 				// 只读标志
 				acc = option.isReadOnly() ? "R" : acc;
 			}else if (item instanceof CmdItem){

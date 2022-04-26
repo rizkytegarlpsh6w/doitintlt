@@ -79,6 +79,9 @@ public class CommonUtils {
 	public static boolean isImage(JSONObject item){
 		return item == null ? false : OptionType.IMAGE.name().equals(item.getString(OPTION_FIELD_TYPE));
 	}
+	public static boolean isImage(JSONObject item, BaseItem start){
+		return isImage(normalize(item,start));
+	}
 	/**
 	 * 归一化输入的{@link JSONObject}对象<br>
 	 * 根据{@value CommonConstant#ITEM_FIELD_NAME}或{@value CommonConstant#ITEM_FIELD_PATH}字段的值

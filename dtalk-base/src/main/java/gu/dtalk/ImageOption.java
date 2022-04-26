@@ -1,5 +1,6 @@
 package gu.dtalk;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Throwables;
 
 import net.gdface.image.ImageErrorException;
@@ -155,7 +156,7 @@ public class ImageOption extends BaseBinary {
 				return String.format("%s(%dx%d),size=%d", img.getSuffix(),img.getWidth(),img.getHeight(),getValue().length);
 			}
 		} catch (ImageErrorException e) {
-			return e.getMessage();
+			return MoreObjects.firstNonNull(e.getMessage(),"NOT IMAGE");
 		}
 		
 		return super.contentOfValue();

@@ -203,7 +203,7 @@ public abstract class BaseConsole {
 				path = item.getPath();
 			}else{
 				// 如果没有根据path找到对应的item则抛出异常
-				item = checkNotNull(currentLevel.find(path),"NOT FOUND item %s",path);
+				item = checkNotNull(currentLevel.getChildByPath(path),"NOT FOUND item %s",path);
 			}
 			json.fluentPut(ITEM_FIELD_PATH,path)
 				.fluentPut(ITEM_FIELD_CATALOG, item.getCatalog());
@@ -248,9 +248,9 @@ public abstract class BaseConsole {
 
 			@Override
 			public boolean apply(String input) {
-				if(isImage(json)){
+				if(isImage(json,renderEngine.getCurrentLevel())){
 					try {
-						json.fluentPut(OPTION_FIELD_VALUE, FaceUtilits.getByteBufferNotEmpty(new File(input)));
+						json.fluentPut(OPTION_FIELD_VALUE, FaceUtilits.getBytesNotEmpty(new File(input)));
 					} catch (Exception e) {
 						Throwables.throwIfUnchecked(e);
 						throw new RuntimeException(e);
