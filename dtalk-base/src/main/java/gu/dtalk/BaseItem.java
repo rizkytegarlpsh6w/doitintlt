@@ -332,7 +332,11 @@ public abstract class BaseItem{
 	 */
 	public MenuItem findMenu(String path){
 		BaseItem item = find(path);
-		return (item instanceof MenuItem) ? (MenuItem)item : null;
+		if(null == item){
+			return null;
+		}
+		checkArgument(item instanceof MenuItem,"FOUND %s item,MISMATCH %s",item.getCatalog(),ItemType.MENU);
+		return (MenuItem)item;
 	}
 	/**
 	 * 根据path指定的路径查找menu对象, 与{@link #findCmd(String)}基本相同,只是当找不到指定的对象时抛出异常
@@ -350,7 +354,11 @@ public abstract class BaseItem{
 	 */
 	public CmdItem findCmd(String path){
 		BaseItem item = find(path);
-		return (item instanceof CmdItem) ? (CmdItem)item : null;
+		if(null == item){
+			return null;
+		}
+		checkArgument(item instanceof CmdItem,"FOUND %s item,MISMATCH %s",item.getCatalog(),ItemType.CMD);
+		return (CmdItem)item;
 	}
 	/**
 	 * 根据path指定的路径查找cmd对象, 与{@link #findCmd(String)}基本相同,只是当找不到指定的对象时抛出异常
@@ -364,12 +372,17 @@ public abstract class BaseItem{
 	/**
 	 * 根据path指定的路径查找对象, 先在当前对象中查找，如果找不到，从根结点查找
 	 * @param path
-	 * @return 返回找到的{@link BaseItem},找不到返回{@code null}
+	 * @return 返回找到的{@link BaseOption},找不到返回{@code null}
 	 */
 	@SuppressWarnings("unchecked")
 	public <T>BaseOption<T> findOption(String path){
 		BaseItem item = find(path);
-		return (item instanceof BaseOption) ? (BaseOption<T>)item : null;
+		if(null == item){
+			return null;
+		}
+		checkArgument(item instanceof BaseOption,"FOUND %s item with path [%s],MISMATCH catalog %s",
+				item.getCatalog(),path,ItemType.OPTION);
+		return (BaseOption<T>)item;
 	}
 	
 	/**
@@ -383,124 +396,102 @@ public abstract class BaseItem{
 		BaseOption<T> opt = findOption(path);
 		return checkNotNull(opt,"NOT FOUND OPTION [%s]",path);
 	}
+
 	/**
+	 * 根据{@code path}指定的路径查找对象<br>
 	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @param type 要查找的选项类型
+	 * @return 返回找到的{@link BaseOption},找不到返回{@code null}
+	 * @see #findOption(String)
+	 * @throws IllegalArgumentException 找到的{@link BaseOption}类型与{@code type}不匹配
+	 */
+	@SuppressWarnings("unchecked")
+	public <T>T findOption(String path,OptionType type){
+		BaseOption<?> item = findOption(path);
+		if(null == item){
+			return null;
+		}
+		checkArgument(type.optionClass().isInstance(item),"FOUND %s item with [%s],MISMATCH type %s",
+				item.getType(),path,type);
+		return (T) type.optionClass().cast(item);
+	}
+	/**
+	 * @see #findOption(String, OptionType)
 	 */
 	public Base64Option findBase64Option(String path){
-		BaseItem item = find(path);
-		return (item instanceof Base64Option) ? (Base64Option)item : null;
+		return findOption(path,OptionType.BASE64);
 	}
 	/**
-	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @see #findOption(String, OptionType)
 	 */
 	public BoolOption findBoolOption(String path){
-		BaseItem item = find(path);
-		return (item instanceof BoolOption) ? (BoolOption)item : null;
+		return findOption(path,OptionType.BOOL);
 	}
 	/**
-	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @see #findOption(String, OptionType)
 	 */
 	public IPv4Option findIPv4Option(String path){
-		BaseItem item = find(path);
-		return (item instanceof IPv4Option) ? (IPv4Option)item : null;
+		return findOption(path,OptionType.IP);
 	}
 	/**
-	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @see #findOption(String, OptionType)
 	 */
 	public MACOption findMACOption(String path){
-		BaseItem item = find(path);
-		return (item instanceof MACOption) ? (MACOption)item : null;
+		return findOption(path,OptionType.MAC);
 	}
 	/**
-	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @see #findOption(String, OptionType)
 	 */
 	public IntOption findIntOption(String path){
-		BaseItem item = find(path);
-		return (item instanceof IntOption) ? (IntOption)item : null;
+		return findOption(path,OptionType.INTEGER);
 	}
 	/**
-	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @see #findOption(String, OptionType)
 	 */
 	public FloatOption findFloatOption(String path){
-		BaseItem item = find(path);
-		return (item instanceof FloatOption) ? (FloatOption)item : null;
+		return findOption(path,OptionType.FLOAT);
 	}
 	/**
-	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @see #findOption(String, OptionType)
 	 */
 	public DateOption findDateOption(String path){
-		BaseItem item = find(path);
-		return (item instanceof DateOption) ? (DateOption)item : null;
+		return findOption(path,OptionType.DATE);
 	}
 	/**
-	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @see #findOption(String, OptionType)
 	 */
 	public StringOption findStringOption(String path){
-		BaseItem item = find(path);
-		return (item instanceof StringOption) ? (StringOption)item : null;
+		return findOption(path,OptionType.STRING);
 	}
 	/**
-	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @see #findOption(String, OptionType)
 	 */
 	public PasswordOption findPasswordOption(String path){
-		BaseItem item = find(path);
-		return (item instanceof PasswordOption) ? (PasswordOption)item : null;
+		return findOption(path,OptionType.PASSWORD);
 	}
 	/**
-	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @see #findOption(String, OptionType)
 	 */
 	public UrlOption findUrlOption(String path){
-		BaseItem item = find(path);
-		return (item instanceof UrlOption) ? (UrlOption)item : null;
+		return findOption(path,OptionType.URL);
 	}
 	/**
-	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @see #findOption(String, OptionType)
 	 */
 	public ImageOption findImageOption(String path){
-		BaseItem item = find(path);
-		return (item instanceof ImageOption) ? (ImageOption)item : null;
+		return findOption(path,OptionType.IMAGE);
 	}
 	/**
-	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @see #findOption(String, OptionType)
 	 */
-	@SuppressWarnings("unchecked")
 	public <T>CheckOption<T> findCheckOption(String path){
-		BaseItem item = find(path);
-		return (item instanceof CheckOption) ? (CheckOption<T>)item : null;
+		return findOption(path,OptionType.MULTICHECK);
 	}
 	/**
-	 * @param path
-	 * @return
-	 * @see #find(String)
+	 * @see #findOption(String, OptionType)
 	 */
-	@SuppressWarnings("unchecked")
 	public <T>SwitchOption<T> findSwitchOption(String path){
-		BaseItem item = find(path);
-		return (item instanceof SwitchOption) ? (SwitchOption<T>)item : null;
+		return findOption(path,OptionType.SWITCH);
 	}
 	/**
 	 * 返回所有子条目

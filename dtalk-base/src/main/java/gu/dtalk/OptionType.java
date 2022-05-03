@@ -299,4 +299,11 @@ public enum OptionType {
 		}
 		return targetType;
 	}
+	/**
+	 * @return 返回实现类
+	 */
+	@SuppressWarnings("rawtypes")
+	public Class<? extends BaseOption> optionClass() {
+		return optClass;
+	}
 }
