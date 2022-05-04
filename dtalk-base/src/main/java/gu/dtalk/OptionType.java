@@ -55,8 +55,8 @@ public enum OptionType {
 	IDNUM(StringOption.class,"(^\\d{15}$)|(^\\d{18}$)|(^\\d{17}(\\d|X|x)$)"),
 	/** base64 格式二进制数据 */
 	BASE64(Base64Option.class),
-	/** MAC地址二进制数据 */
-	MAC(MACOption.class, "^([a-fA-F0-9]{2}[:-]){5}[a-fA-F0-9]{2}$"),
+	/** (6字节)MAC地址二进制数据,允许用':','-'分隔或不分隔 */
+	MAC(MACOption.class, "^([a-fA-F0-9]{2}[:-]?){5}[a-fA-F0-9]{2}$"),
 	/** IP地址二进制数据 */
 	IP(IPv4Option.class,"^((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))$"),
 	/** base64 格式JPEG/BMP/PNG格式图像 */
