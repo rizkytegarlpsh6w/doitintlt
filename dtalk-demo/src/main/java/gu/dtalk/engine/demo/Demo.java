@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gu.dtalk.engine.DeviceUtils;
 import gu.dtalk.engine.ItemEngine;
 import gu.dtalk.engine.SampleConnector;
 import gu.dtalk.redis.DefaultCustomRedisConfigProvider;
@@ -36,7 +37,7 @@ public class Demo {
 		subscriber = RedisFactory.getSubscriber(pool);
 		DemoMenu root = new DemoMenu(configType).init().register(DemoListener.INSTANCE);
 		connAdapter = new SampleConnector(pool).setItemAdapter(new ItemEngine(pool).setRoot(root));
-		devMac = DEVINFO_PROVIDER.getMac();
+		devMac = DeviceUtils.DEVINFO_PROVIDER.getMac();
 	}
 	/**
 	 * 启动连接

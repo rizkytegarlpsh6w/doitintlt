@@ -27,8 +27,16 @@ public interface DeviceInfoProvider {
 	 */
 	byte[] getMac();
 	/**
+	 * @return 返回16进制格式的MAC地址字符串，such as '58fb842d2953'
+	 */
+	String getMacAsString();
+	/**
 	 * 返回当前使用的IP地址,不可为空或{@code null}
 	 * @return
 	 */
 	byte[] getIp();
+	/**
+	 * @return 返回'.'号分隔十进制格式的IP地址字符串，such as '192.168.1.100'
+	 */
+	String getIpAsString();
 }

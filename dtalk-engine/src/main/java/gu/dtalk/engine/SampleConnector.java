@@ -1,7 +1,5 @@
 package gu.dtalk.engine;
 
-import java.util.Iterator;
-import java.util.ServiceLoader;
 import java.util.Timer;
 import java.util.TimerTask;
 import com.alibaba.fastjson.JSONException;
@@ -11,7 +9,6 @@ import com.google.common.base.Strings;
 
 import gu.dtalk.Ack;
 import gu.dtalk.ConnectReq;
-import gu.dtalk.DeviceInfoProvider;
 import gu.simplemq.Channel;
 import gu.simplemq.IMessageAdapter;
 import gu.simplemq.IUnregistedListener;
@@ -26,6 +23,7 @@ import static gu.dtalk.CommonConstant.*;
 import static com.google.common.base.Preconditions.*;
 import static gu.dtalk.CommonUtils.*;
 
+import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
 /**
  * 设备端连接控制器简单实现<br>
  * 接收连接请求并验证请求合法性，如果连接请求有效，则将请求频道名封装到{@link Ack}中发送给管理端<br>
@@ -69,20 +67,6 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	private ItemAdapter itemAdapter;
 	private final RedisSubscriber subscriber;
 	private RequestValidator requestValidator;
-	public final static DeviceInfoProvider DEVINFO_PROVIDER = getDeviceInfoProvider();
-	/**
-	 * SPI(Service Provider Interface)机制加载 {@link DeviceInfoProvider}实例,没有找到返回默认实例
-	 * @return
-	 */
-	private static DeviceInfoProvider getDeviceInfoProvider() {		
-		ServiceLoader<DeviceInfoProvider> providers = ServiceLoader.load(DeviceInfoProvider.class);
-		Iterator<DeviceInfoProvider> itor = providers.iterator();
-		if(!itor.hasNext()){
-			return DefaultDevInfoProvider.INSTANCE;
-		}
-		return itor.next();
-	}
-	
 	public SampleConnector(JedisPoolLazy pool) {
 		ackPublisher = RedisFactory.getPublisher(pool);
 		subscriber = RedisFactory.getSubscriber(pool);
@@ -146,7 +130,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 			if(requestChannel == null){
 				// 生成请求频道名
 				requestChannel = String.format("%s_dtalk_%d", 
-						FaceUtilits.toHex(DEVINFO_PROVIDER.getMac()),
+						FaceUtilits.toHex(DeviceUtils.DEVINFO_PROVIDER.getMac()),
 						System.currentTimeMillis()&0xffff);
 			}
 			// 请求频道名作为响应消息返回值

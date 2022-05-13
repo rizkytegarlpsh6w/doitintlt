@@ -15,7 +15,6 @@ import gu.dtalk.event.ValueListener;
 import gu.dtalk.redis.RedisConfigType;
 import gu.simplemq.redis.JedisPoolLazy.PropName;
 
-import static gu.dtalk.engine.SampleConnector.DEVINFO_PROVIDER;
 
 import java.util.Date;
 import java.util.Map;
@@ -26,6 +25,7 @@ import gu.dtalk.CmdItem;
 import gu.dtalk.DateOption;
 import gu.dtalk.IPv4Option;
 import static com.google.common.base.Preconditions.*;
+import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
 
 public class DemoMenu extends RootMenu{
 	private Map<PropName, Object> redisparam;

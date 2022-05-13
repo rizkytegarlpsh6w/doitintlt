@@ -10,7 +10,7 @@ import net.gdface.utils.NetworkUtil;
 
 public class DefaultDevInfoProvider implements DeviceInfoProvider {
 
-	public static DefaultDevInfoProvider INSTANCE = new DefaultDevInfoProvider();
+	public static DeviceInfoProvider INSTANCE = new DefaultDevInfoProvider();
 	private byte[] mac={0,0,0,0,0,0};
 	private byte[] ip = {127,0,0,1};
 	public DefaultDevInfoProvider() {
@@ -43,9 +43,19 @@ public class DefaultDevInfoProvider implements DeviceInfoProvider {
 	public byte[] getMac() {
 		return mac;
 	}
+
+	@Override
+	public String getMacAsString() {
+		return NetworkUtil.formatMac(getMac(), null);
+	}
 	@Override
 	public byte[] getIp() {
 		return ip;
+	}
+
+	@Override
+	public String getIpAsString() {
+		return NetworkUtil.formatIp(getIp());
 	}
 	/**
 	 * 获取访问指定host的本地IP地址
