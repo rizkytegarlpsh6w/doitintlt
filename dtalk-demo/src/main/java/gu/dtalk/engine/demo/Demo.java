@@ -18,7 +18,6 @@ import gu.simplemq.redis.RedisSubscriber;
 import net.gdface.utils.NetworkUtil;
 
 import static gu.dtalk.CommonUtils.*;
-import static gu.dtalk.engine.SampleConnector.*;
 import static gu.dtalk.engine.demo.DemoConfig.*;
 
 /**
@@ -51,11 +50,12 @@ public class Demo {
 		System.out.printf("Connect channel registered(连接频道注册) : %s \n",connchname);
 	}
 	private static void waitquit(){
+		System.out.println("PRESS 'quit' OR 'CTRL-C' to exit");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); 
 		try{
-			while(!"quit".equalsIgnoreCase(reader.readLine())){
-				return;
+			while(!"quit".equalsIgnoreCase(reader.readLine())){				
 			}
+			System.exit(0);
 		} catch (IOException e) {
 
 		}finally {
@@ -74,7 +74,6 @@ public class Demo {
 			JedisPoolLazy.createDefaultInstance( config.readRedisParam() );
 			
 			new Demo(config).start();
-			System.out.println("PRESS 'quit' OR 'CTRL-C' to exit");
 			waitquit();
 		}catch (Exception e) {
 			if(DEMO_CONFIG.isTrace()){
