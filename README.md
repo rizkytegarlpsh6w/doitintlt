@@ -31,6 +31,8 @@ dtalk就是为了实现上述的目标而开发的一个Redis发布订阅(pub/su
 
 关于 dtalk 更详细的说明参见 [《dtalk 开发手册》](manual/MANUAL.md)
 
+dtalk API 文档(javadoc) : [https://apidoc.gitee.com/l0km/dtalk](https://apidoc.gitee.com/l0km/dtalk)
+
 ## 软件架构
 
 dtalk在代码结构上分为两大块，用运行于前端设备的`dtalk-engine`，和运行于管理端的`dtalk-client`,dtalk各模块的简介如下：
