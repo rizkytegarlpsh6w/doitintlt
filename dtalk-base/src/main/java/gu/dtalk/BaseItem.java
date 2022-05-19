@@ -46,7 +46,11 @@ public abstract class BaseItem{
 	/**
 	 * 当前条目是否禁用
 	 */
-	private boolean disable=false;
+	private boolean disable = false;
+	/**
+	 * 当前条目是否在UI界面中隐藏
+	 */
+	private boolean hide = false;
 	/**
 	 * 对当前条目的说明文字
 	 */
@@ -195,6 +199,21 @@ public abstract class BaseItem{
 	 */
 	public BaseItem setDisable(boolean disable) {
 		this.disable = disable;
+		return this;
+	}
+	/**
+	 * @return 当前条目是否在UI界面中隐藏
+	 */
+	public boolean isHide() {
+		return hide;
+	}
+	/**
+	 * 设置当前条目是否在UI界面中隐藏
+	 * @param hide 要设置的 hide
+	 * @return 当前对象
+	 */
+	public BaseItem setHide(boolean hide) {
+		this.hide = hide;
 		return this;
 	}
 	/**

@@ -53,7 +53,8 @@ public class TextRender implements IMessageRender {
 		stream.printf("-->%s\n",menu.getPath());
 		int i=0;
 		for(BaseItem item: menu.getChilds()){
-			String acc = item.isDisable() ? "x" : " ";			
+			String acc = item.isDisable() ? "x" : " ";
+			String hide =item.isHide() ? "[H]" : "   ";
 			String content = "";
 			if(item instanceof BaseOption){
 				BaseOption<?> option = (BaseOption<?>)item;
@@ -69,9 +70,10 @@ public class TextRender implements IMessageRender {
 				content = ": " +content;
 			}			
 			
-			stream.printf("[%d] [%s] %s %s\n",
+			stream.printf("[%d] [%s] %s %s %s\n",
 					i++,
 					acc,
+					hide,
 					item.getUiName(),
 					content);
 			if(item instanceof CheckOption){
