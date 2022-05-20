@@ -32,6 +32,16 @@ public class OptionBuilder<T,O extends BaseOption<T>> {
 		option.setDisable(disable);
 		return this;
 	}
+	public OptionBuilder<T,O> disable() {
+		return disable(true);
+	}
+	public OptionBuilder<T, O> hide(boolean hide) {
+		option.setHide(hide);
+		return this;
+	}
+	public OptionBuilder<T, O> hide() {
+		return hide(true);
+	}
 	public OptionBuilder<T,O> readonly(boolean readOnly) {
 		option.setReadOnly(readOnly);
 		return this;
@@ -39,6 +49,9 @@ public class OptionBuilder<T,O extends BaseOption<T>> {
 	public OptionBuilder<T,O> required(boolean required) {
 		option.setRequired(required);
 		return this;
+	}
+	public OptionBuilder<T,O> required() {
+		return required(true);
 	}
 	public OptionBuilder<T,O> description(String description) {
 		option.setDescription(description);

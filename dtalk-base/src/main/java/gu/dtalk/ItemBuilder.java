@@ -30,7 +30,16 @@ public class ItemBuilder<T extends BaseItem> {
 		item.setDisable(disable);
 		return this;
 	}
-
+	public ItemBuilder<T> disable() {
+		return disable(true);
+	}
+	public ItemBuilder<T> hide(boolean hide) {
+		item.setHide(hide);
+		return this;
+	}
+	public ItemBuilder<T> hide(){
+		return hide(true);
+	}
 	public ItemBuilder<T> description(String description) {
 		item.setDescription(description);
 		return this;
