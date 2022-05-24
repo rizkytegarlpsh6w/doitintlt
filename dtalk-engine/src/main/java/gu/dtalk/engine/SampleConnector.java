@@ -44,6 +44,10 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	}
 	
 	/**
+	 * 当前设备的MAC地址HEX(16进制)字符串
+	 */
+	private String selfMac;
+	/**
 	 * 当前连接的CLIENT端MAC地址
 	 */
 	private String connectedMAC;
@@ -116,7 +120,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	 */
 	@Override
 	public void onSubscribe(String connstr) throws SmqUnsubscribeException {
-		Ack<String> ack = new Ack<String>().setStatus(Ack.Status.OK);
+		Ack<String> ack = new Ack<String>().setStatus(Ack.Status.OK).setDeviceMac(selfMac);
 		String ackChannel = null;
 		try{
 			// 请求端的MAC地址或其他唯一识别ID
@@ -167,6 +171,9 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 
 	public SampleConnector setItemAdapter(ItemAdapter adapter) {
 		this.itemAdapter = adapter;
+		if(this.itemAdapter != null){
+			this.itemAdapter.setSelfMac(selfMac);
+		}
 		return this;
 	}
 	/**
@@ -218,6 +225,23 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	 */
 	public SampleConnector setRequestValidator(RequestValidator requestValidator) {
 		this.requestValidator = checkNotNull(requestValidator);
+		return this;
+	}
+
+	/**
+	 * @return 返回当前设备的MAC地址(HEX字符串)
+	 */
+	public String getSelfMac() {
+		return selfMac;
+	}
+
+	/**
+	 * 设置当前设备的MAC地址(HEX字符串)
+	 * @param selfMac 要设置的 selfMac
+	 * @return 
+	 */
+	public SampleConnector setSelfMac(String selfMac) {
+		this.selfMac = selfMac;
 		return this;
 	}
 

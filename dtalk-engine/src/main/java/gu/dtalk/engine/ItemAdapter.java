@@ -32,4 +32,10 @@ public interface ItemAdapter extends IMessageAdapter<JSONObject> {
 	 * @return 返回根菜单实例
 	 */
 	MenuItem getRoot();
+	/**
+	 * 设置当前设备的MAC地址(HEX字符串)
+	 * @param selfMac 要设置的 selfMac
+	 * @return 当前接口对象
+	 */
+	ItemAdapter setSelfMac(String selfMac);
 }

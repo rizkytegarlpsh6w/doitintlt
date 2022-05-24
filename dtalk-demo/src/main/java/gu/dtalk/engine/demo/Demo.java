@@ -15,6 +15,7 @@ import gu.simplemq.Channel;
 import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
 import gu.simplemq.redis.RedisSubscriber;
+import net.gdface.utils.FaceUtilits;
 import net.gdface.utils.NetworkUtil;
 
 import static gu.dtalk.CommonUtils.*;
@@ -35,8 +36,10 @@ public class Demo {
 		JedisPoolLazy pool = JedisPoolLazy.getInstance(configType.readRedisParam(),false);
 		subscriber = RedisFactory.getSubscriber(pool);
 		DemoMenu root = new DemoMenu(configType).init().register(DemoListener.INSTANCE);
-		connAdapter = new SampleConnector(pool).setItemAdapter(new ItemEngine(pool).setRoot(root));
 		devMac = DeviceUtils.DEVINFO_PROVIDER.getMac();
+		connAdapter = new SampleConnector(pool)
+				.setSelfMac(FaceUtilits.toHex(devMac))
+				.setItemAdapter(new ItemEngine(pool).setRoot(root));
 	}
 	/**
 	 * 启动连接

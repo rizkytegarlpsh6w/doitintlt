@@ -36,6 +36,10 @@ public class ItemEngine implements ItemAdapter{
 	private Channel<Ack<Object>> ackChannel;
 	private BaseItem currentLevel;
 	/**
+	 * 当前设备的MAC地址(HEX字符串)
+	 */
+	private String selfMac;
+	/**
 	 * 最近一次操作的时间戳
 	 */
 	private long lasthit;
@@ -52,7 +56,7 @@ public class ItemEngine implements ItemAdapter{
 	public void onSubscribe(JSONObject jsonObject) throws SmqUnsubscribeException {
 		lasthit = System.currentTimeMillis();
 		boolean isQuit = false;
-		Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK);
+		Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK).setDeviceMac(selfMac);
 		try{
 			BaseItem req = ItemType.parseItem(CommonUtils.normalize(jsonObject, MoreObjects.firstNonNull(currentLevel, root)));
 			BaseItem found = null;
@@ -70,7 +74,7 @@ public class ItemEngine implements ItemAdapter{
 			}
 			checkArgument(null != found,"UNSUPPORTED ITEM");
 			checkArgument(!found.isDisable(),"DISABLE ITEM [%s]",found.getPath());
-
+			ack.setItem(found.getPath());
 			switch(found.getCatalog()){
 			case OPTION:{
 				((BaseOption<Object>)found).updateFrom((BaseOption<Object>)req);
@@ -155,5 +159,18 @@ public class ItemEngine implements ItemAdapter{
 	@Override
 	public String getAckChannel(){
 		return ackChannel == null ? null : ackChannel.name;
+	}
+
+	/**
+	 * @return 返回当前设备的MAC地址(HEX字符串)
+	 */
+	public String getSelfMac() {
+		return selfMac;
+	}
+
+	@Override
+	public ItemEngine setSelfMac(String selfMac) {
+		this.selfMac = selfMac;
+		return this;
 	}
 }
