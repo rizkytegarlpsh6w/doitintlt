@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>com.gitee.l0km</groupId>
 	<artifactId>dtalk</artifactId>
-	<version>0.1.12</version>
+	<version>0.1.13-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>dtalk</name>
