@@ -221,11 +221,12 @@ dtalk默认的实现方式是密码验证
 |:---------|:-----------------|:-|:-|:-|
 |catalog|item分类类型，可选的值MENU,OPTION,CMD,参见《(菜单)条目类型说明》|Y|Y|Y|
 |name|条目名称([a-zA-Z0-9_],不允许有空格)|Y|Y|Y|
-|uiName|条目的界面显示名称,如果不指定则使用{@link #name}|Y|Y|Y|
+|uiName|条目的用户界面显示名称,如果不指定则使用{@link #name}|Y|Y|Y|
 |path|当前对象在整个菜单树形结构中的全路径|Y|Y|Y|
 |container|是否为容器(可包含item),当catalog为MENU,CMD时为true|Y|Y|Y|
 |description|对当前条目的说明文字，默认值：空|Y|Y|Y|
 |disable|当前条目是否禁用,默认值:false|Y|Y|Y|
+|hide|当前条目是否在用户界面中隐藏(不显示),默认值:false|Y|Y|Y|
 |childs|所有子条目,当catalog为OPTION时，恒为空|Y|Y|Y|
 |empty| 是否有子条目,即childs中元素不为0,当catalog为OPTION时,恒为0|Y|Y|Y|
 |type|选项的类型,可选的值参见《OPTION类型说明》||Y||
