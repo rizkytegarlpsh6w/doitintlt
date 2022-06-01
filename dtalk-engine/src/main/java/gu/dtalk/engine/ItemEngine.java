@@ -87,7 +87,6 @@ public class ItemEngine implements ItemAdapter{
 					ackPublisher.publish(menuChannel, (MenuItem)currentLevel);
 					return;
 				}else if(isQuit(found)){
-					// 取消频道订阅,中断连接
 					isQuit = true;
 				}else{
 					// 执行命令
@@ -110,9 +109,6 @@ public class ItemEngine implements ItemAdapter{
 				throw new IllegalArgumentException(String.format("UNSUPPORTED CATALOG [%s] of ITEM [%s]",found.getCatalog().name(),found.getPath()));
 			}
 
-		}catch(SmqUnsubscribeException e){
-			ack.setErrorMessage("DISCONNECT");
-			throw e;
 		}catch(Exception e){
 			e.printStackTrace();
 			ack.setStatus(Ack.Status.ERROR).setErrorMessage(e.getMessage());
