@@ -215,6 +215,18 @@ dtalk默认的实现方式是密码验证
 |MULTICHECK|多选列表|[gu.dtalk.CheckOption](../dtalk-base/src/main/java/gu/dtalk/CheckOption.java)|
 |SWITCH|单选列表|[gu.dtalk.SwitchOption](../dtalk-base/src/main/java/gu/dtalk/SwitchOption.java)|
 
+#### 验证器(validator)
+
+选项(OPTION)允许应用层设置验证器对拟设置的值进行有效性验证，如果验证器返回false则会抛出异常。具体做法是通过[gu.dtalk.BaseOption](../dtalk-base/src/main/java/gu/dtalk/BaseOption.java)的`setValidator`方法设置`Predicate`接口实例，示例如下：
+
+		OptionBuilder.builder(IntOption.class).name("status").readonly(true).value(0).instance().setValidator(new Predicate<Integer>() {
+			
+			@Override
+			public boolean apply(Integer input) {
+				return input != null && input > 100;
+			}
+		});
+
 ### (菜单)条目定义字段
 
 |字段名|说明|MENU|OPTION|CMD
