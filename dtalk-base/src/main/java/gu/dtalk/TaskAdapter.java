@@ -97,7 +97,7 @@ public class TaskAdapter implements IMessageAdapter<Map<String, Object>>{
 				.setCmdSn(taskid.longValue());
 
 		if(err != null){
-			ack.setStatus(Status.ERROR).setErrorMessage(err.getMessage());
+			ack.setStatus(Status.ERROR).setStatusMessage(err.getMessage());
 		}
 		return (ACK) ack;
 	}

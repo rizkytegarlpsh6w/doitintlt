@@ -40,8 +40,8 @@ public class TextRender implements IMessageRender {
 			}
 		}else{
 			stream.append(status.name());		
-			if(status != Ack.Status.OK && !Strings.isNullOrEmpty(ack.getErrorMessage())){
-				stream.append(":").append(ack.getErrorMessage());
+			if(status != Ack.Status.OK && !Strings.isNullOrEmpty(ack.getStatusMessage())){
+				stream.append(":").append(ack.getStatusMessage());
 			}
 		}
 		stream.append('\n');

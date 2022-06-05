@@ -111,7 +111,7 @@ public class ItemEngine implements ItemAdapter{
 
 		}catch(Exception e){
 			e.printStackTrace();
-			ack.setStatus(Ack.Status.ERROR).setErrorMessage(e.getMessage());
+			ack.setStatus(Ack.Status.ERROR).setStatusMessage(e.getMessage());
 		}
 		// 向ack频道发送返回值消息
 		if(ackChannel != null){

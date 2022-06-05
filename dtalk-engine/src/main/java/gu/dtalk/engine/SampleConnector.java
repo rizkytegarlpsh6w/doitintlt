@@ -159,7 +159,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 		}catch(JSONException e){
 			// 忽略无法解析成ConnectReq请求对象的数据
 		}catch(Exception e){
-			ack.setStatus(Ack.Status.ERROR).setErrorMessage(e.getMessage());
+			ack.setStatus(Ack.Status.ERROR).setStatusMessage(e.getMessage());
 		}
 		if(ackChannel != null){
 			// 向响应频道发送响应消息
