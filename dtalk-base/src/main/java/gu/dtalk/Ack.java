@@ -37,7 +37,9 @@ public class Ack<T> {
 		/** 设备命令开始执行 */
 		ACCEPTED,
 		/** 返回设备命令完成进度 */
-		PROGRESS
+		PROGRESS,
+		/** 执行中的设备命令被取消 */
+		CANCELED
 	}
 	public Ack() {
 	}
@@ -68,6 +70,7 @@ public class Ack<T> {
 		case UNSUPPORTED:
 		case OK:
 		case ACCEPTED:
+		case CANCELED:
 		default:
 			break;
 		}
