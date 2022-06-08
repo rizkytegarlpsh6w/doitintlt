@@ -35,7 +35,7 @@ public class TaskAdapter implements IMessageAdapter<Map<String, Object>>{
 	/** 任务序列号 */
 	public static final String P_TASK_ID = "taskId";
 	private final Channel<Map<String, Object>> channel;
-	private ICmdAdapter cmdAdapter;
+	private ICmdImmediateAdapter cmdAdapter;
 	/** 执行publish的线程池对象 */
 	protected static final ExecutorService publishExecutor = MoreExecutors.getExitingExecutorService(
 			new ThreadPoolExecutor(1, 1,
@@ -127,14 +127,14 @@ public class TaskAdapter implements IMessageAdapter<Map<String, Object>>{
 	/**
 	 * @return cmdAdapter
 	 */
-	public ICmdAdapter getCmdAdapter() {
+	public ICmdImmediateAdapter getCmdAdapter() {
 		return cmdAdapter;
 	}
 	/**
 	 * @param cmdAdapter 要设置的 cmdAdapter
 	 * @return 当前对象
 	 */
-	public TaskAdapter setCmdAdapter(ICmdAdapter cmdAdapter) {
+	public TaskAdapter setCmdAdapter(ICmdImmediateAdapter cmdAdapter) {
 		this.cmdAdapter = cmdAdapter;
 		return this;
 	}

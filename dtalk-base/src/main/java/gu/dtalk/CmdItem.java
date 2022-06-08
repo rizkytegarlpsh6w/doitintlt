@@ -18,6 +18,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import gu.dtalk.exception.CmdExecutionException;
+import gu.dtalk.exception.InteractiveCmdStartException;
+
 import static com.google.common.base.Preconditions.*;
 
 /**
@@ -26,7 +28,6 @@ import static com.google.common.base.Preconditions.*;
  *
  */
 public class CmdItem extends BaseItem {
-
 	private static final Function<BaseItem, BaseOption<Object>> TO_OPTION = new Function<BaseItem,BaseOption<Object>>(){
 
 		@SuppressWarnings("unchecked")
@@ -47,13 +48,19 @@ public class CmdItem extends BaseItem {
 		}
 	};
 	@JSONField(serialize = false,deserialize = false)
-	private ICmdAdapter cmdAdapter;
+	private ICmdUnionAdapter cmdAdapter;
 	
 	/**
 	 * 任务队列名<br>
 	 * 该字段不为空时，对象支持队列任务
 	 */
+	@JSONField(serialize = false,deserialize = false)
 	private String taskQueue;
+	/**
+	 * 取消正在执行的设备命令<br>
+	 * 此字段默认为{@code null}，为{@code true}时，指示取消正在执行的设备命令,仅对支持交互的设备命令有效
+	 */
+	private Boolean canceled;
 	public CmdItem() {
 	}
 
@@ -82,10 +89,10 @@ public class CmdItem extends BaseItem {
 		addChilds(Collections2.transform(parameters, TO_ITEM));
 		return this;
 	}
-	public ICmdAdapter getCmdAdapter() {
+	public ICmdUnionAdapter getCmdAdapter() {
 		return cmdAdapter;
 	}
-	public CmdItem setCmdAdapter(ICmdAdapter cmdAdapter) {
+	public CmdItem setCmdAdapter(ICmdUnionAdapter cmdAdapter) {
 		this.cmdAdapter = cmdAdapter;
 		return this;
 	}
@@ -127,17 +134,18 @@ public class CmdItem extends BaseItem {
 		return input;
 	}
 	/**
-	 * 执行命令
+	 * 执行立即命令
 	 * @return
 	 * @throws CmdExecutionException 设备命令执行异常
 	 */
-	public final Object runCmd() throws CmdExecutionException{
+	public final Object runImmediateCmd() throws CmdExecutionException{
+		checkState(cmdAdapter instanceof ICmdImmediateAdapter,"type of cmdAdapter must be %s",ICmdImmediateAdapter.class.getSimpleName());
 		synchronized (items) {
 			if(cmdAdapter !=null){
 				try {
 					// 将 parameter 转为 Map<String, Object>
 					Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
-					return cmdAdapter.apply(checkRequired(objParams));					
+					return ((ICmdImmediateAdapter)cmdAdapter).apply(checkRequired(objParams));					
 				} finally {
 					reset();
 				}
@@ -146,25 +154,78 @@ public class CmdItem extends BaseItem {
 		}
 	}
 	/**
-	 * 执行命令
+	 * 执行立即命令
 	 * @param parameters 命令参数
 	 * @return
 	 * @throws CmdExecutionException 设备命令执行异常
 	 */
-	final Object runCmd(Map<String, ?> parameters) throws CmdExecutionException{
+	final Object runImmediateCmd(Map<String, ?> parameters) throws CmdExecutionException{
+		checkState(cmdAdapter instanceof ICmdImmediateAdapter,"type of cmdAdapter must be %s",ICmdImmediateAdapter.class.getSimpleName());
 		synchronized (items) {			
 			if(cmdAdapter !=null){
 				updateParameter(parameters);
 				try {
 					// 将 parameter 转为 Map<String, Object>
 					Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
-					return cmdAdapter.apply(checkRequired(objParams));
+					return ((ICmdImmediateAdapter)cmdAdapter).apply(checkRequired(objParams));
 				} finally {
 					reset();
 				}
 			}
 			return null;
 		}
+	}
+	/**
+	 * 启动交互命令
+	 * @param statusListener 设备命令状态侦听器
+	 * @return
+	 * @throws InteractiveCmdStartException 交互命令执行异常，当设备命令被拒绝或出错时抛出此异常
+	 */
+	public final void startInteractiveCmd(ICmdInteractiveStatusListener statusListener) throws InteractiveCmdStartException{
+		checkState(cmdAdapter instanceof ICmdInteractiveAdapter,"type of cmdAdapter must be %s",ICmdInteractiveAdapter.class.getSimpleName());
+		synchronized (items) {
+			if(cmdAdapter !=null){
+				try {
+					// 将 parameter 转为 Map<String, Object>
+					Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
+					((ICmdInteractiveAdapter)cmdAdapter).apply(checkRequired(objParams),
+							checkNotNull(statusListener,"statusListener is null"));					
+				} finally {
+					reset();
+				}
+			}
+		}
+	}
+	/**
+	 * 启动交互命令
+	 * @param parameters 命令参数
+	 * @param statusListener 设备命令状态侦听器
+	 * @return
+	 * @throws InteractiveCmdStartException 当设备命令被拒绝或不支持或其他出错时抛出此异常,通过{@link InteractiveCmdStartException#getStatus() }获取状态类型
+	 */
+	final void startInteractiveCmd(Map<String, ?> parameters, ICmdInteractiveStatusListener statusListener) throws InteractiveCmdStartException{
+		checkState(cmdAdapter instanceof ICmdInteractiveAdapter,"type of cmdAdapter must be %s",ICmdInteractiveAdapter.class.getSimpleName());
+		synchronized (items) {			
+			if(cmdAdapter !=null){
+				updateParameter(parameters);
+				try {
+					// 将 parameter 转为 Map<String, Object>
+					Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
+					((ICmdInteractiveAdapter)cmdAdapter).apply(checkRequired(objParams),
+							checkNotNull(statusListener,"statusListener is null"));
+				} finally {
+					reset();
+				}
+			}
+		}
+	}
+	
+	/**
+	 * 取消正在执行的交互命令
+	 */
+	public final void cancelInteractiveCmd(){
+		checkState(cmdAdapter instanceof ICmdInteractiveAdapter,"type of cmdAdapter must be %s",ICmdInteractiveAdapter.class.getSimpleName());
+		((ICmdInteractiveAdapter)cmdAdapter).cancel();
 	}
 	@SuppressWarnings("unchecked")
 	public <T>BaseOption<T> getParameter(final String name){
@@ -190,8 +251,10 @@ public class CmdItem extends BaseItem {
 	 */
 	public CmdItem asTaskAdapter(String queue){
 		if(cmdAdapter != null){
+			checkState(cmdAdapter instanceof ICmdImmediateAdapter,"type of cmdAdapter must be %s",ICmdImmediateAdapter.class.getSimpleName());
+
 			new TaskAdapter(queue)
-				.setCmdAdapter(cmdAdapter)
+				.setCmdAdapter((ICmdImmediateAdapter)cmdAdapter)
 				.register();
 			this.taskQueue = queue;
 		}
@@ -207,10 +270,12 @@ public class CmdItem extends BaseItem {
 	public CmdItem asTaskAdapter(String queue,Class<? extends TaskAdapter> taskAdatperClass){
 		if(cmdAdapter != null){
 			try {
+				checkState(cmdAdapter instanceof ICmdImmediateAdapter,"type of cmdAdapter must be %s",ICmdImmediateAdapter.class.getSimpleName());
+
 				checkNotNull(taskAdatperClass,"taskAdatperClass is null")
 					.getConstructor(String.class)
 					.newInstance(queue)
-					.setCmdAdapter(cmdAdapter)
+					.setCmdAdapter((ICmdImmediateAdapter)cmdAdapter)
 					.register();
 				this.taskQueue = queue;
 			} catch (Exception e) {
@@ -219,20 +284,6 @@ public class CmdItem extends BaseItem {
 			}
 		}
 		return this;
-	}
-	/**
-	 * 设备命令执行接口
-	 * @author guyadong
-	 *
-	 */
-	public static interface ICmdAdapter {
-		/**
-		 * 执行设备命令
-		 * @param input 以值对(key-value)形式提供的输入参数
-		 * @return 命令返回值，没有返回值则返回{@code null}
-		 * @throws CmdExecutionException 命令执行失败
-		 */
-		Object apply(Map<String, Object> input) throws CmdExecutionException;
 	}
 	/**
 	 * @return taskQueue
@@ -246,5 +297,40 @@ public class CmdItem extends BaseItem {
 	 */
 	public void setTaskQueue(String taskQueue) {
 		this.taskQueue = taskQueue;
+	}
+	/**
+	 * @return canceled
+	 */
+	public Boolean getCanceled() {
+		return canceled;
+	}
+
+	/**
+	 * @param canceled 要设置的 canceled
+	 */
+	public void setCanceled(Boolean canceled) {
+		this.canceled = canceled;
+	}
+	
+	/**
+	 * @return 返回是否为交互设备命令
+	 */
+	@JSONField(serialize = false,deserialize = false)
+	public boolean isInteractiveCmd(){
+		return cmdAdapter instanceof ICmdInteractiveAdapter;
+	}
+	/**
+	 * 立即执行设备命令执行接口
+	 * @author guyadong
+	 * @deprecated replace by {@link ICmdImmediateAdapter}
+	 */
+	public static interface ICmdAdapter extends ICmdUnionAdapter{
+		/**
+		 * 执行设备命令
+		 * @param input 以值对(key-value)形式提供的输入参数
+		 * @return 命令返回值，没有返回值则返回{@code null}
+		 * @throws CmdExecutionException 命令执行失败
+		 */
+		Object apply(Map<String, Object> input) throws CmdExecutionException;
 	}
 }

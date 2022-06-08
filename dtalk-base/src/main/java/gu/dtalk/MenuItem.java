@@ -48,7 +48,7 @@ public class MenuItem extends BaseItem {
 		if(cmd == null){
 			throw new UnsupportCmdException(cmdpath + "is not a cmd item" );
 		}
-		return cmd.runCmd(parameters);
+		return cmd.runImmediateCmd(parameters);
 	}
 	
 	public MenuItem readonlyOption(String optpath,boolean readonly){

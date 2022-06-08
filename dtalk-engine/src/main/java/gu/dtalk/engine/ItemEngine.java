@@ -3,14 +3,20 @@ package gu.dtalk.engine;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.MoreObjects;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import gu.dtalk.Ack;
+import gu.dtalk.Ack.Status;
 import gu.dtalk.CmdItem;
 import gu.dtalk.CommonUtils;
+import gu.dtalk.ICmdInteractiveStatusListener;
 import gu.dtalk.BaseItem;
 import gu.dtalk.MenuItem;
 import gu.dtalk.BaseOption;
 import gu.dtalk.ItemType;
 import gu.dtalk.RootMenu;
+import gu.dtalk.exception.InteractiveCmdStartException;
 import gu.simplemq.Channel;
 import gu.simplemq.IPublisher;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
@@ -20,6 +26,14 @@ import gu.simplemq.redis.RedisFactory;
 import static com.google.common.base.Preconditions.*;
 import static gu.dtalk.CommonConstant.*;
 import static gu.dtalk.CommonUtils.*;
+
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,6 +45,7 @@ import static gu.dtalk.CommonUtils.*;
  *
  */
 public class ItemEngine implements ItemAdapter{
+	private static final Logger logger = LoggerFactory.getLogger(ItemEngine.class);
 	private MenuItem root = new RootMenu(); 
 	private IPublisher ackPublisher;
 	private Channel<Ack<Object>> ackChannel;
@@ -44,8 +59,32 @@ public class ItemEngine implements ItemAdapter{
 	 */
 	private long lasthit;
 	private Channel<MenuItem> menuChannel;
+	
+	/**
+	 * 当前执行的设备命令
+	 */
+	private String cmdLock=null;
+	private final DtalkListener listener = new DtalkListener();
+	private final ScheduledThreadPoolExecutor scheduledExecutor;
+	private final ScheduledExecutorService timerExecutor;
+	private ScheduledFuture<?> future;
+	/** 定时检查任务，如果超时没有收到进度报告，则视为超时 */
+	private final Runnable timerTask = new Runnable(){
+		long progressInternal = TimeUnit.SECONDS.toMillis(listener.getProgressInternal());
+		@Override
+		public void run() {
+				long lastInternel = System.currentTimeMillis() - listener.lastProgress;
+				if(lastInternel > progressInternal*4){
+					listener.onTimeout();
+					// 通过抛出异常的方式中断定时任务
+					throw new RuntimeException();
+				}
+		}};
 	public ItemEngine(JedisPoolLazy pool) {
 		ackPublisher = RedisFactory.getPublisher(pool);
+		this.scheduledExecutor =new ScheduledThreadPoolExecutor(1,
+				new ThreadFactoryBuilder().setNameFormat("cmddog-pool-%d").build());	
+		this.timerExecutor = MoreExecutors.getExitingScheduledExecutorService(	scheduledExecutor);
 	}
 
 	/** 
@@ -74,6 +113,8 @@ public class ItemEngine implements ItemAdapter{
 			}
 			checkArgument(null != found,"UNSUPPORTED ITEM");
 			checkArgument(!found.isDisable(),"DISABLE ITEM [%s]",found.getPath());
+			/** 设备命令没执行完，则抛出异常 */
+			checkState(cmdLock == null || cmdLock.equals(found.getPath()),"CMD LOCKED %s",cmdLock);
 			ack.setItem(found.getPath());
 			switch(found.getCatalog()){
 			case OPTION:{
@@ -92,10 +133,31 @@ public class ItemEngine implements ItemAdapter{
 					// 执行命令
 					CmdItem cmd = (CmdItem)found;
 					CmdItem reqCmd = (CmdItem)req;
-					for(BaseOption<Object> param:cmd.getParameters()){
-						param.updateFrom(reqCmd.getParameter(param.getName()));
+					if(cmdLock == null){
+						for(BaseOption<Object> param:cmd.getParameters()){
+							param.updateFrom(reqCmd.getParameter(param.getName()));
+						}
+						if(cmd.isInteractiveCmd()){
+							// 启动设备交互命令执行
+							cmd.startInteractiveCmd(listener.setAck(ack));
+							// 设置为正常启动状态
+							ack.setStatus(Status.ACCEPTED);
+							// 命令加锁
+							cmdLock = cmd.getPath();
+							// 启动超时检查，避免设备死机造成的锁死
+							startInternalCmdChecker();
+						}else{
+							// 启动设备命令执行
+							ack.setValue(cmd.runImmediateCmd());
+						}
+					}else{
+						checkState(cmd.isInteractiveCmd(),"NOT INTERACTIVE CMD %s",cmd.getPath());
+						/** 上一个命令没执行完，则抛出异常 */
+						checkState(Boolean.TRUE.equals(reqCmd.getCanceled()),"CMD REENTRANT  %s",cmdLock);
+						cmd.cancelInteractiveCmd();
+						// 命令解锁
+						cmdLock = null;
 					}
-					ack.setValue(cmd.runCmd());
 				}
 				break;
 			}
@@ -109,6 +171,9 @@ public class ItemEngine implements ItemAdapter{
 				throw new IllegalArgumentException(String.format("UNSUPPORTED CATALOG [%s] of ITEM [%s]",found.getCatalog().name(),found.getPath()));
 			}
 
+		}catch (InteractiveCmdStartException e) {
+			
+			ack.setStatus(e.getStatus()).setStatusMessage(e.getMessage());
 		}catch(Exception e){
 			e.printStackTrace();
 			ack.setStatus(Ack.Status.ERROR).setStatusMessage(e.getMessage());
@@ -168,5 +233,106 @@ public class ItemEngine implements ItemAdapter{
 	public ItemEngine setSelfMac(String selfMac) {
 		this.selfMac = selfMac;
 		return this;
+	}
+	
+	/**
+	 * 启动交互设备命令超时检查定时任务
+	 */
+	private synchronized void startInternalCmdChecker(){
+		if(null != future){
+			this.scheduledExecutor.remove((Runnable) future);
+		}
+		/** 返回 RunnableScheduledFuture<?>实例  */
+		future = this.timerExecutor.scheduleAtFixedRate(timerTask, listener.getProgressInternal(), listener.getProgressInternal(), TimeUnit.SECONDS);
+	}
+	private final class DtalkListener implements ICmdInteractiveStatusListener{
+
+		private Ack<Object> ack;
+		private long lastProgress;
+		@Override
+		public void onProgress(Integer progress, String statusMessage) {
+			try {
+				lastProgress = System.currentTimeMillis();
+				ack.setStatus(Status.PROGRESS).setValue(progress).setStatusMessage(statusMessage);
+				ackPublisher.publish(ackChannel, ack);
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}		
+		}
+		
+		@Override
+		public void onFinished(Object value) {
+			try{
+				// 命令解锁
+				cmdLock = null;
+				ack.setStatus(Status.OK).setValue(value);
+				ackPublisher.publish(ackChannel, ack);
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+		}
+
+		@Override
+		public void onCaneled() {
+			try{
+				// 命令解锁
+				cmdLock = null;
+				ack.setStatus(Status.CANCELED);
+				ackPublisher.publish(ackChannel, ack);
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+		}
+
+		@Override
+		public void onError(String errorMessage, Throwable throwable) {
+			try{
+				// 命令解锁
+				cmdLock = null;
+				ack.setStatus(Status.ERROR);
+				StringBuffer buffer = new StringBuffer();
+				if(null != errorMessage){
+					buffer.append(errorMessage);
+				}
+				if(throwable != null){
+					buffer.append(":").append(throwable.getMessage());
+				}
+				if(buffer.length() >0){
+					ack.setStatusMessage(buffer.toString());
+				}
+				ackPublisher.publish(ackChannel, ack);	
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+		}
+
+		@Override
+		public int getProgressInternal(){
+			return 2;
+		}
+
+		/**
+		 * 超时处理
+		 */
+		public void onTimeout(){
+			try{
+				// 命令解锁
+				cmdLock = null;
+				ack.setStatus(Status.TIMEOUT);
+				ackPublisher.publish(ackChannel, ack);
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+		}
+		/**
+		 * @param ack 要设置的 ack
+		 * @return 
+		 */
+		public DtalkListener setAck(Ack<Object> ack) {
+			this.ack = new Ack<Object>().setItem(ack.getItem()).setDeviceMac(ack.getDeviceMac());
+			this.lastProgress = System.currentTimeMillis();
+			return this;
+		}
+
 	}
 }
