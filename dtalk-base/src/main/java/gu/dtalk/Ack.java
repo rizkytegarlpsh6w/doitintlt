@@ -170,7 +170,6 @@ public class Ack<T> {
 	}
 	/** 
 	 * 返回错误信息
-	 * @since 0.1.13
 	 */
 	public String getStatusMessage() {
 		return statusMessage;
@@ -179,7 +178,6 @@ public class Ack<T> {
 	 * 设置错误信息
 	 * @param errorMessage 
 	 * @return 当前{@link Ack}实例
-	 * @since 0.1.13
 	 */
 	public Ack<T> setStatusMessage(String errorMessage) {
 		this.statusMessage = errorMessage;

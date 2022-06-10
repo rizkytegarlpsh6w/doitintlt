@@ -113,7 +113,7 @@ public class ItemEngine implements ItemAdapter{
 			}
 			checkArgument(null != found,"UNSUPPORTED ITEM");
 			checkArgument(!found.isDisable(),"DISABLE ITEM [%s]",found.getPath());
-			/** 设备命令没执行完，则抛出异常 */
+			/** 交互设备命令没执行完，则抛出异常 */
 			checkState(cmdLock == null || cmdLock.equals(found.getPath()),"CMD LOCKED %s",cmdLock);
 			ack.setItem(found.getPath());
 			switch(found.getCatalog()){
