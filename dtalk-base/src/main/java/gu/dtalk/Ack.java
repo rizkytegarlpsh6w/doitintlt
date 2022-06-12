@@ -153,23 +153,6 @@ public class Ack<T> {
 	}
 	/** 
 	 * 返回错误信息
-	 * @deprecated replaced by {@link #getStatusMessage()}
-	 */
-	public String getErrorMessage() {
-		return statusMessage;
-	}
-	/**
-	 * 设置错误信息
-	 * @param errorMessage 
-	 * @return 当前{@link Ack}实例
-	 * @deprecated replaced by {@link #setStatusMessage(String)}
-	 */
-	public Ack<T> setErrorMessage(String errorMessage) {
-		this.statusMessage = errorMessage;
-		return this;
-	}
-	/** 
-	 * 返回错误信息
 	 */
 	public String getStatusMessage() {
 		return statusMessage;
