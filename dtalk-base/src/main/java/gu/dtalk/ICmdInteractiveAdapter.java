@@ -4,6 +4,11 @@ import java.util.Map;
 
 import gu.dtalk.exception.InteractiveCmdStartException;
 
+/**
+ * 交互设备命令接口
+ * @author guyadong
+ *
+ */
 public interface ICmdInteractiveAdapter extends ICmdUnionAdapter {
 	/**
 	 * 执行设备命令

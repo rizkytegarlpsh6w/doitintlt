@@ -151,6 +151,7 @@ public class ItemEngine implements ItemAdapter{
 							ack.setValue(cmd.runImmediateCmd());
 						}
 					}else{
+						// 只有交互设备命令会加锁，加锁状态下只能执行取消命令
 						checkState(cmd.isInteractiveCmd(),"NOT INTERACTIVE CMD %s",cmd.getPath());
 						/** 上一个命令没执行完，则抛出异常 */
 						checkState(Boolean.TRUE.equals(reqCmd.getCanceled()),"CMD REENTRANT  %s",cmdLock);

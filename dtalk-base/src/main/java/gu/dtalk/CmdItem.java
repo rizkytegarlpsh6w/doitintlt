@@ -96,6 +96,24 @@ public class CmdItem extends BaseItem {
 		this.cmdAdapter = cmdAdapter;
 		return this;
 	}
+	/**
+	 * 设置交互设备命令执行器
+	 * @param cmdAdapter
+	 * @return
+	 */
+	public CmdItem setInteractiveCmdAdapter(ICmdInteractiveAdapter cmdAdapter) {
+		this.cmdAdapter = cmdAdapter;
+		return this;
+	}
+	/**
+	 * 设置立即设备命令执行器
+	 * @param cmdAdapter
+	 * @return
+	 */
+	public CmdItem setImmediateCmdAdapter(ICmdImmediateAdapter cmdAdapter) {
+		this.cmdAdapter = cmdAdapter;
+		return this;
+	}
     /**
      * 将{@code value}转为{@code type}指定的类型
      * @param <T> 目标参数类型
