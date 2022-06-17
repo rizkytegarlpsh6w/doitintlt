@@ -73,11 +73,11 @@ public class ItemEngine implements ItemAdapter{
 		long progressInternal = TimeUnit.SECONDS.toMillis(listener.getProgressInternal());
 		@Override
 		public void run() {
+				// cmdLock 解锁状态下自动中断定时任务
+				checkState(cmdLock != null);
 				long lastInternel = System.currentTimeMillis() - listener.lastProgress;
 				if(lastInternel > progressInternal*4){
 					listener.onTimeout();
-					// 通过抛出异常的方式中断定时任务
-					throw new RuntimeException();
 				}
 		}};
 	public ItemEngine(JedisPoolLazy pool) {
