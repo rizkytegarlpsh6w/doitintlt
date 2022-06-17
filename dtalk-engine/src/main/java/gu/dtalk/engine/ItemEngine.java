@@ -139,7 +139,7 @@ public class ItemEngine implements ItemAdapter{
 						}
 						if(cmd.isInteractiveCmd()){
 							// 启动设备交互命令执行
-							cmd.startInteractiveCmd(listener.setAck(ack));
+							cmd.startInteractiveCmd(listener.init(ack));
 							// 设置为正常启动状态
 							ack.setStatus(Status.ACCEPTED);
 							// 命令加锁
@@ -326,10 +326,11 @@ public class ItemEngine implements ItemAdapter{
 			}
 		}
 		/**
+		 * 使用ack初始化当前对象
 		 * @param ack 要设置的 ack
-		 * @return 
+		 * @return 返回当前对象
 		 */
-		public DtalkListener setAck(Ack<Object> ack) {
+		DtalkListener init(Ack<Object> ack) {
 			this.ack = new Ack<Object>().setItem(ack.getItem()).setDeviceMac(ack.getDeviceMac());
 			this.lastProgress = System.currentTimeMillis();
 			return this;
