@@ -281,14 +281,19 @@ dtalk提供了[gu.dtalk.ItemBuilder](../dtalk-base/src/main/java/gu/dtalk/ItemBu
 
 ### 设备命令实现
 
-dtalk的设备命令由设备命令执行接口([gu.dtalk.CmdItem.ICmdAdapter](../dtalk-base/src/main/java/gu/dtalk/CmdItem.java))定义.
+根据设备命令执行方式的不同，分为立即(执行)设备命令和交互设备命令，立即设备命令执行后立即返回结果或不返回结果，立即命令执行的结果只有成功或异常两种状态。
+交互命令适用于可能要长时间执行的命令，允许在设备命令执行教程中，管理端取消设备命令执行，也允许设备在设备命令执行过程，向管理端发送完成进度或人为取消。交互命令执行的结果状态更加复杂：成功，被拒绝，异常，超时。
+
+#### 立即设备命令
+
+dtalk的立即设备命令由立即设备命令执行接口([gu.dtalk.ICmdImmediateAdapter](../dtalk-base/src/main/java/gu/dtalk/ICmdImmediateAdapter.java))定义.
 
 	/**
 	 * 设备命令执行接口
 	 * @author guyadong
 	 *
 	 */
-	public static interface ICmdAdapter {
+	public static interface ICmdImmediateAdapter {
 		/**
 		 * 执行设备命令
 		 * @param input 以值对(key-value)形式提供的输入参数
@@ -298,22 +303,23 @@ dtalk的设备命令由设备命令执行接口([gu.dtalk.CmdItem.ICmdAdapter](.
 		Object apply(Map<String, Object> input) throws CmdExecutionException;
 	}
 
-应用程序实现了设备命令执行接口后，通过`gu.dtalk.CmdItem.setCmdAdapter`方法绑定到指定的设备命令。当设备端收到这个设备命令时就会执行对应的`ICmdAdapter`实例.
+应用程序实现了设备命令执行接口后，通过`gu.dtalk.CmdItem.setCmdAdapter`方法绑定到指定的设备命令。当设备端收到这个设备命令时就会执行对应的`ICmdImmediateAdapter`实例.
 
 该接口实例在`CmdItem`实例中被`gu.dtalk.CmdItem.runCmd`方法调用 
 
 	/**
-	 * 执行命令
+	 * 执行立即命令
 	 * @return
-	 * @throws CmdExecutionException
+	 * @throws CmdExecutionException 设备命令执行异常
 	 */
-	public final Object runCmd() throws CmdExecutionException{
+	public final Object runImmediateCmd() throws CmdExecutionException{
+		checkState(cmdAdapter instanceof ICmdImmediateAdapter,"type of cmdAdapter must be %s",ICmdImmediateAdapter.class.getSimpleName());
 		synchronized (items) {
 			if(cmdAdapter !=null){
 				try {
 					// 将 parameter 转为 Map<String, Object>
 					Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
-					return cmdAdapter.apply(checkRequired(objParams));					
+					return ((ICmdImmediateAdapter)cmdAdapter).apply(checkRequired(objParams));					
 				} finally {
 					reset();
 				}
@@ -321,6 +327,70 @@ dtalk的设备命令由设备命令执行接口([gu.dtalk.CmdItem.ICmdAdapter](.
 			return null;
 		}
 	}
+
+#### 交互设备命令
+
+dtalk的交互设备命令由交互设备命令执行接口([gu.dtalk.ICmdInteractiveAdapter](../dtalk-base/src/main/java/gu/dtalk/ICmdInteractiveAdapter.java))定义.
+
+	/**
+	 * 交互设备命令接口
+	 * @author guyadong
+	 *
+	 */
+	public interface ICmdInteractiveAdapter extends ICmdUnionAdapter {
+		/**
+		 * 执行设备命令
+		 * @param input 以值对(key-value)形式提供的输入参数
+		 * @param listener 状态侦听器，用于向管理端发送命令状态
+		 * @return 命令返回值，没有返回值则返回{@code null}
+		 * @throws InteractiveCmdStartException 当设备命令被拒绝或不支持或其他出错时抛出此异常,通过{@link InteractiveCmdStartException#getStatus() }获取状态类型
+		 */
+		void apply(Map<String, Object> input,ICmdInteractiveStatusListener listener) throws InteractiveCmdStartException;
+		/**
+		 * 取消当前执行的设备命令
+		 * @throws UnsupportedOperationException 设备命令不支持取消
+		 */
+		void cancel() throws UnsupportedOperationException;
+	}
+
+交互设备命令启动时，调用者会提供一个`ICmdInteractiveStatusListener`接口实例，用于设备命令执行时向调用层报告状态
+
+
+	/**
+	 * 命令状态侦听器，用于交互命令向管理端发送命令执行状态
+	 * @author guyadong
+	 */
+	public interface ICmdInteractiveStatusListener{
+		/**
+		 * 返回设备命令完成进度<br>
+		 * 设备命令在执行过程中应该定时调用此方法，以作为心跳发送给管理端，直到任务结束
+		 * @param progress 完成进度(0-100),可为{@code null}
+		 * @param statusMessage 附加状态消息,可为{@code null}
+		 */
+		void onProgress(Integer progress,String statusMessage);
+		/**
+		 * 任务结束,设备命令成功执行完成
+		 * @param value 命令执行返回值,没有返回值则为{@code null}
+		 */
+		void onFinished(Object value);
+		/**
+		 * 任务结束,执行中的设备命令被取消
+		 */
+		void onCaneled();
+		/**
+		 * 任务结束,调用抛出异常
+		 * @param errorMessage 错误信息，可为{@code null}
+		 * @param throwable 异常对象，可为{@code null}
+		 */
+		void onError(String errorMessage, Throwable throwable);
+		/**
+		 * 此方法用于设备命令发送方控制设备端定时报告进度的间隔(秒)，
+		 * 设备端调用此方法获取数值后，用于控制调用{@link #onProgress(Integer, String)}方法的调用间隔
+		 * @return 返回要求的{@link #onProgress(Integer, String)}方法调用间隔(秒)，<=0时，使用设备自定义的默认值
+		 */
+		int getProgressInternal();
+	}
+
 
 ## 任务队列
 
