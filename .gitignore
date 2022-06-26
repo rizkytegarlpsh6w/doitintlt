@@ -11,3 +11,4 @@ target/
 .project
 /dtalk-engine/log
 log/
+.idea/
