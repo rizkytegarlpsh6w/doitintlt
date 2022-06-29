@@ -8,7 +8,7 @@ import static gu.dtalk.CommonConstant.*;
 
 import java.net.URI;
 /**
- * 本机(LOCALHOST)配置默认实现
+ * 本机(LOCALHOST)配置默认实现(仅用于测试)
  * @author guyadong
  *
  */
