@@ -52,6 +52,13 @@
 			    <groupId>eu.agno3.jcifs</groupId>
 			    <artifactId>jcifs-ng</artifactId>
 			    <version>2.1.2</version>
+			    <!-- 因为只用到jcifs-ng的netbios主机名解析功能,所以用不到bcprov-jdk15on提供的加密功能,在这里排除之-->
+			    <exclusions>
+			    	<exclusion>
+						<groupId>org.bouncycastle</groupId>
+						<artifactId>bcprov-jdk15on</artifactId>
+			    	</exclusion>			
+			    </exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
