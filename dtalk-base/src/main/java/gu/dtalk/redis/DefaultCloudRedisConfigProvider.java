@@ -11,7 +11,7 @@ public class DefaultCloudRedisConfigProvider implements RedisConfigProvider {
 
 	@Override
 	public String getHost() {
-		return "dtalk.gdface.net";
+		return "dtalk.gdface.online";
 	}
 
 	@Override
