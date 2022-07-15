@@ -1,7 +1,11 @@
 package gu.dtalk.redis;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
+import redis.clients.util.JedisURIHelper;
+
+import static com.google.common.base.Preconditions.*;
 /**
  * 公有云配置
  * @author guyadong
@@ -9,9 +13,17 @@ import java.net.URI;
  */
 public class DefaultCloudRedisConfigProvider implements RedisConfigProvider {
 
+	private static URI uri ;
+	static{
+		try {
+			uri = new URI("jedis://:86a1b907d54bf7010394bf316e183e67@dtalk.gdface.online:12758/0");
+		} catch (URISyntaxException e) {
+			throw new ExceptionInInitializerError(e);
+		}
+	}
 	@Override
 	public String getHost() {
-		return "dtalk.gdface.online";
+		return uri.getHost();
 	}
 
 	@Override
@@ -21,7 +33,7 @@ public class DefaultCloudRedisConfigProvider implements RedisConfigProvider {
 
 	@Override
 	public int getPort() {
-		return 0;
+		return uri.getPort();
 	}
 
 	@Override
@@ -31,7 +43,7 @@ public class DefaultCloudRedisConfigProvider implements RedisConfigProvider {
 
 	@Override
 	public String getPassword() {
-		return null;
+		return JedisURIHelper.getPassword(uri);
 	}
 
 	@Override
@@ -41,7 +53,7 @@ public class DefaultCloudRedisConfigProvider implements RedisConfigProvider {
 
 	@Override
 	public int getDatabase() {
-		return 0;
+		return JedisURIHelper.getDBIndex(uri);
 	}
 
 	@Override
@@ -58,15 +70,25 @@ public class DefaultCloudRedisConfigProvider implements RedisConfigProvider {
 	public void setTimeout(int timeout) {
 
 	}
+	
+	@Override
 	public URI getURI() {
-		return null;
+		return uri;
 	}
 
+	@Override
 	public void setURI(URI uri) {
 	}
 
 	@Override
 	public final RedisConfigType type(){
 		return RedisConfigType.CLOUD;
+	}
+	/**
+	 * 初始化 uri 
+	 * @param uri 不可为{@code null}
+	 */
+	public static void initURI(URI uri) {
+		DefaultCloudRedisConfigProvider.uri = checkNotNull(uri,"uri is null");
 	}
 }
