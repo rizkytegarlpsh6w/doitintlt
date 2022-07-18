@@ -337,18 +337,5 @@ public class CmdItem extends BaseItem {
 	public boolean isInteractiveCmd(){
 		return cmdAdapter instanceof ICmdInteractiveAdapter;
 	}
-	/**
-	 * 立即执行设备命令执行接口
-	 * @author guyadong
-	 * @deprecated replace by {@link ICmdImmediateAdapter}
-	 */
-	public static interface ICmdAdapter extends ICmdUnionAdapter{
-		/**
-		 * 执行设备命令
-		 * @param input 以值对(key-value)形式提供的输入参数
-		 * @return 命令返回值，没有返回值则返回{@code null}
-		 * @throws CmdExecutionException 命令执行失败
-		 */
-		Object apply(Map<String, Object> input) throws CmdExecutionException;
-	}
+
 }

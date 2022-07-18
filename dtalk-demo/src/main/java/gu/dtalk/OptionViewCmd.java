@@ -8,11 +8,10 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import gu.dtalk.CmdItem;
 import gu.dtalk.OptionType;
 
 
-public class OptionViewCmd implements CmdItem.ICmdAdapter{
+public class OptionViewCmd implements ICmdImmediateAdapter{
 	public static final String QUERY = "query";
 	public OptionViewCmd() {
 		super();

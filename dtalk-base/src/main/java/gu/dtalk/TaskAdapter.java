@@ -13,7 +13,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import gu.dtalk.Ack.Status;
-import gu.dtalk.CmdItem.ICmdAdapter;
 import gu.dtalk.exception.CmdExecutionException;
 import gu.dtalk.exception.UnsupportCmdException;
 import gu.simplemq.Channel;
