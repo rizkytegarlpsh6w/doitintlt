@@ -260,23 +260,18 @@ public class CmdItem extends BaseItem {
 		}
 		return this;
 	}
-	
+	public CmdItem asTaskAdapter(){
+		return asTaskAdapter(taskQueue,TaskAdapter.class);
+	}
 	/**
 	 * 将当前命令作为任务对象注册到指定的任务队列，可以执行队列中的任务<br>
 	 * {@link #cmdAdapter}为{@code null}时无效
 	 * @param queue
 	 * @return 返回当前对象
+	 * @see #asTaskAdapter(String, Class)
 	 */
 	public CmdItem asTaskAdapter(String queue){
-		if(cmdAdapter != null){
-			checkState(cmdAdapter instanceof ICmdImmediateAdapter,"type of cmdAdapter must be %s",ICmdImmediateAdapter.class.getSimpleName());
-
-			new TaskAdapter(queue)
-				.setCmdAdapter((ICmdImmediateAdapter)cmdAdapter)
-				.register();
-			this.taskQueue = queue;
-		}
-		return this;
+		return asTaskAdapter(queue,TaskAdapter.class);
 	}
 	/**
 	 * 将当前命令作为任务对象注册到指定的任务队列，可以执行队列中的任务<br>
@@ -288,6 +283,7 @@ public class CmdItem extends BaseItem {
 	public CmdItem asTaskAdapter(String queue,Class<? extends TaskAdapter> taskAdatperClass){
 		if(cmdAdapter != null){
 			try {
+				checkArgument(queue != null,"queue is null");
 				checkState(cmdAdapter instanceof ICmdImmediateAdapter,"type of cmdAdapter must be %s",ICmdImmediateAdapter.class.getSimpleName());
 
 				checkNotNull(taskAdatperClass,"taskAdatperClass is null")
@@ -303,6 +299,7 @@ public class CmdItem extends BaseItem {
 		}
 		return this;
 	}
+	
 	/**
 	 * @return taskQueue
 	 */
@@ -312,9 +309,11 @@ public class CmdItem extends BaseItem {
 
 	/**
 	 * @param taskQueue 要设置的 taskQueue
+	 * @return 当前对象
 	 */
-	public void setTaskQueue(String taskQueue) {
+	public CmdItem setTaskQueue(String taskQueue) {
 		this.taskQueue = taskQueue;
+		return this;
 	}
 	/**
 	 * @return canceled
