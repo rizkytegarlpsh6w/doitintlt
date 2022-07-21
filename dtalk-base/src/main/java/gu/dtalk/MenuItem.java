@@ -46,7 +46,7 @@ public class MenuItem extends BaseItem {
 		parameters = MoreObjects.firstNonNull(parameters,Collections.<String, Object>emptyMap());
 		CmdItem cmd = findCmd(cmdpath);
 		if(cmd == null){
-			throw new UnsupportCmdException(cmdpath + "is not a cmd item" );
+			throw new UnsupportCmdException(cmdpath + " is not a cmd item" );
 		}
 		return cmd.runImmediateCmd(parameters);
 	}
