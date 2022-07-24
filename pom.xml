@@ -164,6 +164,7 @@
 		<module>dtalk-engine</module>
 		<module>dtalk-demo</module>
 		<module>dtalk-client</module>
+		<module>dtalk-cmd</module>
 	</modules>
 	<licenses>
 		<license>
