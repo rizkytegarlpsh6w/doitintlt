@@ -41,5 +41,28 @@ public class CommonConstant {
 	public static final String OPTION_FIELD_TYPE="type";
 	public static final String OPTION_FIELD_VALUE="value";
 	public static final String OPTION_FIELD_DEFAULT="defaultValue";
+	
+	/** 命令请求扩展字段名: 命令序列号  */
+	public static final String REQ_FIELD_CMDSN ="cmdSn";
+	/** 命令请求扩展字段名: 命令响应频道  */
+	public static final String REQ_FIELD_ACKCHANNEL ="ackChannel";
+	/** 命令请求扩展字段名: 命令参数  */
+	public static final String REQ_FIELD_PARAMETERS ="parameters";
 
+	public enum ReqType{
+		/**  1对1命令 */DEFAULT,
+		/** 1对多的广播命令 */MULTI,
+		/** 任务队列 */TASKQUEUE
+	}
+	/** 
+	 * 命令请求扩展字段名: 命令请求类型<br>
+	 * 有效值:
+	 * <ul>
+	 * <li>DEFAULT -- 1对1命令</li>
+	 * <li>MULTI -- 1对多的广播命令</li>
+	 * <li>TASKQUEUE -- 任务队列</li>
+	 * </ul>
+	 */
+	public static final String REQ_FIELD_REQTYPE ="reqType";
+	
 }

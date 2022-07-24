@@ -157,19 +157,7 @@ public class CmdItem extends BaseItem {
 	 * @throws CmdExecutionException 设备命令执行异常
 	 */
 	public final Object runImmediateCmd() throws CmdExecutionException{
-		checkState(cmdAdapter instanceof ICmdImmediateAdapter,"type of cmdAdapter must be %s",ICmdImmediateAdapter.class.getSimpleName());
-		synchronized (items) {
-			if(cmdAdapter !=null){
-				try {
-					// 将 parameter 转为 Map<String, Object>
-					Map<String, Object> objParams = Maps.transformValues(items, TO_VALUE);
-					return ((ICmdImmediateAdapter)cmdAdapter).apply(checkRequired(objParams));					
-				} finally {
-					reset();
-				}
-			}
-			return null;
-		}
+		return runImmediateCmd(null);
 	}
 	/**
 	 * 执行立即命令
@@ -177,7 +165,7 @@ public class CmdItem extends BaseItem {
 	 * @return
 	 * @throws CmdExecutionException 设备命令执行异常
 	 */
-	final Object runImmediateCmd(Map<String, ?> parameters) throws CmdExecutionException{
+	public final Object runImmediateCmd(Map<String, ?> parameters) throws CmdExecutionException{
 		checkState(cmdAdapter instanceof ICmdImmediateAdapter,"type of cmdAdapter must be %s",ICmdImmediateAdapter.class.getSimpleName());
 		synchronized (items) {			
 			if(cmdAdapter !=null){

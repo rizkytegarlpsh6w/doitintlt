@@ -20,6 +20,7 @@ import gu.dtalk.exception.InteractiveCmdStartException;
 import gu.simplemq.Channel;
 import gu.simplemq.IPublisher;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
+import gu.simplemq.json.JSONObjectDecorator;
 import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
 
@@ -95,7 +96,19 @@ public class ItemEngine implements ItemAdapter{
 	public void onSubscribe(JSONObject jsonObject) throws SmqUnsubscribeException {
 		lasthit = System.currentTimeMillis();
 		boolean isQuit = false;
-		Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK).setDeviceMac(selfMac);
+		JSONObjectDecorator decorator = JSONObjectDecorator.wrap(jsonObject);
+		ReqType reqType = MoreObjects.firstNonNull(
+				decorator.getObjectOrNull(REQ_FIELD_REQTYPE, ReqType.class),
+				ReqType.DEFAULT);
+		boolean multiTarget = ReqType.MULTI == reqType;
+		boolean taskQueue = ReqType.TASKQUEUE == reqType;
+
+		String ackChannelName = decorator.getStringOrNull(REQ_FIELD_ACKCHANNEL);
+		Ack<Object> ack = new Ack<Object>().
+				setStatus(Ack.Status.OK)
+				.setDeviceMac(selfMac)
+				/* 如果 jsonObject中定义了命令序列号则使用该值初始化ack */
+				.setCmdSn(decorator.getLongOrNull(REQ_FIELD_CMDSN));
 		try{
 			BaseItem req = ItemType.parseItem(CommonUtils.normalize(jsonObject, MoreObjects.firstNonNull(currentLevel, root)));
 			BaseItem found = null;
@@ -118,16 +131,23 @@ public class ItemEngine implements ItemAdapter{
 			ack.setItem(found.getPath());
 			switch(found.getCatalog()){
 			case OPTION:{
+				checkState(!taskQueue,"OPTION item unsupport task request");
 				((BaseOption<Object>)found).updateFrom((BaseOption<Object>)req);
 				break;
 			}
 			case CMD:{
 				if(isBack(found)){
+					checkState(!multiTarget,"'back' cmd unsupport multi-target cmd request");
+					checkState(!taskQueue,"'back' cmd unsupport task request");
+
 					//  输出上一级菜单
 					currentLevel = MoreObjects.firstNonNull(found.getParent(),root);
 					ackPublisher.publish(menuChannel, (MenuItem)currentLevel);
 					return;
 				}else if(isQuit(found)){
+					checkState(!multiTarget,"'quit' cmd unsupport multi-target cmd request");
+					checkState(!taskQueue,"'quit' cmd unsupport task request");
+
 					isQuit = true;
 				}else{
 					// 执行命令
@@ -138,6 +158,9 @@ public class ItemEngine implements ItemAdapter{
 							param.updateFrom(reqCmd.getParameter(param.getName()));
 						}
 						if(cmd.isInteractiveCmd()){
+							checkState(!multiTarget,"interactive cmd unsupport multi-target cmd request");
+							checkState(!taskQueue,"interactive cmd  unsupport task request");
+
 							// 启动设备交互命令执行
 							cmd.startInteractiveCmd(listener.init(ack));
 							// 设置为正常启动状态
@@ -147,8 +170,9 @@ public class ItemEngine implements ItemAdapter{
 							// 启动超时检查，避免设备死机造成的锁死
 							startInternalCmdChecker();
 						}else{
+							JSONObject parameters = decorator.getJSONObjectOrNull(REQ_FIELD_PARAMETERS);
 							// 启动设备命令执行
-							ack.setValue(cmd.runImmediateCmd());
+							ack.setValue(cmd.runImmediateCmd(parameters));
 						}
 					}else{
 						// 只有交互设备命令会加锁，加锁状态下只能执行取消命令
@@ -163,6 +187,8 @@ public class ItemEngine implements ItemAdapter{
 				break;
 			}
 			case MENU:{
+				checkState(!multiTarget,"MENU item unsupport multi-target cmd request");
+				checkState(!taskQueue,"MENU item unsupport task request");
 				//  输出当前菜单后直接返回
 				currentLevel = found;
 				ackPublisher.publish(menuChannel, (MenuItem)currentLevel);
@@ -180,8 +206,21 @@ public class ItemEngine implements ItemAdapter{
 			ack.setStatus(Ack.Status.ERROR).setStatusMessage(e.getMessage());
 		}
 		// 向ack频道发送返回值消息
-		if(ackChannel != null){
-			ackPublisher.publish(ackChannel, ack);
+		switch (reqType) {
+		case MULTI:
+		case TASKQUEUE:
+			if(ackChannelName != null){
+				Channel<Ack<Object>> ackChannel = new Channel<Ack<Object>>(
+						ackChannelName,
+						new TypeReference<Ack<Object>>() {}.getType());
+				ackPublisher.publish(ackChannel, ack);
+			}
+			break;
+		default:
+			if(this.ackChannel != null){
+				ackPublisher.publish(this.ackChannel, ack);
+			}
+			break;
 		}
 		if(isQuit){
 			// 取消频道订阅,中断连接
