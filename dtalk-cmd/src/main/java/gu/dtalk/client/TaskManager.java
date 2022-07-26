@@ -2,7 +2,9 @@ package gu.dtalk.client;
 
 import static com.google.common.base.Preconditions.*;
 
+import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 
 import gu.dtalk.DeviceInstruction;
 import gu.simplemq.Channel;
@@ -32,7 +34,9 @@ public class TaskManager extends BaseCmdManager {
         this.taskQueueSupplier = checkNotNull(taskQueueSupplier,"taskQueueSupplier is null");
         this.taskChannelSupplier = new TaskChannelSupplier();
     }
-
+    public TaskManager(JedisPoolLazy poolLazy, String taskQueue) {    	
+    	this(poolLazy, Suppliers.ofInstance(checkNotNull(Strings.emptyToNull(taskQueue),"taskQueue is null or empty")));
+    }
     /**
      * 发送设备命令
      * @param cmd

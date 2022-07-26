@@ -141,6 +141,7 @@ public abstract class BaseCmdManager {
          */
         CmdBuilder apply(){
             if(null == cmdSn){
+            	validate();
                 cmdSn = cmdSnSupplier.get();
             }
             if(null == ackChannel){
@@ -197,8 +198,7 @@ public abstract class BaseCmdManager {
         /** 
          * 指定命令响应通道,参见 {@link DeviceInstruction#setAckChannel(String)} */
         public CmdBuilder setAckChannel(String ackChannel){
-            checkArgument(!Strings.isNullOrEmpty(ackChannel),"ackChannel is null or empty");
-            return this.setAckChannel(Suppliers.ofInstance(ackChannel));
+            return this.setAckChannel(Suppliers.ofInstance(checkNotNull(Strings.emptyToNull(ackChannel),"ackChannel is null or empty")));
         }
         /** 
          * 指定提供命令响应通道的{@code Supplier}实例,
@@ -237,7 +237,7 @@ public abstract class BaseCmdManager {
 	    if(null == TLS_BUILDER.get()){
 	        TLS_BUILDER.set(new CmdBuilder());
 	    }
-	    return TLS_BUILDER.get().validate();
+	    return TLS_BUILDER.get();
 	}
 
 	/** 
@@ -263,13 +263,14 @@ public abstract class BaseCmdManager {
 	 * @return 收到命令的客户端数目
 	 */
 	public long runCmd(String cmdpath, Map<String, Object> params) {
-	    CmdBuilder builder = checkTlsAvailable().apply();
+	    CmdBuilder builder = checkTlsAvailable().validate().apply();
 	    try{
 	        // 所有的命令参数封装到 Map
 	        params = MoreObjects.firstNonNull(params, Collections.<String, Object>emptyMap());
 	        DeviceInstruction deviceInstruction = new DeviceInstruction()
 	                .setCmdpath(cmdpath)
 	                .setCmdSn(builder.cmdSn)
+	                .setTarget(builder.target, builder.group)
 	                .setAckChannel(builder.ackChannel)
 	                .setParameters(params);
 	        return sendCmd(deviceInstruction);
@@ -291,7 +292,7 @@ public abstract class BaseCmdManager {
 	 * @param adapter 命令响应处理对象,不可为{@code null}
 	 */
 	public void runCmd(String cmdpath, Map<String, Object> params, IAckAdapter<Object> adapter) {
-	    CmdBuilder builder = checkTlsAvailable().apply();
+	    CmdBuilder builder = checkTlsAvailable().validate().apply();
 	    checkArgument(!Strings.isNullOrEmpty(builder.ackChannel),"INVALID ackChannel");
 	    Channel<Ack<Object>> channel = new Channel<Ack<Object>>(builder.ackChannel){}
 	        .setAdapter(checkNotNull(adapter,"adapter is null"))

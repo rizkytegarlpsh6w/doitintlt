@@ -19,6 +19,7 @@ public class Ack<T> {
 	private T value;
 	private Status status;
 	private String statusMessage;
+	private String exception;
 	/** 设备命令执行状态 */
 	public enum Status{
 		/** 设备命令成功执行完成 */
@@ -167,12 +168,28 @@ public class Ack<T> {
 		return this;
 	}
 
+	public String getException() {
+		return exception;
+	}
+	public Ack<T> setException(String exception) {
+		this.exception = exception;
+		return this;
+	}
+	
+	public Ack<T> writeError(Throwable e){
+		return setStatus(Status.ERROR).setStatusMessage(e.getMessage()).setException(e.getClass().getName());
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Ack [cmdSn=");
-		builder.append(cmdSn);
-		builder.append(", deviceId=");
+		builder.append("Ack [");
+		if (cmdSn != null) {
+			builder.append("cmdSn=");
+			builder.append(cmdSn);
+			builder.append(", ");
+		}
+		builder.append("deviceId=");
 		builder.append(deviceId);
 		builder.append(", ");
 		if (deviceMac != null) {
@@ -196,11 +213,15 @@ public class Ack<T> {
 			builder.append(", ");
 		}
 		if (statusMessage != null) {
-			builder.append("errorMessage=");
+			builder.append("statusMessage=");
 			builder.append(statusMessage);
+			builder.append(", ");
+		}
+		if (exception != null) {
+			builder.append("exception=");
+			builder.append(exception);
 		}
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

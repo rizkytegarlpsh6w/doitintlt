@@ -103,7 +103,11 @@ public class ItemEngine implements ItemAdapter{
 		boolean multiTarget = ReqType.MULTI == reqType;
 		boolean taskQueue = ReqType.TASKQUEUE == reqType;
 
-		String ackChannelName = decorator.getStringOrNull(REQ_FIELD_ACKCHANNEL);
+		final String ackChannelName = decorator.getStringOrNull(REQ_FIELD_ACKCHANNEL);
+		final JSONObject parameters = decorator.getJSONObjectOrNull(REQ_FIELD_PARAMETERS);
+		// 删除参数字段以避免解析为item对象时抛出异常
+		decorator.remove(REQ_FIELD_PARAMETERS);
+		
 		Ack<Object> ack = new Ack<Object>().
 				setStatus(Ack.Status.OK)
 				.setDeviceMac(selfMac)
@@ -170,7 +174,6 @@ public class ItemEngine implements ItemAdapter{
 							// 启动超时检查，避免设备死机造成的锁死
 							startInternalCmdChecker();
 						}else{
-							JSONObject parameters = decorator.getJSONObjectOrNull(REQ_FIELD_PARAMETERS);
 							// 启动设备命令执行
 							ack.setValue(cmd.runImmediateCmd(parameters));
 						}
@@ -198,21 +201,18 @@ public class ItemEngine implements ItemAdapter{
 				throw new IllegalArgumentException(String.format("UNSUPPORTED CATALOG [%s] of ITEM [%s]",found.getCatalog().name(),found.getPath()));
 			}
 
-		}catch (InteractiveCmdStartException e) {
-			
-			ack.setStatus(e.getStatus()).setStatusMessage(e.getMessage());
+		}catch (InteractiveCmdStartException e) {			
+			ack.writeError(e).setStatus(e.getStatus());
 		}catch(Exception e){
-			e.printStackTrace();
-			ack.setStatus(Ack.Status.ERROR).setStatusMessage(e.getMessage());
+			e.printStackTrace();			
+			ack.writeError(e);
 		}
 		// 向ack频道发送返回值消息
 		switch (reqType) {
 		case MULTI:
 		case TASKQUEUE:
 			if(ackChannelName != null){
-				Channel<Ack<Object>> ackChannel = new Channel<Ack<Object>>(
-						ackChannelName,
-						new TypeReference<Ack<Object>>() {}.getType());
+				Channel<Ack<Object>> ackChannel = new Channel<Ack<Object>>(ackChannelName,Ack.class);
 				ackPublisher.publish(ackChannel, ack);
 			}
 			break;

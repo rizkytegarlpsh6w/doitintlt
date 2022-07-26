@@ -131,7 +131,7 @@ public class CmdItem extends BaseItem {
 	 * @param parameters
 	 * @return
 	 */
-	private CmdItem updateParameter(Map<String, ?> parameters){
+	public CmdItem updateParameter(Map<String, ?> parameters){
 		parameters = MoreObjects.firstNonNull(parameters, Collections.<String, Object>emptyMap());
 		for(BaseOption<Object> param : getParameters()){
 			Object value = cast(parameters.get(param.getName()), param.javaType());
@@ -139,6 +139,7 @@ public class CmdItem extends BaseItem {
 		}	
 		return this;
 	}
+
 	/**
 	 * 参数 检查，如果参数为required,而输入参数中不包含这个参数，则抛出异常
 	 * @param input

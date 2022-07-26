@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.*;
 import static gu.dtalk.CommonConstant.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 
+import gu.dtalk.Ack;
 import gu.dtalk.BaseItem;
 import gu.dtalk.BaseOption;
 import gu.dtalk.CmdItem;
@@ -22,7 +24,9 @@ import gu.dtalk.DeviceInstruction;
 import gu.dtalk.MenuItem;
 import gu.simplemq.Channel;
 import gu.simplemq.IMessageAdapter;
+import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
+import gu.simplemq.redis.RedisPublisher;
 
 /**
  * 设备命令分发器,实现{@link IMessageAdapter}接口,将redis操作与业务逻辑隔离<br>
@@ -48,11 +52,18 @@ public class CmdDispatcher implements IMessageAdapter<DeviceInstruction>{
 	private ItemAdapter itemAdapter ;
 	private ReqType reqType;
 	/**
+	 * 当前设备的MAC地址(HEX字符串)
+	 */
+	private String selfMac;
+	private final RedisPublisher publisher;
+	/**
 	 * 构造方法<br>
 	 *  设备所属的组可能是可以变化的,所以这里需要用{@code Supplier} 接口来动态获取当前设备的设备组
+	 * @param jedisPoolLazy 
 	 * @param deviceId 当前设备ID,应用项目应确保ID是有效的
 	 */
-	public CmdDispatcher(int deviceId) {
+	public CmdDispatcher(JedisPoolLazy jedisPoolLazy, int deviceId) {		
+		this.publisher = RedisFactory.getPublisher(checkNotNull(jedisPoolLazy,"jedisPoolLazy is null"));
 		this.deviceId= deviceId;
 	}
 	/** 判断target列表是否包括当前设备 */
@@ -73,15 +84,21 @@ public class CmdDispatcher implements IMessageAdapter<DeviceInstruction>{
 		checkArgument(!Strings.isNullOrEmpty(path ));
 		JSONObject json = new JSONObject();
 
-		BaseItem item = getRootMenu().findOptionChecked(path);
+		BaseItem item = getRootMenu().findChecked(path);
 		json.fluentPut(ITEM_FIELD_PATH,path)
 			.fluentPut(REQ_FIELD_CMDSN,deviceInstruction.getCmdSn())
 			.fluentPut(REQ_FIELD_ACKCHANNEL, deviceInstruction.getAckChannel())
 			.fluentPut(REQ_FIELD_REQTYPE,  checkNotNull(reqType,"reqType is null"));
-		if(item instanceof BaseOption<?>){
-			json.put(OPTION_FIELD_VALUE, deviceInstruction.getParameters().get(OPTION_FIELD_VALUE));
-		}else if(item instanceof CmdItem){
-			json.put(REQ_FIELD_PARAMETERS, deviceInstruction.getParameters());
+		Map<String, ?> parameters = deviceInstruction.getParameters();
+		if(parameters != null){			
+			if(item instanceof BaseOption<?>){
+				Object value = parameters.get(OPTION_FIELD_VALUE);
+				if(value != null){
+					json.put(OPTION_FIELD_VALUE, value);
+				}
+			}else if(item instanceof CmdItem){
+				json.put(REQ_FIELD_PARAMETERS, parameters);
+			}
 		}
 		if(ackChannelValidator.apply(deviceInstruction.getAckChannel())){
 			json.put(REQ_FIELD_ACKCHANNEL, deviceInstruction.getAckChannel());
@@ -113,9 +130,23 @@ public class CmdDispatcher implements IMessageAdapter<DeviceInstruction>{
 			if(validate(deviceInstruction)){
 				JSONObject itemJson = makeItemJSON(deviceInstruction,reqType);
 				checkNotNull(itemAdapter,"itemAdapter is not initialized").onSubscribe(itemJson);
-			}			
+			}
 		} catch (Exception e) {
+			// 捕获所有异常发到ack响应频道
 			logger.error(e.getMessage());
+			Ack<Object> ack = new Ack<Object>()
+					.setDeviceId(deviceId)
+					.setDeviceMac(selfMac)
+					.setCmdSn(deviceInstruction.getCmdSn())
+					.writeError(e);
+			String ackChannel = deviceInstruction.getAckChannel();
+			if(!Strings.isNullOrEmpty(ackChannel)){
+				try {
+					publisher.publish(new Channel<>(ackChannel, Ack.class), ack);
+				} catch (Exception e2) {
+					logger.error(e2.getMessage());
+				}
+			}			
 		}
 
 	}
@@ -233,5 +264,11 @@ public class CmdDispatcher implements IMessageAdapter<DeviceInstruction>{
 	public CmdDispatcher setGroupIdSupplier(Supplier<Integer> groupIdSupplier) {
 		this.groupIdSupplier = groupIdSupplier;
 		return this;
+	}
+	public String getSelfMac() {
+		return selfMac;
+	}
+	public void setSelfMac(String selfMac) {
+		this.selfMac = selfMac;
 	}
 }
