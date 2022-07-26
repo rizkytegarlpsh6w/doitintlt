@@ -1,10 +1,6 @@
 package gu.dtalk.client;
 
-import static com.google.common.base.Preconditions.*;
-
-import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 
 import gu.dtalk.DeviceInstruction;
 import gu.simplemq.Channel;
@@ -20,9 +16,8 @@ import gu.simplemq.redis.RedisProducer;
  *
  */
 public class TaskManager extends BaseCmdManager {
-    private final Supplier<Channel<DeviceInstruction>> taskChannelSupplier;
-    private final Supplier<String> taskQueueSupplier;
     private final RedisProducer producer;
+	private final FreshedChannelSupplier<DeviceInstruction> channelSupplier;
     /**
      * 构造方法
      * @param poolLazy 
@@ -31,12 +26,9 @@ public class TaskManager extends BaseCmdManager {
     public TaskManager(JedisPoolLazy poolLazy, Supplier<String> taskQueueSupplier) {
     	super(poolLazy);
         this.producer = RedisFactory.getProducer(poolLazy);
-        this.taskQueueSupplier = checkNotNull(taskQueueSupplier,"taskQueueSupplier is null");
-        this.taskChannelSupplier = new TaskChannelSupplier();
+        this.channelSupplier = new FreshedChannelSupplier<DeviceInstruction>(taskQueueSupplier);
     }
-    public TaskManager(JedisPoolLazy poolLazy, String taskQueue) {    	
-    	this(poolLazy, Suppliers.ofInstance(checkNotNull(Strings.emptyToNull(taskQueue),"taskQueue is null or empty")));
-    }
+    
     /**
      * 发送设备命令
      * @param cmd
@@ -44,18 +36,12 @@ public class TaskManager extends BaseCmdManager {
      */
     @Override
     protected long doSendCmd(DeviceInstruction cmd){
-    	String taskChannelName = taskChannelSupplier.toString();
-    	int numSub = RedisConsumer.countOf(taskChannelName);;
-    	if(numSub >0){
-    		producer.produce(this.taskChannelSupplier.get(), cmd);
+    	Channel<DeviceInstruction> channel = channelSupplier.get();
+    	int numSub = RedisConsumer.countOf(channel.name);
+    	if(numSub >0){    		
+    		producer.produce(channel, cmd);
     		return 1;
     	}
     	return 0;
-    }
-    private class TaskChannelSupplier implements Supplier<Channel<DeviceInstruction>>{
-		@Override
-		public Channel<DeviceInstruction> get() {
-			return  new Channel<DeviceInstruction>(taskQueueSupplier.get()){};
-		}    	
     }
 }

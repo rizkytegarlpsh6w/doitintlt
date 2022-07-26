@@ -49,7 +49,12 @@ public class CommonConstant {
 	/** 命令请求扩展字段名: 命令参数  */
 	public static final String REQ_FIELD_PARAMETERS ="parameters";
 
-	public enum ReqType{
+	/**
+	 * 设备命令请求类型
+	 * @author guyadong
+	 *
+	 */
+	public enum ReqCmdType{
 		/**  1对1命令 */DEFAULT,
 		/** 1对多的广播命令 */MULTI,
 		/** 任务队列 */TASKQUEUE

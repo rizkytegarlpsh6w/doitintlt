@@ -52,7 +52,8 @@ import com.google.common.base.Strings;
 public abstract class BaseCmdManager {
 	protected final RedisSubscriber subscriber;
 	protected final RedisPublisher publisher;
-    
+    private Supplier<Long> cmdSnSupplier;
+    private Supplier<String> ackChannelSupplier = Suppliers.ofInstance(null);
 	public BaseCmdManager(JedisPoolLazy poolLazy) {
 		checkArgument(poolLazy != null,"poolLazy is null");
         this.publisher = RedisFactory.getPublisher(poolLazy);
@@ -65,20 +66,6 @@ public abstract class BaseCmdManager {
      * @return 收到命令的客户端数目
      */
 	protected abstract long doSendCmd(DeviceInstruction cmd);
-    /**
-     * 发送设备命令<br>
-     * 发送前最后检查数据有效性
-     * @param cmd
-     * @return 收到命令的客户端数目
-     */
-    protected final long sendCmd(DeviceInstruction cmd){
-        checkArgument(null != cmd,"cmd is null");
-        checkArgument(null != cmd.getCmdpath(),"DeviceInstruction.cmdpath field must not be null");
-        if(null == cmd.getParameters()){
-            cmd.setParameters(ImmutableMap.<String,Object>of());
-        }
-        return doSendCmd(cmd);
-    }
     /**
      * 用于处理超时等待的{@link Ack}对象<br>
      * 向{@link Ack}对象发送超时错误{@link Ack.Status#TIMEOUT}
@@ -124,15 +111,13 @@ public abstract class BaseCmdManager {
      * 设备命令参数构建工具类,用于设置{@link DeviceInstruction}对象除{@code cmd,parameters}字段之的其他字段,可以被不同的设备命令复用
      * @author guyadong
      */
-    public static class CmdBuilder{       
+    public class CmdBuilder{       
         List<Integer> target;
         boolean group;
-        Supplier<Long> cmdSnSupplier;
-        Supplier<String> ackChannelSupplier = Suppliers.ofInstance(null);
-        Long cmdSn = null;
-        String ackChannel = null;
         /** 命令发送后是否自动清除TLS变量 */
         boolean autoRemove = true;
+		private String ackChannel;
+		private Long cmdSn;
         private CmdBuilder(){
         }
         /**
@@ -140,26 +125,12 @@ public abstract class BaseCmdManager {
          * @return
          */
         CmdBuilder apply(){
-            if(null == cmdSn){
-            	validate();
-                cmdSn = cmdSnSupplier.get();
-            }
-            if(null == ackChannel){
-                ackChannel = ackChannelSupplier.get();
-            }
+        	validate();
+            cmdSn = checkNotNull(cmdSnSupplier.get(),"cmdSn is null");
+            ackChannel = ackChannelSupplier.get();
             return this;
         }
-        /**
-         * 将 {@link #apply()}获取的命令序列号和响应通道值清除，
-         * 当需要反复使用当前builder实例发送设备命令时需要调用此方法重置状态，
-         * 以便下次发送设备命令时，apply 方法重新申请新的设备命令和序列号
-         * @return
-         */
-        public CmdBuilder resetApply(){
-            cmdSn = null;
-            ackChannel  = null;
-            return this;
-        }
+
         /** 指定目标ID(设备/设备组)列表,参见 {@link DeviceInstruction#setTarget(List, boolean)} */
         public CmdBuilder setTarget(List<Integer> target,boolean group){
             this.target = target;
@@ -182,33 +153,7 @@ public abstract class BaseCmdManager {
         public CmdBuilder setDeviceGroupTarget(int... target){
             return setDeviceGroupTarget(Ints.asList(target));
         }
-        /** 指定命令序列号,参见 {@link DeviceInstruction#setCmdSn(long)} */
-        public CmdBuilder setCmdSn(long cmdSn) {
-            return setCmdSn(Suppliers.ofInstance(cmdSn));
-        }
-        /** 
-         * 指定提供命令序列号的{@code Supplier}实例
-         * @see IFaceLogClient#getAckChannelSupplier(Token)
-         */
-        public CmdBuilder setCmdSn(Supplier<Long> cmdSnSupplier) {
-            this.cmdSnSupplier = checkNotNull(cmdSnSupplier);
-            this.cmdSn = null;
-            return this;
-        }
-        /** 
-         * 指定命令响应通道,参见 {@link DeviceInstruction#setAckChannel(String)} */
-        public CmdBuilder setAckChannel(String ackChannel){
-            return this.setAckChannel(Suppliers.ofInstance(checkNotNull(Strings.emptyToNull(ackChannel),"ackChannel is null or empty")));
-        }
-        /** 
-         * 指定提供命令响应通道的{@code Supplier}实例,
-         * @see IFaceLogClient#getAckChannelSupplier(Token)
-         */
-        public CmdBuilder setAckChannel(Supplier<String> ackChannelSupplier){
-            this.ackChannelSupplier = checkNotNull(ackChannelSupplier);
-            this.ackChannel = null;
-            return this;
-        }
+
         /**
          * @param autoRemove 为{@code true}时,完成设备命令发送后自动清除Thread Local Storage变量{@link CmdManager#TLS_BUILDER},
          *                                    默认值为{@code true}
@@ -220,7 +165,7 @@ public abstract class BaseCmdManager {
         /** 数据有效性验证 
          * @return */
         private CmdBuilder validate(){
-            checkState(null != cmdSnSupplier,"cmdSn is uninitialized");
+            checkState(null != cmdSnSupplier,"cmdSnSupplier is uninitialized");
             return this;
         }
     } 
@@ -254,16 +199,35 @@ public abstract class BaseCmdManager {
 	    return checkNotNull(TLS_BUILDER.get(),
 	            "not defined target,please call method targetBuilder() to build parameters");
 	}
-
+    /** 
+     * 指定提供命令序列号的{@code Supplier}实例
+     */
+    public BaseCmdManager setCmdSn(Supplier<Long> cmdSnSupplier) {
+        this.cmdSnSupplier = checkNotNull(cmdSnSupplier);
+        return this;
+    }
+    /** 
+     * 指定命令响应通道,参见 {@link DeviceInstruction#setAckChannel(String)} */
+    public BaseCmdManager setAckChannel(String ackChannel){
+        return this.setAckChannel(Suppliers.ofInstance(checkNotNull(Strings.emptyToNull(ackChannel),"ackChannel is null or empty")));
+    }
+    /** 
+     * 指定提供命令响应通道的{@code Supplier}实例,
+     */
+    public BaseCmdManager setAckChannel(Supplier<String> ackChannelSupplier){
+        this.ackChannelSupplier = checkNotNull(ackChannelSupplier);
+        return this;
+    }
 	/**
-	 * 设备命令(异步调用)<br>
+     * 发送设备命令<br>
+     * 将设备命令数据封装为{@link DeviceInstruction}对象并执行数据发送，
+     * 发送前最后检查数据有效性
 	 * @param cmdpath 设备命令名(全路径)
 	 * @param params 设备命令参数对象, {@code 参数名(key)->参数值(value)映射},没有参数可为{@code null}
-	 * @return 
+	 * @param builder
 	 * @return 收到命令的客户端数目
 	 */
-	public long runCmd(String cmdpath, Map<String, Object> params) {
-	    CmdBuilder builder = checkTlsAvailable().validate().apply();
+	private long sendCmd(String cmdpath, Map<String, Object> params,CmdBuilder builder) {
 	    try{
 	        // 所有的命令参数封装到 Map
 	        params = MoreObjects.firstNonNull(params, Collections.<String, Object>emptyMap());
@@ -273,26 +237,42 @@ public abstract class BaseCmdManager {
 	                .setTarget(builder.target, builder.group)
 	                .setAckChannel(builder.ackChannel)
 	                .setParameters(params);
-	        return sendCmd(deviceInstruction);
+	        checkArgument(null != deviceInstruction,"cmd is null");
+	        checkArgument(null != deviceInstruction.getCmdpath(),"DeviceInstruction.cmdpath field must not be null");
+	        if(null == deviceInstruction.getParameters()){
+	            deviceInstruction.setParameters(ImmutableMap.<String,Object>of());
+	        }
+	        return doSendCmd(deviceInstruction);
 	    }finally{
 	        if(builder.autoRemove){
 	            removeTlsTarget(); 
 	        }
 	    }
 	}
+	/**
+	 * 设备命令(异步调用)<br>
+	 * @param cmdpath 设备命令名(全路径)
+	 * @param params 设备命令参数对象, {@code 参数名(key)->参数值(value)映射},没有参数可为{@code null}
+	 * @return 
+	 * @return 收到命令的客户端数目
+	 */
+	public long runCmd(String cmdpath, Map<String, Object> params) {
+	    CmdBuilder builder = checkTlsAvailable().apply();
+	    return sendCmd(cmdpath, params, builder);
+	}
 
 	/**
 	 * 设备命令(异步调用)<br>
-	 * 该方法会自动将命令响应通道名({@link CmdBuilder#setAckChannel(String)})
+	 * 该方法会自动将命令响应通道名({@link #setAckChannel(String)})
 	 * 关联命令处理对象({@code adapter})注册到REDIS订阅频道,当有收到设备命令响应时自动交由{@code adapter}处理<br>
-	 * 该方法要求必须指定命令响应通道,参见{@link CmdBuilder#setAckChannel(String)},{@link CmdBuilder#setAckChannel(Supplier)}
+	 * 该方法要求必须指定命令响应通道,参见{@link #setAckChannel(String)},{@link #setAckChannel(Supplier)}
 	 * 
 	 * @param cmdpath 设备命令名(全路径)
 	 * @param params 设备命令参数对象, {@code 参数名(key)->参数值(value)映射},没有参数可为{@code null}
 	 * @param adapter 命令响应处理对象,不可为{@code null}
 	 */
 	public void runCmd(String cmdpath, Map<String, Object> params, IAckAdapter<Object> adapter) {
-	    CmdBuilder builder = checkTlsAvailable().validate().apply();
+	    CmdBuilder builder = checkTlsAvailable().apply();
 	    checkArgument(!Strings.isNullOrEmpty(builder.ackChannel),"INVALID ackChannel");
 	    Channel<Ack<Object>> channel = new Channel<Ack<Object>>(builder.ackChannel){}
 	        .setAdapter(checkNotNull(adapter,"adapter is null"))
@@ -302,7 +282,7 @@ public abstract class BaseCmdManager {
 	            adapter.getDuration(),
 	            TimeUnit.MILLISECONDS
 	            );
-	    long clientNum =  runCmd(cmdpath,params);
+	    long clientNum =  sendCmd(cmdpath,params,builder);
 	   if(0 == clientNum){
             // 如果没有接收端收到命令则立即注销频道 
             subscriber.unregister(channel);
@@ -331,6 +311,22 @@ public abstract class BaseCmdManager {
 	        throw new AckTimtoutException();
 	    }
 	    return adapter.acks;
+	}
+	/**
+	 * 将当前对象转为子类
+	 * @return 当前对象
+	 */
+	@SuppressWarnings("unchecked")
+	public final <T extends BaseCmdManager> T self(){
+		return (T) this;
+	}
+	/**
+	 * 将当前对象转为指定的子类
+	 * @param clazz
+	 * @return 当前对象
+	 */
+	public final <T extends BaseCmdManager> T self(Class<T> clazz){
+		return checkNotNull(clazz,"clazz is null").cast(this);
 	}
 }
 

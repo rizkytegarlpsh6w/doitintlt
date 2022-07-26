@@ -2,8 +2,9 @@ package gu.dtalk.client;
 
 import static com.google.common.base.Preconditions.*;
 
+import com.google.common.base.Supplier;
+
 import gu.dtalk.DeviceInstruction;
-import gu.simplemq.Channel;
 import gu.simplemq.redis.JedisPoolLazy;
 
 /**
@@ -13,15 +14,15 @@ import gu.simplemq.redis.JedisPoolLazy;
  *
  */
 public class CmdManager extends BaseCmdManager{
-    private final Channel<DeviceInstruction> cmdChannel;
+    private final FreshedChannelSupplier<DeviceInstruction> channelSupplier;
     /**
      * 构造方法
      * @param poolLazy 
-     * @param cmdChannelName 命令频道名
+     * @param cmdChannelSupplier 命令频道名
      */
-    public CmdManager(JedisPoolLazy poolLazy, String cmdChannelName) {
+    public CmdManager(JedisPoolLazy poolLazy, Supplier<String> cmdChannelSupplier) {
     	super(poolLazy);
-        this.cmdChannel = new Channel<DeviceInstruction>(cmdChannelName){};
+    	this.channelSupplier = new FreshedChannelSupplier<DeviceInstruction>(cmdChannelSupplier);
     }
 
     /**
@@ -31,7 +32,7 @@ public class CmdManager extends BaseCmdManager{
     protected long doSendCmd(DeviceInstruction cmd){
         checkArgument(null != cmd.getTarget() && !cmd.getTarget().isEmpty(),"DeviceInstruction.target field must not be null");
 
-        return publisher.publish(this.cmdChannel, cmd);
+        return publisher.publish(channelSupplier.get(), cmd);
     }
 
 }

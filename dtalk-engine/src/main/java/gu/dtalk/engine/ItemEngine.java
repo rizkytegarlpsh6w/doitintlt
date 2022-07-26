@@ -1,7 +1,6 @@
 package gu.dtalk.engine;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.MoreObjects;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -48,7 +47,7 @@ import org.slf4j.LoggerFactory;
 public class ItemEngine implements ItemAdapter{
 	private static final Logger logger = LoggerFactory.getLogger(ItemEngine.class);
 	private MenuItem root = new RootMenu(); 
-	private IPublisher ackPublisher;
+	private IPublisher publisher;
 	private Channel<Ack<Object>> ackChannel;
 	private BaseItem currentLevel;
 	/**
@@ -82,7 +81,7 @@ public class ItemEngine implements ItemAdapter{
 				}
 		}};
 	public ItemEngine(JedisPoolLazy pool) {
-		ackPublisher = RedisFactory.getPublisher(pool);
+		publisher = RedisFactory.getPublisher(pool);
 		this.scheduledExecutor =new ScheduledThreadPoolExecutor(1,
 				new ThreadFactoryBuilder().setNameFormat("cmddog-pool-%d").build());	
 		this.timerExecutor = MoreExecutors.getExitingScheduledExecutorService(	scheduledExecutor);
@@ -97,11 +96,11 @@ public class ItemEngine implements ItemAdapter{
 		lasthit = System.currentTimeMillis();
 		boolean isQuit = false;
 		JSONObjectDecorator decorator = JSONObjectDecorator.wrap(jsonObject);
-		ReqType reqType = MoreObjects.firstNonNull(
-				decorator.getObjectOrNull(REQ_FIELD_REQTYPE, ReqType.class),
-				ReqType.DEFAULT);
-		boolean multiTarget = ReqType.MULTI == reqType;
-		boolean taskQueue = ReqType.TASKQUEUE == reqType;
+		ReqCmdType reqType = MoreObjects.firstNonNull(
+				decorator.getObjectOrNull(REQ_FIELD_REQTYPE, ReqCmdType.class),
+				ReqCmdType.DEFAULT);
+		boolean multiTarget = ReqCmdType.MULTI == reqType;
+		boolean taskQueue = ReqCmdType.TASKQUEUE == reqType;
 
 		final String ackChannelName = decorator.getStringOrNull(REQ_FIELD_ACKCHANNEL);
 		final JSONObject parameters = decorator.getJSONObjectOrNull(REQ_FIELD_PARAMETERS);
@@ -146,7 +145,7 @@ public class ItemEngine implements ItemAdapter{
 
 					//  输出上一级菜单
 					currentLevel = MoreObjects.firstNonNull(found.getParent(),root);
-					ackPublisher.publish(menuChannel, (MenuItem)currentLevel);
+					publisher.publish(menuChannel, (MenuItem)currentLevel);
 					return;
 				}else if(isQuit(found)){
 					checkState(!multiTarget,"'quit' cmd unsupport multi-target cmd request");
@@ -194,16 +193,16 @@ public class ItemEngine implements ItemAdapter{
 				checkState(!taskQueue,"MENU item unsupport task request");
 				//  输出当前菜单后直接返回
 				currentLevel = found;
-				ackPublisher.publish(menuChannel, (MenuItem)currentLevel);
+				publisher.publish(menuChannel, (MenuItem)currentLevel);
 				return;
 			}
 			default:
 				throw new IllegalArgumentException(String.format("UNSUPPORTED CATALOG [%s] of ITEM [%s]",found.getCatalog().name(),found.getPath()));
 			}
 
-		}catch (InteractiveCmdStartException e) {			
+		} catch (InteractiveCmdStartException e) {			
 			ack.writeError(e).setStatus(e.getStatus());
-		}catch(Exception e){
+		} catch(Exception e){
 			e.printStackTrace();			
 			ack.writeError(e);
 		}
@@ -213,12 +212,12 @@ public class ItemEngine implements ItemAdapter{
 		case TASKQUEUE:
 			if(ackChannelName != null){
 				Channel<Ack<Object>> ackChannel = new Channel<Ack<Object>>(ackChannelName,Ack.class);
-				ackPublisher.publish(ackChannel, ack);
+				publisher.publish(ackChannel, ack);
 			}
 			break;
 		default:
 			if(this.ackChannel != null){
-				ackPublisher.publish(this.ackChannel, ack);
+				publisher.publish(this.ackChannel, ack);
 			}
 			break;
 		}
@@ -234,11 +233,11 @@ public class ItemEngine implements ItemAdapter{
 	}
 
 	public ItemEngine setRoot(MenuItem root) {
-		this.root = checkNotNull(root);
+		this.root = checkNotNull(root,"root is null");
 		// 自动添加退出命令在最后
 		if(this.root.getChild(QUIT_NAME)==null){
 			CmdItem quit = CommonUtils.makeQuit();
-			((MenuItem)root).addChilds(quit);
+			root.addChilds(quit);
 		}
 		return this;
 	}
@@ -252,7 +251,7 @@ public class ItemEngine implements ItemAdapter{
 	public void setAckChannel(String name){
 		ackChannel = new Channel<Ack<Object>>(
 				name,
-				new TypeReference<Ack<Object>>() {}.getType());
+				Ack.class);
 		menuChannel = new Channel<MenuItem>(
 				name,
 				MenuItem.class);	
@@ -294,7 +293,7 @@ public class ItemEngine implements ItemAdapter{
 			try {
 				lastProgress = System.currentTimeMillis();
 				ack.setStatus(Status.PROGRESS).setValue(progress).setStatusMessage(statusMessage);
-				ackPublisher.publish(ackChannel, ack);
+				publisher.publish(ackChannel, ack);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}		
@@ -306,7 +305,7 @@ public class ItemEngine implements ItemAdapter{
 				// 命令解锁
 				cmdLock = null;
 				ack.setStatus(Status.OK).setValue(value);
-				ackPublisher.publish(ackChannel, ack);
+				publisher.publish(ackChannel, ack);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
@@ -318,7 +317,7 @@ public class ItemEngine implements ItemAdapter{
 				// 命令解锁
 				cmdLock = null;
 				ack.setStatus(Status.CANCELED);
-				ackPublisher.publish(ackChannel, ack);
+				publisher.publish(ackChannel, ack);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
@@ -340,7 +339,7 @@ public class ItemEngine implements ItemAdapter{
 				if(buffer.length() >0){
 					ack.setStatusMessage(buffer.toString());
 				}
-				ackPublisher.publish(ackChannel, ack);	
+				publisher.publish(ackChannel, ack);	
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
@@ -359,7 +358,7 @@ public class ItemEngine implements ItemAdapter{
 				// 命令解锁
 				cmdLock = null;
 				ack.setStatus(Status.TIMEOUT);
-				ackPublisher.publish(ackChannel, ack);
+				publisher.publish(ackChannel, ack);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}

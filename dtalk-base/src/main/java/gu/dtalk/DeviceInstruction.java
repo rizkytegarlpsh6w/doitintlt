@@ -3,6 +3,11 @@ package gu.dtalk;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 /**
  * 设备命令数据<br>
  * 此类对象将做为设备命令经redis服务器发送到设备端,
@@ -16,7 +21,7 @@ public class DeviceInstruction{
 	private List<Integer> target;
 	private boolean group;
 	private String ackChannel;
-	private Map<String, ?> parameters;
+	private Map<String, Object> parameters;
 	public DeviceInstruction() {
 	}
 
@@ -32,11 +37,9 @@ public class DeviceInstruction{
 		return cmdSn;
 	}
 	/**
-	 * 设置唯一的命令序列号,每一次设备命令执行都应该要求一个唯一的序列号,
-	 * 以便于命令响应端区分命令响应对象{@link net.gdface.facelog.mq.Ack}来源
+	 * 设置唯一的命令序列号
 	 * @param cmdSn
-	 * @return 
-	 * @see net.gdface.facelog.client.IFaceLogClient#applyCmdSn(net.gdface.facelog.client.thrift.Token)
+	 * @return 当前对象
 	 */
 	public DeviceInstruction setCmdSn(long cmdSn) {
 		this.cmdSn = cmdSn;
@@ -50,10 +53,11 @@ public class DeviceInstruction{
 	/**
 	 * 设置执行命令的设备组或设备ID,类型由{@link #setGroup(boolean)}确定
 	 * @param target
-	 * @return
+	 * @return 当前对象
 	 */
 	public DeviceInstruction setTarget(List<Integer> target) {
-		this.target = target;
+		// 过滤掉所有为null元素
+		this.target = target == null ? null : Lists.newLinkedList(Iterables.filter(target, Predicates.notNull()));
 		return this;
 	}
 	/**
@@ -75,7 +79,7 @@ public class DeviceInstruction{
 	/**
 	 * 指定目标类型为设备组或设备{@link #setTarget(List)}
 	 * @param group 目标类型:{@code true}:设备组,{@code false}:设备
-	 * @return
+	 * @return 当前对象
 	 */
 	public DeviceInstruction setGroup(boolean group) {
 		this.group = group;
@@ -85,29 +89,43 @@ public class DeviceInstruction{
 		return ackChannel;
 	}
 	/**
-	 * 设置用于接收设备命令响应{@link net.gdface.facelog.mq.Ack}的通道,
+	 * 设置用于接收设备命令响应的通道,
 	 * 如果不指定命令响应通道,则命令发送方法无法知道命令执行状态,
 	 * 每一次设备命令发送都应该有一个唯一的命令响应接受通道,以便于命令发送方区命令响应来源
 	 * @param ackChannel
-	 * @return
-	 * @see net.gdface.facelog.client.IFaceLogClient#applyAckChannel(net.gdface.facelog.client.thrift.Token)
+	 * @return 当前对象
 	 */
 	public DeviceInstruction setAckChannel(String ackChannel) {
 		this.ackChannel = ackChannel;
 		return this;
 	}
-	public Map<String, ?> getParameters() {
+	/**
+	 * @return 返回设备命令参数
+	 */
+	public Map<String, Object> getParameters() {
 		return parameters;
 	}
 	/**
-	 * 设置设备命令参数,参数个数,类型由{@link Cmd}定义
+	 * 
+	 * 设置设备命令参数
 	 * @param parameters
-	 * @return
-	 * @see CommandAdapter
+	 * @return 当前对象
 	 */
-	public DeviceInstruction setParameters(Map<String,?> parameters) {
+	public DeviceInstruction setParameters(Map<String,Object> parameters) {
 		this.parameters = parameters;
 		return this;
 	}
-
+	/**
+	 * 设置设备命令参数
+	 * @param key
+	 * @param value
+	 * @return 当前对象
+	 */
+	public DeviceInstruction withParameters(String key,Object value) {
+		if(this.parameters == null){
+			this.parameters = Maps.newHashMap();
+		}
+		this.parameters.put(key, value);
+		return this;
+	}
 }
