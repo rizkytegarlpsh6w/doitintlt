@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.*;
 import static gu.dtalk.CommonConstant.*;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -14,6 +13,9 @@ import com.google.common.base.Predicates;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+
 import gu.dtalk.Ack;
 import gu.dtalk.BaseItem;
 import gu.dtalk.BaseOption;
@@ -36,6 +38,7 @@ import gu.simplemq.redis.RedisPublisher;
 public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstruction>{
     private static final Logger logger = LoggerFactory.getLogger(BaseDispatcher.class);
 
+    private static final Supplier<String> NULL_SUPPLIER = Suppliers.ofInstance(null);
 	protected final int deviceId;
 	/** 命令请求类型 */
 	protected final ReqCmdType reqType;
@@ -50,6 +53,9 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 	 * 当前设备的MAC地址(HEX字符串)
 	 */
 	private String selfMac;
+	private Supplier<String> channelSupplier = NULL_SUPPLIER;
+	private boolean enable = true;
+	private volatile Channel<DeviceInstruction> channel;
 	/**
 	 * 构造方法<br>
 	 * @param deviceId 当前设备ID,应用项目应确保ID是有效的
@@ -147,28 +153,22 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 	}
 	protected abstract void doRegister(Channel<DeviceInstruction> channel);
 	protected abstract void doUnregister(String channel);
-	protected abstract Set<String> doUnregisterAll();
 	/**
 	 * 当前对象注册到指定的频道,重复注册无效
-	 * @param name 设备命令通道名/任务队列名
 	 * @return 当前对象
 	 */
-	public BaseDispatcher register(String name){
-		if(!Strings.isNullOrEmpty(name)){
-			Channel<DeviceInstruction> ch = new Channel<>(name,DeviceInstruction.class,this);
-			doRegister(ch);
-		}
-		return this;
-	}
-	/**
-	 * 当前对象注销设备命令频道
-	 * @param name 设备命令通道名/任务队列名
-	 * @return 当前对象
-	 */
-	public BaseDispatcher unregister(String name){
-		if(!Strings.isNullOrEmpty(name)){
-			doUnregister(name);
-			logger.debug("unregister cmd channel {}",name);		
+	public BaseDispatcher register(){
+		// double check
+		if(channel == null){
+			synchronized (this) {
+				if(channel == null){
+					checkState(channelSupplier != NULL_SUPPLIER,"channelSupplier is uninitialized");
+					String name = channelSupplier.get();
+					checkState(!Strings.isNullOrEmpty(name),"INVALID channel name from channelSupplier");
+					channel = new Channel<>(name,DeviceInstruction.class,this);
+					doRegister(channel);
+				}				
+			}
 		}
 		return this;
 	}
@@ -176,9 +176,16 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 	 * 注销所有使用当前对象作处理器的频道
 	 * @return 当前对象
 	 */
-	public BaseDispatcher unregisterAll(){
-		Set<String> chSet = doUnregisterAll();
-		logger.debug("unregister cmd channels {}",chSet);
+	public BaseDispatcher unregister(){
+		if(channel != null){
+			synchronized (this) {
+				if(channel != null){
+					doUnregister(channel.name);
+					logger.debug("unregister cmd channels {}",channel.name);
+					channel = null;
+				}
+			}
+		}
 		return this;
 	}
 	/**
@@ -196,12 +203,12 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 	 * 设置程序退出时自动执行{@link #unregisterAll()}
 	 * @return 当前对象
 	 */
-	public BaseDispatcher autoUnregisterAll(){
+	public BaseDispatcher autoUnregister(){
 		if(this.autoUnregisterCmdChannel.compareAndSet(false, true)){
 			Runtime.getRuntime().addShutdownHook(new Thread(){
 				@Override
 				public void run() {
-					unregisterAll();
+					unregister();
 				}
 			});
 		}
@@ -259,5 +266,24 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 	 */
 	public final <T extends BaseDispatcher> T self(Class<T> clazz){
 		return checkNotNull(clazz,"clazz is null").cast(this);
+	}
+	public Supplier<String> getChannelSupplier() {
+		return channelSupplier;
+	}
+	public BaseDispatcher setChannelSupplier(Supplier<String> channelSupplier) {
+		this.channelSupplier = checkNotNull(channelSupplier,"channelSupplier is null");
+		return this;
+	}
+	public boolean isEnable() {
+		return enable;
+	}
+	public BaseDispatcher setEnable(boolean enable) {
+		this.enable = enable;
+		if(enable){
+			register();
+		}else{
+			unregister();
+		}
+		return this;
 	}
 }

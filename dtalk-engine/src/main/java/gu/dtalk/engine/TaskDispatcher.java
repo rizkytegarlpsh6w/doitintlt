@@ -1,7 +1,5 @@
 package gu.dtalk.engine;
 
-import java.util.Set;
-
 import gu.dtalk.CommonConstant.ReqCmdType;
 import gu.dtalk.DeviceInstruction;
 import gu.simplemq.Channel;
@@ -33,11 +31,6 @@ public class TaskDispatcher extends BaseDispatcher {
 	@Override
 	protected void doUnregister(String channel) {
 		RedisFactory.getConsumer().unregister(channel);
-	}
-
-	@Override
-	protected Set<String> doUnregisterAll() {
-		return RedisFactory.getConsumer().unregister(this);
 	}
 
 
