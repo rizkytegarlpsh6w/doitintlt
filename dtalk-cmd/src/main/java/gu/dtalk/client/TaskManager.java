@@ -28,7 +28,7 @@ import com.google.common.base.Strings;
 public class TaskManager extends BaseCmdManager {
     private final RedisProducer producer;
 	private final String cmdpath;
-	private final FreshedChannelSupplier<DeviceInstruction> channelSupplier;
+	private final FreshedChannelSupplier channelSupplier;
     /**
      * 构造方法
      * @param poolLazy 
@@ -39,7 +39,7 @@ public class TaskManager extends BaseCmdManager {
     	super(poolLazy);
         this.producer = RedisFactory.getProducer(poolLazy);
         this.cmdpath = checkNotNull(Strings.emptyToNull(cmdpath),"cmdpath is null or empty");
-        this.channelSupplier = new FreshedChannelSupplier<DeviceInstruction>(taskQueueSupplier);
+        this.channelSupplier = new FreshedChannelSupplier(taskQueueSupplier);
     }
     
     /**

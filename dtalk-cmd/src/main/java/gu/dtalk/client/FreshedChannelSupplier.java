@@ -6,11 +6,12 @@ import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 
+import gu.dtalk.DeviceInstruction;
 import gu.simplemq.Channel;
 
-public class FreshedChannelSupplier<T> implements Supplier<Channel<T>>{
+public class FreshedChannelSupplier implements Supplier<Channel<DeviceInstruction>>{
 	private final Supplier<String> taskQueueSupplier;
-	private Channel<T> taskChannel;
+	private Channel<DeviceInstruction> taskChannel;
 	public FreshedChannelSupplier(Supplier<String> taskQueueSupplier) {
 		this.taskQueueSupplier = checkNotNull(taskQueueSupplier,"taskQueueSupplier is null");
 	}
@@ -18,10 +19,10 @@ public class FreshedChannelSupplier<T> implements Supplier<Channel<T>>{
 		this(Suppliers.ofInstance(checkNotNull(Strings.emptyToNull(taskQueue),"taskQueue is null or empty")));
 	}
 	@Override
-    public Channel<T> get(){
+    public Channel<DeviceInstruction> get(){
     	String name = checkNotNull(taskQueueSupplier.get(),"taskQueue provided by taskQueueSupplier  is null");
     	if(taskChannel == null || !taskChannel.name.equals(name)){
-    		Channel<T> ch = new Channel<T>(name){};
+    		Channel<DeviceInstruction> ch = new Channel<DeviceInstruction>(name){};
     		taskChannel = ch;
     	}
     	return taskChannel;

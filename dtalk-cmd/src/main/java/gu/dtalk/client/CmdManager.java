@@ -14,7 +14,7 @@ import gu.simplemq.redis.JedisPoolLazy;
  *
  */
 public class CmdManager extends BaseCmdManager{
-    private final FreshedChannelSupplier<DeviceInstruction> channelSupplier;
+    private final FreshedChannelSupplier channelSupplier;
     /**
      * 构造方法
      * @param poolLazy 
@@ -22,7 +22,7 @@ public class CmdManager extends BaseCmdManager{
      */
     public CmdManager(JedisPoolLazy poolLazy, Supplier<String> cmdChannelSupplier) {
     	super(poolLazy);
-    	this.channelSupplier = new FreshedChannelSupplier<DeviceInstruction>(cmdChannelSupplier);
+    	this.channelSupplier = new FreshedChannelSupplier(cmdChannelSupplier);
     }
 
     /**
