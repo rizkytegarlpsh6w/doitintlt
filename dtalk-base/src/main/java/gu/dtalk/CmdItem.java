@@ -12,7 +12,6 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -249,46 +248,6 @@ public class CmdItem extends BaseItem {
 		}
 		return this;
 	}
-	public CmdItem asTaskAdapter(){
-		return asTaskAdapter(taskQueue,TaskAdapter.class);
-	}
-	/**
-	 * 将当前命令作为任务对象注册到指定的任务队列，可以执行队列中的任务<br>
-	 * {@link #cmdAdapter}为{@code null}时无效
-	 * @param queue
-	 * @return 返回当前对象
-	 * @see #asTaskAdapter(String, Class)
-	 */
-	public CmdItem asTaskAdapter(String queue){
-		return asTaskAdapter(queue,TaskAdapter.class);
-	}
-	/**
-	 * 将当前命令作为任务对象注册到指定的任务队列，可以执行队列中的任务<br>
-	 * {@link #cmdAdapter}为{@code null}时无效
-	 * @param taskAdatperClass 任务对象类,必须有(String)构造方法,应用层可以继承{@link TaskAdapter}
-	 * 	重写{@link TaskAdapter#makeAck(Object, Exception, String, Long)}方法,返回不同的响应对象
-	 * @return 返回当前对象
-	 */
-	public CmdItem asTaskAdapter(String queue,Class<? extends TaskAdapter> taskAdatperClass){
-		if(cmdAdapter != null){
-			try {
-				checkArgument(queue != null,"queue is null");
-				checkState(cmdAdapter instanceof ICmdImmediateAdapter,"type of cmdAdapter must be %s",ICmdImmediateAdapter.class.getSimpleName());
-
-				checkNotNull(taskAdatperClass,"taskAdatperClass is null")
-					.getConstructor(String.class)
-					.newInstance(queue)
-					.setCmdAdapter((ICmdImmediateAdapter)cmdAdapter)
-					.register();
-				this.taskQueue = queue;
-			} catch (Exception e) {
-				Throwables.throwIfUnchecked(e);
-				throw new RuntimeException(e);
-			}
-		}
-		return this;
-	}
-	
 	/**
 	 * @return taskQueue
 	 */
