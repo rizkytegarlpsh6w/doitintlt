@@ -2,7 +2,6 @@ package gu.dtalk.client;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
 
 import gu.dtalk.Ack;
@@ -26,7 +25,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 /**
  * 
@@ -121,11 +119,12 @@ public abstract class BaseCmdManager {
         private CmdBuilder(){
         }
         /**
-         * 调用{@link Supplier}实例获取当前设备命令需要的序列号和响应通道
-         * @return
+         * 调用{@link Supplier}实例获取当前设备命令需要的序列号和响应通道,
+         * 此方法每次调用获取的命令序列号都不同，所以不可以随意调用
+         * @return 当前对象
          */
         CmdBuilder apply(){
-        	validate();
+        	checkState(null != cmdSnSupplier,"cmdSnSupplier is uninitialized");
             cmdSn = checkNotNull(cmdSnSupplier.get(),"cmdSn is null");
             ackChannel = ackChannelSupplier.get();
             return this;
@@ -162,12 +161,6 @@ public abstract class BaseCmdManager {
             this.autoRemove = autoRemove;
             return this;
         }
-        /** 数据有效性验证 
-         * @return */
-        private CmdBuilder validate(){
-            checkState(null != cmdSnSupplier,"cmdSnSupplier is uninitialized");
-            return this;
-        }
     } 
 
 	/** 
@@ -194,12 +187,7 @@ public abstract class BaseCmdManager {
 	    return this;
 	}
 
-	/** 检查是否创建了{@link CmdBuilder}对象没有则抛出异常 */
-	private static final CmdBuilder checkTlsAvailable() {
-	    return checkNotNull(TLS_BUILDER.get(),
-	            "not defined target,please call method targetBuilder() to build parameters");
-	}
-    /** 
+	/** 
      * 指定提供命令序列号的{@code Supplier}实例
      */
     public BaseCmdManager setCmdSn(Supplier<Long> cmdSnSupplier) {
@@ -224,43 +212,36 @@ public abstract class BaseCmdManager {
      * 发送前最后检查数据有效性
 	 * @param cmdpath 设备命令名(全路径)
 	 * @param params 设备命令参数对象, {@code 参数名(key)->参数值(value)映射},没有参数可为{@code null}
-	 * @param builder
 	 * @return 收到命令的客户端数目
 	 */
-	private long sendCmd(String cmdpath, Map<String, Object> params,CmdBuilder builder) {
-	    try{
-	        // 所有的命令参数封装到 Map
-	        params = MoreObjects.firstNonNull(params, Collections.<String, Object>emptyMap());
+	private long sendCmd(String cmdpath, Map<String, Object> params) {
+        checkArgument(!Strings.isNullOrEmpty(cmdpath),"cmdpath must not be null or empty");
+	    CmdBuilder builder = targetBuilder();
+		try{
 	        DeviceInstruction deviceInstruction = new DeviceInstruction()
 	                .setCmdpath(cmdpath)
 	                .setCmdSn(builder.cmdSn)
 	                .setTarget(builder.target, builder.group)
 	                .setAckChannel(builder.ackChannel)
 	                .setParameters(params);
-	        checkArgument(null != deviceInstruction,"cmd is null");
-	        checkArgument(null != deviceInstruction.getCmdpath(),"DeviceInstruction.cmdpath field must not be null");
-	        if(null == deviceInstruction.getParameters()){
-	            deviceInstruction.setParameters(ImmutableMap.<String,Object>of());
-	        }
 	        return doSendCmd(deviceInstruction);
 	    }finally{
 	        if(builder.autoRemove){
 	            removeTlsTarget(); 
 	        }
 	    }
-	}
+	}	
 	/**
-	 * 设备命令(异步调用)<br>
+     * 发送设备命令<br>
+     * 发送前申请命令序列号和响应频道
 	 * @param cmdpath 设备命令名(全路径)
 	 * @param params 设备命令参数对象, {@code 参数名(key)->参数值(value)映射},没有参数可为{@code null}
-	 * @return 
 	 * @return 收到命令的客户端数目
 	 */
 	public long runCmd(String cmdpath, Map<String, Object> params) {
-	    CmdBuilder builder = checkTlsAvailable().apply();
-	    return sendCmd(cmdpath, params, builder);
-	}
-
+		targetBuilder().apply();
+        return sendCmd(cmdpath, params);
+	}	
 	/**
 	 * 设备命令(异步调用)<br>
 	 * 该方法会自动将命令响应通道名({@link #setAckChannel(String)})
@@ -272,23 +253,23 @@ public abstract class BaseCmdManager {
 	 * @param adapter 命令响应处理对象,不可为{@code null}
 	 */
 	public void runCmd(String cmdpath, Map<String, Object> params, IAckAdapter<Object> adapter) {
-	    CmdBuilder builder = checkTlsAvailable().apply();
-	    checkArgument(!Strings.isNullOrEmpty(builder.ackChannel),"INVALID ackChannel");
-	    Channel<Ack<Object>> channel = new Channel<Ack<Object>>(builder.ackChannel){}
-	        .setAdapter(checkNotNull(adapter,"adapter is null"))
-	        .addUnregistedListener(new TimeoutCleaner<Object>());
-	    subscriber.register(
-	            channel,
-	            adapter.getDuration(),
-	            TimeUnit.MILLISECONDS
-	            );
-	    long clientNum =  sendCmd(cmdpath,params,builder);
-	   if(0 == clientNum){
-            // 如果没有接收端收到命令则立即注销频道 
-            subscriber.unregister(channel);
-        }else{
-            adapter.setClientNum(clientNum);
-        }
+		CmdBuilder builder = targetBuilder().apply();
+		checkArgument(!Strings.isNullOrEmpty(builder.ackChannel),"INVALID ackChannel");
+		Channel<Ack<Object>> channel = new Channel<Ack<Object>>(builder.ackChannel){}
+		.setAdapter(checkNotNull(adapter,"adapter is null"))
+		.addUnregistedListener(new TimeoutCleaner<Object>());
+		subscriber.register(
+				channel,
+				adapter.getDuration(),
+				TimeUnit.MILLISECONDS
+				);
+		long clientNum =  sendCmd(cmdpath,params);
+		if(0 == clientNum){
+			// 如果没有接收端收到命令则立即注销频道 
+			subscriber.unregister(channel);
+		}else{
+			adapter.setClientNum(clientNum);
+		}
 	}
 
 	/**
