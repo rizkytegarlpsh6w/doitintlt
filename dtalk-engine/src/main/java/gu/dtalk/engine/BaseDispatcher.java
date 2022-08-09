@@ -47,7 +47,7 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 	/**  是否自动注销标志 */
 	private final AtomicBoolean autoUnregisterCmdChannel = new AtomicBoolean(false);
 	/** 设备命令序列号验证器 */
-	protected Predicate<Long> cmdSnValidator = Predicates.alwaysTrue();
+	protected Predicate<Integer> cmdSnValidator = Predicates.alwaysTrue();
 	private ItemAdapter itemAdapter ;
 	/**
 	 * 当前设备的MAC地址(HEX字符串)
@@ -143,7 +143,7 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 	 * @return 验证通过返回{@code true},否则返回{@code false}
 	 */
 	protected boolean validate(DeviceInstruction deviceInstruction){
-		Long cmdSn = deviceInstruction.getCmdSn();
+		int cmdSn = deviceInstruction.getCmdSn();
 		// 设备命令序列号有效才执行设备命令
 		if(!cmdSnValidator.apply(cmdSn)){
 			logger.warn("INVALID cmd serial number: {}",cmdSn);
@@ -193,7 +193,7 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 	 * @param cmdSnValidator 为{@code null}无效
 	 * @return 当前对象
 	 */
-	public BaseDispatcher setCmdSnValidator(Predicate<Long> cmdSnValidator) {
+	public BaseDispatcher setCmdSnValidator(Predicate<Integer> cmdSnValidator) {
 		if(null != cmdSnValidator){
 			this.cmdSnValidator = cmdSnValidator;
 		}

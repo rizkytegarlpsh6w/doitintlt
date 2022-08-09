@@ -50,7 +50,7 @@ import com.google.common.base.Strings;
 public abstract class BaseCmdManager {
 	protected final RedisSubscriber subscriber;
 	protected final RedisPublisher publisher;
-    private Supplier<Long> cmdSnSupplier;
+    private Supplier<Integer> cmdSnSupplier;
     private Supplier<String> ackChannelSupplier = Suppliers.ofInstance(null);
 	public BaseCmdManager(JedisPoolLazy poolLazy) {
 		checkArgument(poolLazy != null,"poolLazy is null");
@@ -115,7 +115,7 @@ public abstract class BaseCmdManager {
         /** 命令发送后是否自动清除TLS变量 */
         boolean autoRemove = true;
 		private String ackChannel;
-		private Long cmdSn;
+		private Integer cmdSn;
         private CmdBuilder(){
         }
         /**
@@ -190,7 +190,7 @@ public abstract class BaseCmdManager {
 	/** 
      * 指定提供命令序列号的{@code Supplier}实例
      */
-    public BaseCmdManager setCmdSn(Supplier<Long> cmdSnSupplier) {
+    public BaseCmdManager setCmdSn(Supplier<Integer> cmdSnSupplier) {
         this.cmdSnSupplier = checkNotNull(cmdSnSupplier);
         return this;
     }

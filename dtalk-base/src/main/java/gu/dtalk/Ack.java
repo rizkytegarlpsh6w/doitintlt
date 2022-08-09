@@ -12,7 +12,7 @@ import com.google.common.base.Strings;
  * @param <T> 设备命令执行返回结果类型
  */
 public class Ack<T> {
-	private Long cmdSn;
+	private Integer cmdSn;
 	private int deviceId;
 	private String deviceMac;
 	private String item;
@@ -77,10 +77,10 @@ public class Ack<T> {
 		return buffer.toString();
 	}
 	/** 返回设备命令序列号 */
-	public Long getCmdSn() {
+	public Integer getCmdSn() {
 		return cmdSn;
 	}
-	public Ack<T> setCmdSn(Long cmdSn) {
+	public Ack<T> setCmdSn(Integer cmdSn) {
 		this.cmdSn = cmdSn;
 		return this;
 	}

@@ -17,7 +17,7 @@ import com.google.common.collect.Maps;
  */
 public class DeviceInstruction{
 	private String cmdpath;
-	private long cmdSn;
+	private int cmdSn;
 	private List<Integer> target;
 	private boolean group;
 	private String ackChannel;
@@ -33,7 +33,7 @@ public class DeviceInstruction{
 		return this;
 	}
 	/** 设置要执行的设备命令类型 */
-	public long getCmdSn() {
+	public int getCmdSn() {
 		return cmdSn;
 	}
 	/**
@@ -41,7 +41,7 @@ public class DeviceInstruction{
 	 * @param cmdSn
 	 * @return 当前对象
 	 */
-	public DeviceInstruction setCmdSn(long cmdSn) {
+	public DeviceInstruction setCmdSn(int cmdSn) {
 		this.cmdSn = cmdSn;
 		return this;
 	}

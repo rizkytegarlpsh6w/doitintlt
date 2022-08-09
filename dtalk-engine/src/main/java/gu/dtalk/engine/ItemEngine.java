@@ -111,7 +111,7 @@ public class ItemEngine implements ItemAdapter{
 				setStatus(Ack.Status.OK)
 				.setDeviceMac(selfMac)
 				/* 如果 jsonObject中定义了命令序列号则使用该值初始化ack */
-				.setCmdSn(decorator.getLongOrNull(REQ_FIELD_CMDSN));
+				.setCmdSn(decorator.getIntegerOrNull(REQ_FIELD_CMDSN));
 		try{
 			BaseItem req = ItemType.parseItem(CommonUtils.normalize(jsonObject, MoreObjects.firstNonNull(currentLevel, root)));
 			BaseItem found = null;
