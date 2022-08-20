@@ -28,7 +28,7 @@ import com.google.common.base.Strings;
  */
 public class TaskManager extends BaseCmdManager {
     private final RedisProducer producer;
-	private Supplier<Channel<DeviceInstruction>> channelSupplier;
+	private Supplier<Channel<DeviceInstruction>> taskQueueSupplier;
     private String cmdpath;
 	/**
      * 构造方法
@@ -46,7 +46,7 @@ public class TaskManager extends BaseCmdManager {
      */
     public TaskManager(JedisPoolLazy poolLazy, Supplier<String> taskQueueSupplier) {
     	this(poolLazy);
-        this.channelSupplier = new FreshedChannelSupplier(taskQueueSupplier);
+        this.taskQueueSupplier = new FreshedChannelSupplier(taskQueueSupplier);
     }
     /**
 	 * 构造方法
@@ -95,35 +95,35 @@ public class TaskManager extends BaseCmdManager {
 	/**
 	 * @return channelSupplier
 	 */
-	public Supplier<Channel<DeviceInstruction>> getChannelSupplier() {
-		return channelSupplier;
+	public Supplier<Channel<DeviceInstruction>> getTaskQueueSupplier() {
+		return taskQueueSupplier;
 	}
 	/**
-	 * @param channelSupplier 要设置的 channelSupplier
+	 * @param taskQueueSupplier 要设置的 channelSupplier
 	 * @return 当前对象
 	 */
-	public TaskManager setChannelSupplier(Supplier<Channel<DeviceInstruction>> channelSupplier) {
-		this.channelSupplier = checkNotNull(channelSupplier,"channelSupplier is null");
+	public TaskManager setTaskQueueSupplier(Supplier<Channel<DeviceInstruction>> taskQueueSupplier) {
+		this.taskQueueSupplier = checkNotNull(taskQueueSupplier,"taskQueueSupplier is null");
 		return this;
 	}
 	/**
 	 * @param taskQueue 任务队列名
 	 * @return 当前对象
 	 */
-	public TaskManager setChannel(String taskQueue) {
+	public TaskManager setTaskQueue(String taskQueue) {
 		Channel<DeviceInstruction> channel = 
-				new Channel<>(checkNotNull(Strings.emptyToNull(taskQueue),"channel is null or empty"),DeviceInstruction.class);
-		return setChannelSupplier(Suppliers.ofInstance(channel));
+				new Channel<>(checkNotNull(Strings.emptyToNull(taskQueue),"taskQueue is null or empty"),DeviceInstruction.class);
+		return setTaskQueueSupplier(Suppliers.ofInstance(channel));
 	}
 	/**
      * 发送设备命令
      * @param cmd
-     * @return 收到命令的客户端数目
+     * @return 1--成功提交任务,0--任务提交失败
      */
     @Override
     protected long doSendCmd(DeviceInstruction cmd){
-    	Channel<DeviceInstruction> channel = checkNotNull(channelSupplier,"channelSupplier is uninitialized").get();
-    	int numSub = RedisConsumer.countOf(checkNotNull(channel,"channel from channelSupplier is null ").name);
+    	Channel<DeviceInstruction> channel = checkNotNull(taskQueueSupplier,"taskQueueSupplier is uninitialized").get();
+    	int numSub = RedisConsumer.countOf(checkNotNull(channel,"taskQueue from taskQueueSupplier is null ").name);
     	if(numSub >0){    		
     		producer.produce(channel, cmd);
     		return 1;
@@ -143,7 +143,7 @@ public class TaskManager extends BaseCmdManager {
 	 * @deprecated replaced by {@link #runCmd(Map)}
 	 */
 	@Override
-	public long runCmd(String cmdpath, Map<String, Object> params) {
+	public int runCmd(String cmdpath, Map<String, Object> params) {
 		checkCmdPath(cmdpath);
 		return super.runCmd(cmdpath, params);
 	}
@@ -169,10 +169,17 @@ public class TaskManager extends BaseCmdManager {
 		return super.runCmdSync(cmdpath, params, throwIfTimeout);
 	}
 	/**
+	 * @param params
+	 * @return
+	 */
+	/**
+     * 发送设备命令<br>
+	 * @param params 
+	 * @return 任务成功提交返回{@code true},否则返回{@code false}
 	 * @see gu.dtalk.client.BaseCmdManager#runCmd(java.lang.String, java.util.Map)
 	 */
-	public long runCmd(Map<String, Object> params) {
-		return super.runCmd(checkCmdpath(), params);
+	public boolean runCmd(Map<String, Object> params) {
+		return 1 == super.runCmd(checkCmdpath(), params);
 	}
 
 	/**

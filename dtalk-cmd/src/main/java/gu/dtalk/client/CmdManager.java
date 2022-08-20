@@ -42,7 +42,10 @@ public class CmdManager extends BaseCmdManager{
     public CmdManager(String cmdChannel) {
     	this(Suppliers.ofInstance(checkNotNull(Strings.emptyToNull(cmdChannel),"cmdChannel is null or empty")));
     }
-    /**
+    public CmdManager(JedisPoolLazy jedisPoolLazy, String cmdChannel) {
+    	this(jedisPoolLazy,Suppliers.ofInstance(checkNotNull(Strings.emptyToNull(cmdChannel),"cmdChannel is null or empty")));
+	}
+	/**
      * 发送前检查target是否有定义，未定义则抛出异常
      */
     @Override

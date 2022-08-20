@@ -11,6 +11,7 @@ import gu.dtalk.exception.AckTimtoutException;
 import gu.simplemq.Channel;
 import gu.simplemq.IUnregistedListener;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
+import gu.simplemq.json.BaseJsonEncoder;
 import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
 import gu.simplemq.redis.RedisPublisher;
@@ -25,6 +26,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Strings;
 /**
  * 
@@ -125,8 +128,12 @@ public abstract class BaseCmdManager {
          */
         CmdBuilder apply(){
         	checkState(null != cmdSnSupplier,"cmdSnSupplier is uninitialized");
-            cmdSn = checkNotNull(cmdSnSupplier.get(),"cmdSn is null");
-            ackChannel = ackChannelSupplier.get();
+        	if(cmdSn != null){
+        		cmdSn = checkNotNull(cmdSnSupplier.get(),"cmdSn is null");
+        	}
+        	if(Strings.isNullOrEmpty(ackChannel)){
+        		ackChannel = ackChannelSupplier.get();
+        	}
             return this;
         }
 
@@ -161,6 +168,18 @@ public abstract class BaseCmdManager {
             this.autoRemove = autoRemove;
             return this;
         }
+		/**
+		 * @param ackChannel 要设置的 ackChannel
+		 * @return 
+		 */
+		public CmdBuilder setAckChannel(String ackChannel) {
+			this.ackChannel = ackChannel;
+			return this;
+		}
+		public CmdBuilder setCmdSn(int cmdSn) {
+			this.cmdSn = cmdSn;		
+			return this;
+		}
     } 
 
 	/** 
@@ -238,9 +257,9 @@ public abstract class BaseCmdManager {
 	 * @param params 设备命令参数对象, {@code 参数名(key)->参数值(value)映射},没有参数可为{@code null}
 	 * @return 收到命令的客户端数目
 	 */
-	public long runCmd(String cmdpath, Map<String, Object> params) {
+	public int runCmd(String cmdpath, Map<String, Object> params) {
 		targetBuilder().apply();
-        return sendCmd(cmdpath, params);
+        return (int) sendCmd(cmdpath, params);
 	}	
 	/**
 	 * 设备命令(异步调用)<br>
@@ -308,6 +327,14 @@ public abstract class BaseCmdManager {
 	 */
 	public final <T extends BaseCmdManager> T self(Class<T> clazz){
 		return checkNotNull(clazz,"clazz is null").cast(this);
+	}
+	/**
+	 * 输入的map中value(JSON格式的字符串)解析为object
+	 * @param input value为JSON字符串的map对象
+	 * @return
+	 */
+	public static Map<String, Object> parseValue(Map<String, String> input){
+		return BaseJsonEncoder.getEncoder().fromJson(JSON.toJSONString(input),JSONObject.class);
 	}
 }
 
