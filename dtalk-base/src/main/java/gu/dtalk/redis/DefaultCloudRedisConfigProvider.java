@@ -16,7 +16,7 @@ public class DefaultCloudRedisConfigProvider implements RedisConfigProvider {
 	private static URI uri ;
 	static{
 		try {
-			uri = new URI("jedis://:86a1b907d54bf7010394bf316e183e67@dtalk.gdface.online:12758/0");
+			uri = new URI("jedis://:86a1b907d54bf7010394bf316e183e67@dtalk.facelib.net:26416/0");
 		} catch (URISyntaxException e) {
 			throw new ExceptionInInitializerError(e);
 		}
