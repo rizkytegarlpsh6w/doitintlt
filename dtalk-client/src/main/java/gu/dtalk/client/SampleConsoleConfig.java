@@ -10,8 +10,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
 import gu.dtalk.OptionType;
-import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.JedisPoolLazy.PropName;
+import gu.simplemq.redis.JedisUtils;
 import net.gdface.cli.BaseAppConfig;
 import static redis.clients.jedis.Protocol.*;
 
@@ -26,7 +26,7 @@ import static com.google.common.base.Preconditions.*;
  */
 public class SampleConsoleConfig extends BaseAppConfig implements SampleConsoleConstants {
 	static final SampleConsoleConfig CONSOLE_CONFIG = new SampleConsoleConfig();
-	private final Map<PropName, Object> redisParameters = JedisPoolLazy.initParameters(null);
+	private final Map<PropName, Object> redisParameters = JedisUtils.initParameters(null);
 
 	private String password;
 	private String mac;

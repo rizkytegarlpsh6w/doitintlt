@@ -8,8 +8,8 @@ import org.apache.commons.cli.ParseException;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 
-import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.JedisPoolLazy.PropName;
+import gu.simplemq.redis.JedisUtils;
 import net.gdface.cli.BaseAppConfig;
 import static redis.clients.jedis.Protocol.*;
 
@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class DemoConfig extends BaseAppConfig implements DemoConstants {
 	static final DemoConfig DEMO_CONFIG = new DemoConfig();
-	private final Map<PropName, Object> redisParameters = JedisPoolLazy.initParameters(null);
+	private final Map<PropName, Object> redisParameters = JedisUtils.initParameters(null);
 
 	private boolean trace;
 	public DemoConfig() {
