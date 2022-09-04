@@ -109,7 +109,7 @@ public abstract class BaseCmdManager {
 	    }
 	}
 	/** 
-     * 设备命令参数构建工具类,用于设置{@link DeviceInstruction}对象除{@code cmd,parameters}字段之的其他字段,可以被不同的设备命令复用
+     * 设备命令参数构建工具类,用于设置命令目标，命令序列号，命令响应频道
      * @author guyadong
      */
     public class CmdBuilder{       
@@ -253,7 +253,7 @@ public abstract class BaseCmdManager {
 	/**
      * 发送设备命令<br>
      * 发送前申请命令序列号和响应频道
-	 * @param cmdpath 设备命令名(全路径)
+	 * @param cmdpath 设备命令名(dtalk全路径)
 	 * @param params 设备命令参数对象, {@code 参数名(key)->参数值(value)映射},没有参数可为{@code null}
 	 * @return 收到命令的客户端数目
 	 */
@@ -267,7 +267,7 @@ public abstract class BaseCmdManager {
 	 * 关联命令处理对象({@code adapter})注册到REDIS订阅频道,当有收到设备命令响应时自动交由{@code adapter}处理<br>
 	 * 该方法要求必须指定命令响应通道,参见{@link #setAckChannel(String)},{@link #setAckChannel(Supplier)}
 	 * 
-	 * @param cmdpath 设备命令名(全路径)
+	 * @param cmdpath 设备命令名(dtalk全路径)
 	 * @param params 设备命令参数对象, {@code 参数名(key)->参数值(value)映射},没有参数可为{@code null}
 	 * @param adapter 命令响应处理对象,不可为{@code null}
 	 */
@@ -294,7 +294,7 @@ public abstract class BaseCmdManager {
 	/**
 	 * 设备命令(同步调用)<br>
 	 * 
-	 * @param cmdpath 设备命令名(全路径)
+	 * @param cmdpath 设备命令名(dtalk全路径)
 	 * @param params 设备命令参数对象, {@code 参数名(key)->参数值(value)映射},没有参数可为{@code null}
 	 * @param throwIfTimeout 当响应超时时，是否抛出{@link AckTimtoutException}异常
 	 * @return 设备端返回的所有命令响应对象
