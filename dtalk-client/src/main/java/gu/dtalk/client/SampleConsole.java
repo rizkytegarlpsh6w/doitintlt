@@ -51,15 +51,7 @@ public class SampleConsole extends BaseConsole {
 		CONSOLE_CONFIG.parseCommandLine(args);
 		DefaultCustomRedisConfigProvider.initredisParameters(CONSOLE_CONFIG.getRedisParameters());
 		System.out.println("Text terminal for Device Talk is starting(设备交互字符终端启动)");
-		String devmac = null;
-		// 如果命令行提供了设备mac地址，则尝试解析该参数
-		if(args.length > 1){
-			devmac = parseMac(args[0]);
-			if(devmac.isEmpty()){
-				System.out.printf("ERROR:Invalid mac adress %s\n",devmac);
-				return ;
-			}
-		}
+		String devmac = CONSOLE_CONFIG.getMac();
 		// 否则提示输入命令行参数
 		if(Strings.isNullOrEmpty(devmac)){
 			devmac = inputMac();
