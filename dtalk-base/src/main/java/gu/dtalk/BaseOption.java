@@ -149,7 +149,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	 */
 	public void updateFrom(T value){
 		checkState(!isReadOnly(),"READONLY VALUE");
-		checkArgument(validate(value),"INVALID VALUE");		
+		checkArgument(valueValidator.apply(value),"INVALID VALUE");		
 		setValue(value);
 	}
 	/**
