@@ -127,8 +127,9 @@ public abstract class BaseCmdManager {
          * @return 当前对象
          */
         CmdBuilder apply(){
-        	checkState(null != cmdSnSupplier,"cmdSnSupplier is uninitialized");
         	if(cmdSn != null){
+            	checkState(null != cmdSnSupplier,"cmdSnSupplier is uninitialized");
+            	// 命令行序列号不可为空
         		cmdSn = checkNotNull(cmdSnSupplier.get(),"cmdSn is null");
         	}
         	if(Strings.isNullOrEmpty(ackChannel)){
