@@ -12,3 +12,4 @@ target/
 /dtalk-engine/log
 log/
 .idea/
+.iml
