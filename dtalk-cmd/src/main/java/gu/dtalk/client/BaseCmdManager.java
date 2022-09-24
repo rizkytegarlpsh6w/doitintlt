@@ -11,7 +11,6 @@ import gu.dtalk.exception.AckTimtoutException;
 import gu.simplemq.Channel;
 import gu.simplemq.IUnregistedListener;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
-import gu.simplemq.json.BaseJsonEncoder;
 import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
 import gu.simplemq.redis.RedisPublisher;
@@ -26,8 +25,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Strings;
 /**
  * 
@@ -328,14 +325,6 @@ public abstract class BaseCmdManager {
 	 */
 	public final <T extends BaseCmdManager> T self(Class<T> clazz){
 		return checkNotNull(clazz,"clazz is null").cast(this);
-	}
-	/**
-	 * 输入的map中value(JSON格式的字符串)解析为object
-	 * @param input value为JSON字符串的map对象
-	 * @return
-	 */
-	public static Map<String, Object> parseValue(Map<String, String> input){
-		return BaseJsonEncoder.getEncoder().fromJson(JSON.toJSONString(input),JSONObject.class);
 	}
 }
 
