@@ -40,6 +40,15 @@ public class ItemBuilder<T extends BaseItem> {
 	public ItemBuilder<T> hide(){
 		return hide(true);
 	}
+	public ItemBuilder<T> needReset(boolean needReset) {
+		if(item instanceof CmdItem){
+			((CmdItem)item).setNeedReset(needReset);
+		}
+		return this;
+	}
+	public ItemBuilder<T> needReset() {
+		return needReset(true);
+	}
 	public ItemBuilder<T> description(String description) {
 		item.setDescription(description);
 		return this;

@@ -38,6 +38,10 @@ public abstract class BaseOption<T> extends BaseItem {
 	 */
 	private boolean readOnly;
 	/**
+	 * 修改此选项值时会不会导致应用重启
+	 */
+	private boolean needReset;
+	/**
 	 * 当前选项的java类型
 	 */
 	protected final Type type;
@@ -92,6 +96,21 @@ public abstract class BaseOption<T> extends BaseItem {
 	 */
 	public BaseOption<T> setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
+		return this;
+	}
+	/**
+	 * @return needReset
+	 */
+	public boolean isNeedReset() {
+		return needReset;
+	}
+	/**
+	 * 设置修改此选项值时会不会导致应用重启
+	 * @param needReset 要设置的 needReset
+	 * @return 
+	 */
+	public BaseOption<T> setNeedReset(boolean needReset) {
+		this.needReset = needReset;
 		return this;
 	}
 	@Override

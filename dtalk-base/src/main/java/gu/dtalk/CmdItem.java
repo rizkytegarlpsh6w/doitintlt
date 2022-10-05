@@ -60,6 +60,10 @@ public class CmdItem extends BaseItem {
 	 * 此字段默认为{@code null}，为{@code true}时，指示取消正在执行的设备命令,仅对支持交互的设备命令有效
 	 */
 	private Boolean canceled;
+	/**
+	 * 执行此命令时会不会导致应用重启
+	 */
+	private boolean needReset;
 	public CmdItem() {
 	}
 
@@ -277,6 +281,23 @@ public class CmdItem extends BaseItem {
 		this.canceled = canceled;
 	}
 	
+	/**
+	 * @return needReset
+	 */
+	public boolean isNeedReset() {
+		return needReset;
+	}
+
+	/**
+	 * 设置执行此命令时会不会导致应用重启
+	 * @param needReset 要设置的 needReset
+	 * @return 
+	 */
+	public CmdItem setNeedReset(boolean needReset) {
+		this.needReset = needReset;
+		return this;
+	}
+
 	/**
 	 * @return 返回是否为交互设备命令
 	 */

@@ -46,6 +46,16 @@ public class OptionBuilder<T,O extends BaseOption<T>> {
 		option.setReadOnly(readOnly);
 		return this;
 	}
+	public OptionBuilder<T,O> readonly() {
+		return readonly(true);
+	}
+	public OptionBuilder<T,O> needReset(boolean needReset) {
+		option.setNeedReset(needReset);
+		return this;
+	}
+	public OptionBuilder<T,O> needReset() {
+		return needReset(true);
+	}
 	public OptionBuilder<T,O> required(boolean required) {
 		option.setRequired(required);
 		return this;
