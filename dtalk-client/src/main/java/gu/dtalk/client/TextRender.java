@@ -10,7 +10,6 @@ import gu.dtalk.Ack;
 import gu.dtalk.BaseItem;
 import gu.dtalk.BaseOption;
 import gu.dtalk.CheckOption;
-import gu.dtalk.CmdItem;
 import gu.dtalk.MenuItem;
 import gu.dtalk.Ack.Status;
 
@@ -61,10 +60,6 @@ public class TextRender implements IMessageRender {
 				content = MoreObjects.firstNonNull(option.contentOfValue(),"");
 				// 只读标志
 				acc = option.isReadOnly() ? "R" : acc;
-			}else if (item instanceof CmdItem){
-				CmdItem cmd = (CmdItem)item;
-				// task任务标志
-				acc = (Strings.isNullOrEmpty(cmd.getTaskQueue()) || item.isDisable()) ? acc : "T"; 
 			}
 			if(!content.isEmpty()){
 				content = ": " +content;

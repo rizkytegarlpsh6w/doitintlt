@@ -243,10 +243,11 @@ dtalk默认的实现方式是密码验证
 |empty| 是否有子条目,即childs中元素不为0,当catalog为OPTION时,恒为0|Y|Y|Y|
 |type|选项的类型,可选的值参见《OPTION类型说明》||Y||
 |readOnly|是否为只读的选项,当catalog为CMD时,恒为false||Y||
+|needReset|会不会导致应用重启||Y|Y|
 |required|是否为必须的选项，默认值:false||Y||
 |value|选项值||Y||
 |defaultValue|选项默认值||Y||
-|taskQueue|任务队列名,该字段不为空时,对象支持队列任务|||Y|
+
 
 NOTE:上表中后三列为Y，代表此字段适合该类型的菜单条目
 

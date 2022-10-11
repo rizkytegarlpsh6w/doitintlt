@@ -48,13 +48,7 @@ public class CmdItem extends BaseItem {
 	};
 	@JSONField(serialize = false,deserialize = false)
 	private ICmdUnionAdapter cmdAdapter;
-	
-	/**
-	 * 任务队列名<br>
-	 * 该字段不为空时，对象支持队列任务
-	 */
-	@JSONField(serialize = false,deserialize = false)
-	private String taskQueue;
+
 	/**
 	 * 取消正在执行的设备命令<br>
 	 * 此字段默认为{@code null}，为{@code true}时，指示取消正在执行的设备命令,仅对支持交互的设备命令有效
@@ -250,21 +244,6 @@ public class CmdItem extends BaseItem {
 		for (BaseOption<Object> item : getParameters()) {
 			item.setValue(null);
 		}
-		return this;
-	}
-	/**
-	 * @return taskQueue
-	 */
-	public String getTaskQueue() {
-		return taskQueue;
-	}
-
-	/**
-	 * @param taskQueue 要设置的 taskQueue
-	 * @return 当前对象
-	 */
-	public CmdItem setTaskQueue(String taskQueue) {
-		this.taskQueue = taskQueue;
 		return this;
 	}
 	/**

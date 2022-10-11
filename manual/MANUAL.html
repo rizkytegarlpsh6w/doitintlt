@@ -306,10 +306,10 @@ document.addEventListener("DOMContentLoaded", function() {
         var level = parseInt(header.tagName.replace('H', ''), 10)-1;
         // 通过两个where循环对栈进行调整,确保stack中标题级数与当前标题级数相同
         while(stack.length < level){
-            stack.push(0);
+        	stack.push(0);
         }
         while(stack.length > level){
-            stack.pop();
+        	stack.pop();
         }
         // 最小一级标题标号步进+1
         stack[stack.length-1]++;
@@ -609,6 +609,17 @@ document.addEventListener("DOMContentLoaded", function() {
 </tr>
 </tbody>
 </table>
+<h4>验证器(validator)</h4>
+<p>选项(OPTION)允许应用层设置验证器对拟设置的值进行有效性验证，如果验证器返回false则会抛出异常。具体做法是通过<a href="../dtalk-base/src/main/java/gu/dtalk/BaseOption.java">gu.dtalk.BaseOption</a>的<code>setValidator</code>方法设置<code>Predicate</code>接口实例，示例如下：</p>
+<pre><code>    OptionBuilder.builder(IntOption.class).name(&quot;status&quot;).readonly(true).value(0).instance().setValidator(new Predicate&lt;Integer&gt;() {
+
+        @Override
+        public boolean apply(Integer input) {
+            return input != null &amp;&amp; input &gt; 100;
+        }
+    });
+</code></pre>
+
 <h3>(菜单)条目定义字段</h3>
 <table>
 <thead>
@@ -637,7 +648,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </tr>
 <tr>
 	<td align="left">uiName</td>
-	<td align="left">条目的界面显示名称,如果不指定则使用{@link #name}</td>
+	<td align="left">条目的用户界面显示名称,如果不指定则使用{@link #name}</td>
 	<td align="left">Y</td>
 	<td align="left">Y</td>
 	<td align="left">Y</td>
@@ -671,6 +682,13 @@ document.addEventListener("DOMContentLoaded", function() {
 	<td align="left">Y</td>
 </tr>
 <tr>
+	<td align="left">hide</td>
+	<td align="left">当前条目是否在用户界面中隐藏(不显示),默认值:false</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+</tr>
+<tr>
 	<td align="left">childs</td>
 	<td align="left">所有子条目,当catalog为OPTION时，恒为空</td>
 	<td align="left">Y</td>
@@ -699,6 +717,13 @@ document.addEventListener("DOMContentLoaded", function() {
 	<td align="left"></td>
 </tr>
 <tr>
+	<td align="left">needReset</td>
+	<td align="left">会不会导致应用重启</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+</tr>
+<tr>
 	<td align="left">required</td>
 	<td align="left">是否为必须的选项，默认值:false</td>
 	<td align="left"></td>
@@ -718,13 +743,6 @@ document.addEventListener("DOMContentLoaded", function() {
 	<td align="left"></td>
 	<td align="left">Y</td>
 	<td align="left"></td>
-</tr>
-<tr>
-	<td align="left">taskQueue</td>
-	<td align="left">任务队列名,该字段不为空时,对象支持队列任务</td>
-	<td align="left"></td>
-	<td align="left"></td>
-	<td align="left">Y</td>
 </tr>
 </tbody>
 </table>
@@ -755,13 +773,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <p>完整代码参见 <a href="../dtalk-base/src/test/java/gu/dtalk/ItemTest.java">gu.dtalk.ItemTest</a></p>
 <h3>设备命令实现</h3>
-<p>dtalk的设备命令由设备命令执行接口(<a href="../dtalk-base/src/main/java/gu/dtalk/CmdItem.java">gu.dtalk.CmdItem.ICmdAdapter</a>)定义.</p>
+<p>根据设备命令执行方式的不同，分为立即(执行)设备命令和交互设备命令，立即设备命令执行后立即返回结果或不返回结果，立即命令执行的结果只有成功或异常两种状态。
+交互命令适用于可能要长时间执行的命令，允许在设备命令执行教程中，管理端取消设备命令执行，也允许设备在设备命令执行过程，向管理端发送完成进度或人为取消。交互命令执行的结果状态更加复杂：成功，被拒绝，异常，超时。</p>
+<h4>立即设备命令</h4>
+<p>dtalk的立即设备命令由立即设备命令执行接口(<a href="../dtalk-base/src/main/java/gu/dtalk/ICmdImmediateAdapter.java">gu.dtalk.ICmdImmediateAdapter</a>)定义.</p>
 <pre><code>/**
  * 设备命令执行接口
  * @author guyadong
  *
  */
-public static interface ICmdAdapter {
+public static interface ICmdImmediateAdapter {
     /**
      * 执行设备命令
      * @param input 以值对(key-value)形式提供的输入参数
@@ -772,26 +793,88 @@ public static interface ICmdAdapter {
 }
 </code></pre>
 
-<p>应用程序实现了设备命令执行接口后，通过<code>gu.dtalk.CmdItem.setCmdAdapter</code>方法绑定到指定的设备命令。当设备端收到这个设备命令时就会执行对应的<code>ICmdAdapter</code>实例.</p>
+<p>应用程序实现了设备命令执行接口后，通过<code>gu.dtalk.CmdItem.setCmdAdapter</code>方法绑定到指定的设备命令。当设备端收到这个设备命令时就会执行对应的<code>ICmdImmediateAdapter</code>实例.</p>
 <p>该接口实例在<code>CmdItem</code>实例中被<code>gu.dtalk.CmdItem.runCmd</code>方法调用 </p>
 <pre><code>/**
- * 执行命令
+ * 执行立即命令
  * @return
- * @throws CmdExecutionException
+ * @throws CmdExecutionException 设备命令执行异常
  */
-public final Object runCmd() throws CmdExecutionException{
+public final Object runImmediateCmd() throws CmdExecutionException{
+    checkState(cmdAdapter instanceof ICmdImmediateAdapter,&quot;type of cmdAdapter must be %s&quot;,ICmdImmediateAdapter.class.getSimpleName());
     synchronized (items) {
         if(cmdAdapter !=null){
             try {
                 // 将 parameter 转为 Map&lt;String, Object&gt;
                 Map&lt;String, Object&gt; objParams = Maps.transformValues(items, TO_VALUE);
-                return cmdAdapter.apply(checkRequired(objParams));                  
+                return ((ICmdImmediateAdapter)cmdAdapter).apply(checkRequired(objParams));                  
             } finally {
                 reset();
             }
         }
         return null;
     }
+}
+</code></pre>
+
+<h4>交互设备命令</h4>
+<p>dtalk的交互设备命令由交互设备命令执行接口(<a href="../dtalk-base/src/main/java/gu/dtalk/ICmdInteractiveAdapter.java">gu.dtalk.ICmdInteractiveAdapter</a>)定义.</p>
+<pre><code>/**
+ * 交互设备命令接口
+ * @author guyadong
+ *
+ */
+public interface ICmdInteractiveAdapter extends ICmdUnionAdapter {
+    /**
+     * 执行设备命令
+     * @param input 以值对(key-value)形式提供的输入参数
+     * @param listener 状态侦听器，用于向管理端发送命令状态
+     * @return 命令返回值，没有返回值则返回{@code null}
+     * @throws InteractiveCmdStartException 当设备命令被拒绝或不支持或其他出错时抛出此异常,通过{@link InteractiveCmdStartException#getStatus() }获取状态类型
+     */
+    void apply(Map&lt;String, Object&gt; input,ICmdInteractiveStatusListener listener) throws InteractiveCmdStartException;
+    /**
+     * 取消当前执行的设备命令
+     * @throws UnsupportedOperationException 设备命令不支持取消
+     */
+    void cancel() throws UnsupportedOperationException;
+}
+</code></pre>
+
+<p>交互设备命令启动时，调用者会提供一个<code>ICmdInteractiveStatusListener</code>接口实例，用于设备命令执行时向调用层报告状态</p>
+<pre><code>/**
+ * 命令状态侦听器，用于交互命令向管理端发送命令执行状态
+ * @author guyadong
+ */
+public interface ICmdInteractiveStatusListener{
+    /**
+     * 返回设备命令完成进度&lt;br&gt;
+     * 设备命令在执行过程中应该定时调用此方法，以作为心跳发送给管理端，直到任务结束
+     * @param progress 完成进度(0-100),可为{@code null}
+     * @param statusMessage 附加状态消息,可为{@code null}
+     */
+    void onProgress(Integer progress,String statusMessage);
+    /**
+     * 任务结束,设备命令成功执行完成
+     * @param value 命令执行返回值,没有返回值则为{@code null}
+     */
+    void onFinished(Object value);
+    /**
+     * 任务结束,执行中的设备命令被取消
+     */
+    void onCaneled();
+    /**
+     * 任务结束,调用抛出异常
+     * @param errorMessage 错误信息，可为{@code null}
+     * @param throwable 异常对象，可为{@code null}
+     */
+    void onError(String errorMessage, Throwable throwable);
+    /**
+     * 此方法用于设备命令发送方控制设备端定时报告进度的间隔(秒)，
+     * 设备端调用此方法获取数值后，用于控制调用{@link #onProgress(Integer, String)}方法的调用间隔
+     * @return 返回要求的{@link #onProgress(Integer, String)}方法调用间隔(秒)，&lt;=0时，使用设备自定义的默认值
+     */
+    int getProgressInternal();
 }
 </code></pre>
 
