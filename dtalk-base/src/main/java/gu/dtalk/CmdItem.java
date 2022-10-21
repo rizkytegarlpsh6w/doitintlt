@@ -131,8 +131,10 @@ public class CmdItem extends BaseItem {
 	public CmdItem updateParameter(Map<String, ?> parameters){
 		parameters = MoreObjects.firstNonNull(parameters, Collections.<String, Object>emptyMap());
 		for(BaseOption<Object> param : getParameters()){
-			Object value = cast(parameters.get(param.getName()), param.javaType());
-			param.updateFrom(value);
+			if(parameters.containsKey(param.getName())){
+				Object value = cast(parameters.get(param.getName()), param.javaType());
+				param.updateFrom(value);
+			}
 		}	
 		return this;
 	}
