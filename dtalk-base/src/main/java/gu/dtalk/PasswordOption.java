@@ -1,7 +1,8 @@
 package gu.dtalk;
 
 import java.util.Arrays;
-
+import java.util.Collections;
+import java.util.List;
 import com.google.common.base.Strings;
 
 /**
@@ -25,5 +26,8 @@ public class PasswordOption extends StringOption {
 	public final OptionType getType() {
 		return OptionType.PASSWORD;
 	}
-
+	@Override
+	public List<String> getAvaiable() {
+		return Collections.emptyList();
+	}
 }

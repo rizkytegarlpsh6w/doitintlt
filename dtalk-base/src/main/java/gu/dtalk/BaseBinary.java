@@ -1,5 +1,8 @@
 package gu.dtalk;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.google.common.base.Throwables;
 
 import net.gdface.utils.FaceUtilits;
@@ -49,5 +52,10 @@ public abstract class BaseBinary extends BaseOption<byte[]> {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public List<byte[]> getAvaiable() {
+		return Collections.emptyList();
 	}
 }

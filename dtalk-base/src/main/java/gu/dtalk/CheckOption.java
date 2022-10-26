@@ -129,4 +129,9 @@ public class CheckOption<E> extends BaseOption<Set<Integer>> {
 	public BaseOption<Set<Integer>> setValue(Integer ...selects){
 		return setValue(Sets.newHashSet(selects));
 	}
+
+	@Override
+	public List<Set<Integer>> getAvaiable() {
+		return Collections.emptyList();
+	}
 }

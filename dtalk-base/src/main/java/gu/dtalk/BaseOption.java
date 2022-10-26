@@ -1,13 +1,20 @@
 package gu.dtalk;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Observable;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import gu.dtalk.event.ValueChangeEvent;
 import gu.dtalk.event.ValueListener;
@@ -60,6 +67,10 @@ public abstract class BaseOption<T> extends BaseItem {
 	 */
 	@JSONField(serialize = false,deserialize = false)
 	private Predicate<T> valueValidator = Predicates.alwaysTrue();
+	/**
+	 * 保存已知可用的的值
+	 */
+	private LinkedHashSet<T> available = Sets.newLinkedHashSet();
 	public BaseOption(Type type) {
 		super();
 		this.type = checkNotNull(type);
@@ -308,6 +319,49 @@ public abstract class BaseOption<T> extends BaseItem {
 		if(parent instanceof CmdItem){
 			setDisable(false);
 			setReadOnly(false);
+		}
+		return this;
+	}
+	/**
+	 * 返回所有可用的值
+	 * @return avaiableValues
+	 */
+	public List<T> getAvaiable() {
+		return Lists.newArrayList(available);
+	}
+
+	/**
+	 * 设置可用的值
+	 * @param available 要设置的 availableValues
+	 * @return 
+	 */
+	public BaseOption<T> setAvaiable(List<T> available) {
+		this.available.clear();
+		this.available.addAll(MoreObjects.firstNonNull(available, Collections.<T>emptyList()));
+		return this;
+	}
+
+	/**
+	 * 添加可用的值
+	 * @param values
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public BaseOption<T> addAvailable(T... values){
+		if(values != null){
+			this.available.addAll(Collections2.filter(Arrays.asList(values), Predicates.notNull()));
+		}
+		return this;
+	}
+	/**
+	 * 删除可用的值
+	 * @param values
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public BaseOption<T> removeAvailable(T... values){
+		if(values != null){
+			this.available.removeAll(Collections2.filter(Arrays.asList(values), Predicates.notNull()));
 		}
 		return this;
 	}

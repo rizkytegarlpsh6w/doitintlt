@@ -1,5 +1,8 @@
 package gu.dtalk;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.alibaba.fastjson.TypeReference;
 
 /**
@@ -15,5 +18,9 @@ public class BoolOption extends BaseOption<Boolean> {
 	@Override
 	public final OptionType getType() {
 		return OptionType.BOOL;
+	}
+	@Override
+	public List<Boolean> getAvaiable() {
+		return Collections.emptyList();
 	}
 }
