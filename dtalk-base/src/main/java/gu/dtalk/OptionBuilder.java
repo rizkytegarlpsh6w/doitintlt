@@ -3,6 +3,7 @@ package gu.dtalk;
 import static com.google.common.base.Preconditions.*;
 
 import java.lang.reflect.Modifier;
+import java.util.List;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
@@ -91,6 +92,16 @@ public class OptionBuilder<T,O extends BaseOption<T>> {
 	}
 	public OptionBuilder<T,O> validator(Predicate<T> validator) {
 		option.setValidator(validator);
+		return this;
+	}
+	public final OptionBuilder<T, O> available(List<T> available) {
+		option.setAvaiable(available);
+		return this;
+	}
+	@SuppressWarnings("unchecked")
+	public final OptionBuilder<T, O> available(T... values) {
+		option.clearAvailable();
+		option.addAvailable(values);
 		return this;
 	}
 	/**

@@ -365,4 +365,8 @@ public abstract class BaseOption<T> extends BaseItem {
 		}
 		return this;
 	}
+
+	public void clearAvailable() {
+		available.clear();
+	}
 }
