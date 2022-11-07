@@ -2,6 +2,10 @@ package gu.dtalk.engine;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
@@ -32,6 +36,8 @@ import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
  *
  */
 public class SampleConnector implements IMessageAdapter<String>, RequestValidator {
+	private static final Logger logger = LoggerFactory.getLogger(SampleConnector.class);
+
 	private static class SingletonTimer{
 		private static final Timer instnace = new Timer(true);
 	}
@@ -80,14 +86,18 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 			
 			@Override
 			public void run() {
-				Channel<?> c = subscriber.getChannel(requestChannel);
-				if(null != c){
-					ItemAdapter adapter = (ItemAdapter) c.getAdapter();
-					long lasthit = adapter.lastHitTime();
-					if(System.currentTimeMillis() - lasthit > idleTimeLimit){
-						subscriber.unregister(requestChannel);
-						requestChannel = null;
+				try{
+					Channel<?> c = subscriber.getChannel(requestChannel);
+					if(null != c){
+						ItemAdapter adapter = (ItemAdapter) c.getAdapter();
+						long lasthit = adapter.lastHitTime();
+						if(System.currentTimeMillis() - lasthit > idleTimeLimit){
+							subscriber.unregister(requestChannel);
+							requestChannel = null;
+						}
 					}
+				}catch (Exception e) {
+					logger.error(e.getMessage());
 				}
 			}
 		}, 0, timerPeriod);
