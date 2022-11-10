@@ -156,13 +156,18 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 				new Thread(){
 					@Override
 					public void run() {
-						// 订阅请求频道用于命令发送
-						Channel<JSONObject> c = new Channel<JSONObject> (requestChannel,JSONObject.class,itemAdapter);						
-						subscriber.register(c);
-						c.addUnregistedListener(unregistedListener);
-						System.out.printf("Connect created(建立连接)for client:%s\n",connectedMAC);
-						System.out.printf("request channel %s \n"
-								                 + "ack channel       %s:\n", c.name,ac);
+						try {
+							// 订阅请求频道用于命令发送
+							Channel<JSONObject> c = new Channel<JSONObject> (requestChannel,JSONObject.class,itemAdapter);						
+							subscriber.register(c);
+							c.addUnregistedListener(unregistedListener);
+							System.out.printf("Connect created(建立连接)for client:%s\n",connectedMAC);
+							System.out.printf("request channel %s \n"
+									                 + "ack channel       %s:\n", c.name,ac);							
+						} catch (Exception e) {
+							logger.error(e.getMessage());
+						}
+
 					}}.start();
 
 			}
