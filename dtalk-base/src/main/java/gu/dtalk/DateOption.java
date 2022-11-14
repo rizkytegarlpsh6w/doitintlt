@@ -9,7 +9,7 @@ import com.alibaba.fastjson.TypeReference;
  * @author guyadong
  *
  */
-public class DateOption extends BaseOption<Date> {
+public class DateOption extends BaseOption<ISO8601Date> {
     public DateOption() {
 		super(new TypeReference<Date>() {}.getType());
 	}
