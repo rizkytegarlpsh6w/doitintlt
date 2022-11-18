@@ -208,7 +208,12 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 			Runtime.getRuntime().addShutdownHook(new Thread(){
 				@Override
 				public void run() {
-					unregister();
+					try {
+						unregister();	
+					} catch (Exception e) {
+						logger.error(e.getMessage(),e);
+					}
+					
 				}
 			});
 		}
