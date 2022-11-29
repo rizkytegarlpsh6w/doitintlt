@@ -21,7 +21,8 @@ public class CommonConstant {
 	public static final String REDIS_HOST=Protocol.DEFAULT_HOST;
 	public static final int REDIS_PORT = Protocol.DEFAULT_PORT;
 	public static final String REDIS_PASSWORD = "";
-	
+	/** ISO8601时间格式 */
+    public static final String ISO8601_FORMATTER_STR = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     /** 用于日期时间戳格式转换格式 */
     public static final String TIMESTAMP_FORMATTER_STR = "yyyy-MM-dd HH:mm:ss";
     /** 用于时间戳格式转换格式 */
