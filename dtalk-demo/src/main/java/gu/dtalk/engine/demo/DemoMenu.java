@@ -15,7 +15,7 @@ import gu.dtalk.event.ValueListener;
 import gu.dtalk.redis.RedisConfigType;
 import gu.simplemq.redis.JedisPoolLazy.PropName;
 
-
+import java.util.Date;
 import java.util.Map;
 
 import gu.dtalk.BoolOption;
@@ -23,7 +23,6 @@ import gu.dtalk.CheckOption;
 import gu.dtalk.CmdItem;
 import gu.dtalk.DateOption;
 import gu.dtalk.IPv4Option;
-import gu.dtalk.ISO8601Date;
 
 import static com.google.common.base.Preconditions.*;
 import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
@@ -64,7 +63,7 @@ public class DemoMenu extends RootMenu{
 				.name("test")
 				.uiName("类型测试")
 				.addChilds(
-						ItemBuilder.builder(DateOption.class).name("date").uiName("日期测试").instance().setValue(new ISO8601Date()),
+						ItemBuilder.builder(DateOption.class).name("date").uiName("日期测试").instance().setValue(new Date()),
 						ItemBuilder.builder(BoolOption.class).name("bool").uiName("BOOL测试").instance().setValue(true),
 						ItemBuilder.builder(IPv4Option.class).name("ipv4").uiName("IPV4测试").instance().asValue("127.0.0.1"),
 						ItemBuilder.builder(MACOption.class).name("mac").uiName("MAC测试").instance().asValue("22:35:ff:e0:3f:ab"),
