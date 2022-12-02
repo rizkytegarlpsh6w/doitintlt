@@ -2,6 +2,8 @@ package gu.dtalk;
 
 import java.lang.reflect.Type;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -115,15 +117,31 @@ public enum OptionType {
 				}};
 		case DATE:
 			// 解析字符串为DATE类型,允许日期，时间，日期+时间 三种格式
-			return (Function<String, T>) new Function<String, ISO8601Date>(){
+			return (Function<String, T>) new Function<String, Date>(){
 
 				@Override
-				public ISO8601Date apply(String input) {
-					try {
-						return ISO8601Date.of(input);
-					} catch (ParseException e) {
-        				throw new IllegalArgumentException(String.format("INVALID FORMAT '%s' FOR %s", input,OptionType.this.name()));
-					}
+				public Date apply(String input) {
+			        Date date = null;
+			        if(null != input){
+			        	try {
+			        		date = new SimpleDateFormat(ISO8601_FORMATTER_STR).parse(input);
+						} catch (ParseException e) {
+				        	try {
+				        		date = new SimpleDateFormat(TIMESTAMP_FORMATTER_STR).parse(input);
+				        	} catch (ParseException e1) {
+				        		try {
+				        			date = new SimpleDateFormat(DATE_FORMATTER_STR).parse(input);
+				        		} catch (ParseException e2) {
+				        			try {
+				        				date = new SimpleDateFormat(TIME_FORMATTER_STR).parse(input);
+				        			} catch (ParseException e3) {
+				        				throw new IllegalArgumentException(String.format("INVALID FORMAT '%s' FOR %s", input,OptionType.this.name()));
+				        			}
+				        		}
+				        	}
+						}
+			        }
+					return date;
 				}};
 		case MAC:
 			// 解析字符串为MAC类型,允许输入格式为ff:20:20:20:20:20格式的ip地址

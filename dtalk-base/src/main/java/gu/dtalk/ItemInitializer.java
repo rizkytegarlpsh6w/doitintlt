@@ -35,7 +35,6 @@ public class ItemInitializer implements FastJsonInitializer {
 		ParserConfig.global.putDeserializer(BoolOption.class, new JavaBeanDeserializer(ParserConfig.global, BoolOption.class));
 		ParserConfig.global.putDeserializer(CheckOption.class, new JavaBeanDeserializer(ParserConfig.global, CheckOption.class));
 		ParserConfig.global.putDeserializer(DateOption.class, new JavaBeanDeserializer(ParserConfig.global, DateOption.class));
-		ParserConfig.global.putDeserializer(ISO8601Date.class, new JavaBeanDeserializer(ParserConfig.global, ISO8601Date.class));
 		ParserConfig.global.putDeserializer(FloatOption.class, new JavaBeanDeserializer(ParserConfig.global, FloatOption.class));
 		ParserConfig.global.putDeserializer(IntOption.class, new JavaBeanDeserializer(ParserConfig.global, IntOption.class));
 		ParserConfig.global.putDeserializer(StringOption.class, new JavaBeanDeserializer(ParserConfig.global, StringOption.class));
