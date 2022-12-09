@@ -72,12 +72,19 @@ public class SampleConsoleConfig extends BaseAppConfig implements SampleConsoleC
 	@Override
 	public void loadConfig(Options options, CommandLine cmd) throws ParseException {
 		super.loadConfig(options, cmd);
+		
 		redisParameters.put(PropName.host, getProperty(REDIS_HOST_OPTION_LONG));
-		redisParameters.put(PropName.port, getProperty(REDIS_PORT_OPTION_LONG));
+		if(hasProperty(REDIS_PORT_OPTION_LONG)){
+			redisParameters.put(PropName.port, ((Number)getProperty(REDIS_PORT_OPTION_LONG)).intValue());
+		}
 		redisParameters.put(PropName.password, getProperty(REDIS_PWD_OPTION_LONG));
-		redisParameters.put(PropName.database, getProperty(REDIS_DB_OPTION_LONG));
+		if(hasProperty(REDIS_DB_OPTION_LONG)){
+			redisParameters.put(PropName.database, ((Number)getProperty(REDIS_DB_OPTION_LONG)).intValue());
+		}
 		redisParameters.put(PropName.uri, getProperty(REDIS_URI_OPTION_LONG));
-		redisParameters.put(PropName.timeout, getProperty(REDIS_TIMEOUT_OPTION_LONG));		
+		if(hasProperty(REDIS_TIMEOUT_OPTION_LONG)){
+			redisParameters.put(PropName.timeout,  ((Number)getProperty(REDIS_TIMEOUT_OPTION_LONG)).intValue());
+		}
 		this.password = getProperty(CONNEC_PWD_OPTION_LONG); 
 		this.mac = (String) getProperty(DEVICE_MAC_OPTION_LONG);
 		if(!Strings.isNullOrEmpty(this.mac)){
