@@ -124,6 +124,18 @@ public abstract class BaseOption<T> extends BaseItem {
 		this.needReset = needReset;
 		return this;
 	}
+	/**
+	 * @return regex
+	 */
+	public String getRegex() {
+		return getType().regex;
+	}
+	/**
+	 * @param regex 要设置的 regex
+	 */
+	public BaseOption<T> setRegex(String regex) {
+		return this;
+	}
 	@Override
 	public final boolean isContainer() {
 		return false;

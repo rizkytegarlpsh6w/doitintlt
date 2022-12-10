@@ -61,6 +61,10 @@ public class OptionBuilder<T,O extends BaseOption<T>> {
 		option.setRequired(required);
 		return this;
 	}
+	public OptionBuilder<T,O> regex(String regex) {
+		option.setRegex(regex);
+		return this;
+	}
 	public OptionBuilder<T,O> required() {
 		return required(true);
 	}
