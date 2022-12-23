@@ -12,15 +12,16 @@ import static com.google.common.base.Preconditions.*;
  *
  */
 public class DefaultCloudRedisConfigProvider implements RedisConfigProvider {
-
-	private static URI uri ;
+	/** 默认的公有云redis连接 */
+	public static final URI DEFAULT_CLOUD_REDIS_URI;	
 	static{
 		try {
-			uri = new URI("jedis://:86a1b907d54bf7010394bf316e183e67@dtalk.facelib.net:26416/0");
+			DEFAULT_CLOUD_REDIS_URI = new URI("jedis://:86a1b907d54bf7010394bf316e183e67@dtalk.facelib.net:26416/0");
 		} catch (URISyntaxException e) {
 			throw new ExceptionInInitializerError(e);
 		}
 	}
+	private static URI uri = DEFAULT_CLOUD_REDIS_URI;
 	@Override
 	public String getHost() {
 		return uri.getHost();
