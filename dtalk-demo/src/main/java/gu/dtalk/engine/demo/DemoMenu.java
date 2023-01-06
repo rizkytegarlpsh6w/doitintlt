@@ -18,19 +18,24 @@ import gu.simplemq.redis.JedisPoolLazy.PropName;
 import java.util.Date;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
+
 import gu.dtalk.BoolOption;
 import gu.dtalk.CheckOption;
 import gu.dtalk.CmdItem;
 import gu.dtalk.DateOption;
 import gu.dtalk.IPv4Option;
 
-import static com.google.common.base.Preconditions.*;
 import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
 
 public class DemoMenu extends RootMenu{
-	private Map<PropName, Object> redisparam;
+	private final Map<PropName, Object> redisparam;
+	
+	public DemoMenu() {
+		this(null);
+	}
 	public DemoMenu(RedisConfigType configType) {
-		redisparam = checkNotNull(configType,"configType is null").readRedisParam();
+		redisparam = null != configType ? configType.readRedisParam() : Maps.<PropName, Object>newHashMap();
 	}
 	public DemoMenu init(){
 		byte[] mac = DEVINFO_PROVIDER.getMac();

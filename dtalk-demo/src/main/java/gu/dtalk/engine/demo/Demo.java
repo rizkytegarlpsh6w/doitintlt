@@ -7,7 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gu.dtalk.engine.DeviceUtils;
-import gu.dtalk.engine.ItemEngine;
+import gu.dtalk.engine.ItemAdapter;
+import gu.dtalk.engine.ItemEngineRedisImpl;
 import gu.dtalk.engine.SampleConnector;
 import gu.dtalk.redis.DefaultCustomRedisConfigProvider;
 import gu.dtalk.redis.RedisConfigType;
@@ -39,7 +40,7 @@ public class Demo {
 		devMac = DeviceUtils.DEVINFO_PROVIDER.getMac();
 		connAdapter = new SampleConnector(pool)
 				.setSelfMac(FaceUtilits.toHex(devMac))
-				.setItemAdapter(new ItemEngine(pool).setRoot(root));
+				.setItemAdapter((ItemAdapter) new ItemEngineRedisImpl(pool).setRoot(root));
 	}
 	/**
 	 * 启动连接

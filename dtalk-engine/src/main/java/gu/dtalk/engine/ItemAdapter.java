@@ -1,7 +1,7 @@
 package gu.dtalk.engine;
 
 /**
- * 消息驱动的菜单引擎接口<br>
+ * 消息驱动的菜单引擎接口(redis)<br>
  * 根据收到的请求执行对应的动作
  * @author guyadong
  *

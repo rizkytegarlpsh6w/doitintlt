@@ -8,6 +8,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import gu.dtalk.Ack;
 import gu.dtalk.Ack.Status;
 import gu.dtalk.CmdItem;
+import gu.dtalk.CommonConstant.ReqCmdType;
 import gu.dtalk.CommonUtils;
 import gu.dtalk.ICmdInteractiveStatusListener;
 import gu.dtalk.BaseItem;
@@ -55,33 +56,48 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 	 * 当前执行的设备命令
 	 */
 	private String cmdLock=null;
-	private final DtalkListener dtalkListener;
 	private final ScheduledThreadPoolExecutor scheduledExecutor;
 	private final ScheduledExecutorService timerExecutor;
 	private ScheduledFuture<?> future;
 	/** 定时检查任务，如果超时没有收到进度报告，则视为超时 */
-	private final Runnable timerTask;
-	
-	public BaseItemEngine(final DtalkListener dtalkListener) {
-		this.dtalkListener = checkNotNull(dtalkListener);
+	private final Runnable timerTask = new Runnable(){
+		long progressInternal = TimeUnit.SECONDS.toMillis(getDtalkListener().getProgressInternal());
+		@Override
+		public void run() {
+				// cmdLock 解锁状态下自动中断定时任务
+				checkState(cmdLock != null);
+				long lastInternel = System.currentTimeMillis() - getDtalkListener().lastProgress;
+				if(lastInternel > progressInternal*4){
+					getDtalkListener().onTimeout();
+				}
+		}};
+	protected static final ThreadLocal<ReqCmdType> reqType = new  ThreadLocal<ReqCmdType>();
+
+	public BaseItemEngine() {
 		this.scheduledExecutor =new ScheduledThreadPoolExecutor(1,
 				new ThreadFactoryBuilder().setNameFormat("cmddog-pool-%d").build());	
 		this.timerExecutor = MoreExecutors.getExitingScheduledExecutorService(	scheduledExecutor);
-		timerTask = new Runnable(){
-			long progressInternal = TimeUnit.SECONDS.toMillis(dtalkListener.getProgressInternal());
-			@Override
-			public void run() {
-					// cmdLock 解锁状态下自动中断定时任务
-					checkState(cmdLock != null);
-					long lastInternel = System.currentTimeMillis() - dtalkListener.lastProgress;
-					if(lastInternel > progressInternal*4){
-						dtalkListener.onTimeout();
-					}
-			}};
 	}
 
-	protected abstract void response(Object object);
+	/**
+	 * 发送菜单数据
+	 * @param object
+	 */
+	protected abstract void responseMenu(MenuItem object);
+	/**
+	 * 发送ack消息
+	 * @param ack
+	 */
 	protected abstract void responseAck(Ack<Object> ack);
+	protected abstract DtalkListener getDtalkListener();
+	protected void beforeSubscribe(JSONObjectDecorator jsonObject){
+		reqType.set(MoreObjects.firstNonNull(
+				jsonObject.getObjectOrNull(REQ_FIELD_REQTYPE, ReqCmdType.class),
+				ReqCmdType.DEFAULT));
+	}
+	protected void afterSubscribe(){
+		reqType.remove();
+	}
 	/** 
 	 * 响应菜单命令
 	 */
@@ -91,11 +107,9 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 		lasthit = System.currentTimeMillis();
 		boolean isQuit = false;
 		JSONObjectDecorator decorator = JSONObjectDecorator.wrap(jsonObject);
-		ReqCmdType reqType = MoreObjects.firstNonNull(
-				decorator.getObjectOrNull(REQ_FIELD_REQTYPE, ReqCmdType.class),
-				ReqCmdType.DEFAULT);
-		boolean multiTarget = ReqCmdType.MULTI == reqType;
-		boolean taskQueue = ReqCmdType.TASKQUEUE == reqType;
+		beforeSubscribe(decorator);
+		boolean multiTarget = ReqCmdType.MULTI == reqType.get();
+		boolean taskQueue = ReqCmdType.TASKQUEUE == reqType.get();
 
 		final JSONObject parameters = decorator.getJSONObjectOrNull(REQ_FIELD_PARAMETERS);
 		// 删除参数字段以避免解析为item对象时抛出异常
@@ -139,7 +153,7 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 
 					//  输出上一级菜单
 					currentLevel = MoreObjects.firstNonNull(found.getParent(),root);
-					response(currentLevel);
+					responseMenu((MenuItem) currentLevel);
 					return;
 				}else if(isQuit(found)){
 					checkState(!multiTarget,"'quit' cmd unsupport multi-target cmd request");
@@ -159,7 +173,7 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 							checkState(!taskQueue,"interactive cmd  unsupport task request");
 
 							// 启动设备交互命令执行
-							cmd.startInteractiveCmd(dtalkListener.init(ack));
+							cmd.startInteractiveCmd(getDtalkListener().init(ack));
 							// 设置为正常启动状态
 							ack.setStatus(Status.ACCEPTED);
 							// 命令加锁
@@ -187,7 +201,7 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 				checkState(!taskQueue,"MENU item unsupport task request");
 				//  输出当前菜单后直接返回
 				currentLevel = found;
-				response(currentLevel);
+				responseMenu((MenuItem) currentLevel);
 				return;
 			}
 			default:
@@ -199,6 +213,8 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 		} catch(Exception e){
 			e.printStackTrace();			
 			ack.writeError(e);
+		} finally {
+			afterSubscribe();
 		}
 		// 向ack频道发送返回值消息		
 		responseAck(ack);
@@ -249,7 +265,7 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 			this.scheduledExecutor.remove((Runnable) future);
 		}
 		/** 返回 RunnableScheduledFuture<?>实例  */
-		future = this.timerExecutor.scheduleAtFixedRate(timerTask, dtalkListener.getProgressInternal(), dtalkListener.getProgressInternal(), TimeUnit.SECONDS);
+		future = this.timerExecutor.scheduleAtFixedRate(timerTask, getDtalkListener().getProgressInternal(), getDtalkListener().getProgressInternal(), TimeUnit.SECONDS);
 	}
 	protected abstract class DtalkListener implements ICmdInteractiveStatusListener{
 
@@ -340,7 +356,10 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 			this.lastProgress = System.currentTimeMillis();
 			return this;
 		}
-
+		/**
+		 * 发送ack消息
+		 * @param ack
+		 */
 		protected abstract void responseAck(Ack<Object> ack);
 	}
 }

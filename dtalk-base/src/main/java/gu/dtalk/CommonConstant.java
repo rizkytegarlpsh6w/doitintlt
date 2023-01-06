@@ -17,6 +17,7 @@ public class CommonConstant {
 	public static final String QUIT_NAME="quit";
 	public static final String BACK_NAME="back";
 
+	public static final int DEFAULT_HTTP_PORT=8181;
 
 	public static final String REDIS_HOST=Protocol.DEFAULT_HOST;
 	public static final int REDIS_PORT = Protocol.DEFAULT_PORT;

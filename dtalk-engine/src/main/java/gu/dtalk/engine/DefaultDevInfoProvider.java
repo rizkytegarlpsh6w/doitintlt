@@ -14,13 +14,13 @@ public class DefaultDevInfoProvider implements DeviceInfoProvider {
 	private byte[] mac={0,0,0,0,0,0};
 	private byte[] ip = {127,0,0,1};
 	public DefaultDevInfoProvider() {
-		this("www.cnnic.net.cn", 80);
+		this("www.baidu.com", 80);
 	}
 	protected DefaultDevInfoProvider(String host,int port) {		
 		try {
 			// 使用localhost获取本机MAC地址会返回空数组，所以这里使用一个互联地址来获取
 			if(host == null || "127.0.0.1".equals(host) || "localhost".equalsIgnoreCase(host)){
-				host = "www.cnnic.net.cn";
+				host = "www.baidu.com";
 				port = 80;
 			}
 			mac = NetworkUtil.getCurrentMac(host, port);
