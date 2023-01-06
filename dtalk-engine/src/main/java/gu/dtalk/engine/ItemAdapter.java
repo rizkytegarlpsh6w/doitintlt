@@ -1,21 +1,13 @@
 package gu.dtalk.engine;
 
-import com.alibaba.fastjson.JSONObject;
-
-import gu.dtalk.MenuItem;
-import gu.simplemq.IMessageAdapter;
-
 /**
  * 消息驱动的菜单引擎接口<br>
  * 根据收到的请求执行对应的动作
  * @author guyadong
  *
  */
-public interface ItemAdapter extends IMessageAdapter<JSONObject> {
-	/**
-	 * @return 返回最近一次收到消息的时间戳
-	 */
-	public long lastHitTime();
+public interface ItemAdapter extends BaseItemDriver {
+
 
 	/**
 	 * @return 返回请求响应频道
@@ -28,14 +20,4 @@ public interface ItemAdapter extends IMessageAdapter<JSONObject> {
 	 */
 	void setAckChannel(String ackChannelName);
 
-	/**
-	 * @return 返回根菜单实例
-	 */
-	MenuItem getRoot();
-	/**
-	 * 设置当前设备的MAC地址(HEX字符串)
-	 * @param selfMac 要设置的 selfMac
-	 * @return 当前接口对象
-	 */
-	ItemAdapter setSelfMac(String selfMac);
 }
