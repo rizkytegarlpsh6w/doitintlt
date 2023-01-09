@@ -27,6 +27,8 @@ import gu.simplemq.exceptions.SmqUnsubscribeException;
 import gu.simplemq.json.BaseJsonEncoder;
 import net.gdface.utils.FaceUtilits;
 
+import static gu.dtalk.CommonConstant.*;
+
 /**
  * dtalk http 服务
  * @author guyadong
@@ -59,6 +61,9 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
 	 */
 	private String dtalkSession;
 	private ItemEngineHttpImpl engine;
+	public ItemAdapterHttpServer()  {
+		this(DEFAULT_HTTP_PORT);
+	}
     public ItemAdapterHttpServer(int port)  {
         super(port);
         selfMac = FaceUtilits.toHex(DeviceUtils.DEVINFO_PROVIDER.getMac());
@@ -79,15 +84,6 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
 				}
 			}
 		}, 0, timerPeriod);
-    }
-
-    public static void main(String[] args) {
-        try {
-        	logger.info("Running! Point your browsers to http://localhost:{}/",8080);
-            new ItemAdapterHttpServer(8080).start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
-        } catch (IOException ioe) {
-            logger.error("Couldn't start server:" + ioe);
-        }
     }
 
     private <T> Response responseAck(Ack<T> ack){
@@ -189,16 +185,17 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
     	if(sid ==null){
     		sid=session.getCookies().read(DTALK_SESSION);
     	}
+    	
+    	if (dtalkSession == null || sid == null ){
+			checkState(validate(parms.get("password"), 
+					Boolean.valueOf(MoreObjects.firstNonNull(parms.get("isMd5"), "true"))),"INVALID REQUEST PASSWORD");
+			sid = dtalkSession = Long.toHexString(System.nanoTime());
+	    	session.getCookies().set(DTALK_SESSION, dtalkSession, 1);
+    	}
+    	checkState(Objects.equal(dtalkSession, sid),"ANOTHER CLIENT LOCKED");
+        ack.setStatus(Ack.Status.OK).setStatusMessage("AUTHORIZATION OK");
 
-    	if (dtalkSession == null || sid == null || !Objects.equal(dtalkSession, sid)){
-    		checkState(validate(parms.get("password"), 
-    				Boolean.valueOf(MoreObjects.firstNonNull(parms.get("isMd5"), "true"))),"INVALID REQUEST PASSWORD");
-    		dtalkSession = Long.toHexString(System.nanoTime());
-        	session.getCookies().set(DTALK_SESSION, dtalkSession, 1);
-        	ack.setStatus(Ack.Status.OK).setStatusMessage(session.getUri() + "\n" + "authorization OK");
-    	}        
-        ack.setStatus(Ack.Status.OK).setStatusMessage("authorization OK");
-    }
+	}
     @SuppressWarnings("deprecation")
 	protected synchronized void logout(IHTTPSession session, Ack<Object> ack) throws IOException, ResponseException{
 
