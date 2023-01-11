@@ -28,7 +28,7 @@ import gu.simplemq.json.BaseJsonEncoder;
 import net.gdface.utils.FaceUtilits;
 
 import static gu.dtalk.CommonConstant.*;
-
+import static gu.dtalk.Version.*;
 /**
  * dtalk http 服务
  * @author guyadong
@@ -106,7 +106,7 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
     			break;
     		case "/":
     		{
-    			String msg = "<html><body><h1>Dtalk server</h1>\n</body></html>\n";
+    			String msg = "<html><body><h1>Dtalk server "+VERSION+"</h1>\n</body></html>\n";
     			return newFixedLengthResponse(Status.OK, NanoHTTPD.MIME_HTML, msg);
     		}
     		default:
