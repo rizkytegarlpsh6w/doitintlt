@@ -157,34 +157,6 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
-			<plugin>
-				<!-- 生成统一的buildNumber,时间戳变量, 子项目调用template插件时只是引用该变量 -->
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.4</version>
-				<executions>
-					<execution>
-						<id>create-buildnumber</id>
-						<goals>
-							<!-- 创建${buildNumber} -->
-							<goal>create</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>create-timestamp</id>
-						<goals>
-							<!-- 创建时间戳${buildtimestamp} -->
-							<goal>create-timestamp</goal>
-						</goals>
-						<configuration>
-							<!-- 指定时间戳变量名 -->
-							<timestampPropertyName>buildtimestamp</timestampPropertyName>
-							<!-- 指定日期格式 -->
-							<timestampFormat>yyyy-MM-dd HH:mm:ss</timestampFormat>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 	<modules>
