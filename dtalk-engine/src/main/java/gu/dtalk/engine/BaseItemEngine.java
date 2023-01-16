@@ -244,6 +244,9 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 		return lasthit;
 	}
 
+	public void setLastHitTime(long lastHit){
+		this.lasthit = lastHit;
+	}
 	/**
 	 * @return 返回当前设备的MAC地址(HEX字符串)
 	 */

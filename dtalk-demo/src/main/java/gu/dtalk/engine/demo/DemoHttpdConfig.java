@@ -57,7 +57,7 @@ public class DemoHttpdConfig extends BaseAppConfig implements DemoConstants {
 	}
 	@Override
 	protected String getAppName() {
-		return Demo.class.getSimpleName();
+		return DemoHttpd.class.getSimpleName();
 	}
 	@Override
 	protected String getHeader() {

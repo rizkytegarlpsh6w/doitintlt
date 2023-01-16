@@ -3,10 +3,16 @@ package gu.dtalk.engine;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
+import fi.iki.elonen.NanoWSD.WebSocket;
 import gu.dtalk.Ack;
 import gu.dtalk.MenuItem;
 import gu.simplemq.json.BaseJsonEncoder;
 import static gu.dtalk.engine.ItemAdapterHttpServer.APPICATION_JSON;
+
+import java.io.IOException;
+
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 
 
 /**
@@ -16,6 +22,7 @@ import static gu.dtalk.engine.ItemAdapterHttpServer.APPICATION_JSON;
  */
 public class ItemEngineHttpImpl extends BaseItemEngine{
 	private DtalkListener listener;
+	private Supplier<WebSocket> supplier= Suppliers.ofInstance(null);
 	private static final ThreadLocal<Response> response = new  ThreadLocal<Response>();
 	
 	public ItemEngineHttpImpl() {
@@ -50,7 +57,14 @@ public class ItemEngineHttpImpl extends BaseItemEngine{
 
 				@Override
 				protected void responseAck(Ack<Object> ack) {
-					//publisher.publish(ackChannel, ack);
+					WebSocket ws = supplier.get();
+					if(ws != null){
+						try {
+							ws.send(BaseJsonEncoder.getEncoder().toJsonString(ack));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
 					
 				}};
 		}
@@ -61,5 +75,16 @@ public class ItemEngineHttpImpl extends BaseItemEngine{
 		Response resp =  response.get();
 		response.remove();
 		return resp;
+	}
+
+	/**
+	 * @param supplier 要设置的 supplier
+	 * @return 
+	 */
+	ItemEngineHttpImpl setSupplier(Supplier<WebSocket> supplier) {
+		if(null != supplier){
+			this.supplier = supplier;
+		}
+		return this;
 	}
 }

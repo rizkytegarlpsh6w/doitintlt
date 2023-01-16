@@ -1,3 +1,3 @@
 pushd %~dp0
-java -jar ../dtalk-demo-${project.version}-standalone.jar %*
+java %DTALK_OPTS% %DTALK_DEBUG_OPTS% -jar ../${project.build.finalName}-standalone.jar %*
 popd

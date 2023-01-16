@@ -19,10 +19,14 @@ import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
+import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
+import fi.iki.elonen.NanoWSD;
 import gu.dtalk.Ack;
+import gu.dtalk.MenuItem;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
 import gu.simplemq.json.BaseJsonEncoder;
 import net.gdface.utils.FaceUtilits;
@@ -34,10 +38,14 @@ import static gu.dtalk.Version.*;
  * @author guyadong
  *
  */
-public class ItemAdapterHttpServer extends NanoHTTPD {
+public class ItemAdapterHttpServer extends NanoWSD {
 	private static final Logger logger = LoggerFactory.getLogger(ItemAdapterHttpServer.class);
 	private static final String DTALK_SESSION="dtalk-session"; 
 	public static final String APPICATION_JSON="application/json";
+	private static final String UNAUTH_SESSION="UNAUTHORIZATION SESSION";
+	private static final String AUTH_OK="AUTHORIZATION OK";
+	private static final String CLIENT_LOCKED="ANOTHER CLIENT LOCKED";
+	private static final String INVALID_PWD="INVALID REQUEST PASSWORD";
 	private static final String POST_DATA="postData";
 	private static final String DTALK_PREFIX="/dtalk";
 	private static class SingletonTimer{
@@ -60,7 +68,15 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
 	 * 当前对话ID
 	 */
 	private String dtalkSession;
-	private ItemEngineHttpImpl engine;
+	private WebSocket wsSocket;
+	private final Supplier<WebSocket> webSocketSupplier = new Supplier<NanoWSD.WebSocket>() {
+
+		@Override
+		public WebSocket get() {
+			return wsSocket;
+		}
+	};
+	private ItemEngineHttpImpl engine = new ItemEngineHttpImpl().setSupplier(webSocketSupplier);
 	public ItemAdapterHttpServer()  {
 		this(DEFAULT_HTTP_PORT);
 	}
@@ -73,7 +89,7 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
 			@Override
 			public void run() {
 				try{
-					if(null != dtalkSession && null != engine && ItemAdapterHttpServer.this.isAlive()){
+					if(null != dtalkSession && ItemAdapterHttpServer.this.isAlive()){
 						long lasthit = engine.lastHitTime();
 						if(System.currentTimeMillis() - lasthit > idleTimeLimit){
 							dtalkSession = null;
@@ -85,7 +101,12 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
 			}
 		}, 0, timerPeriod);
     }
-
+    private boolean isAuthorizationSession(IHTTPSession session){
+    	return dtalkSession != null && dtalkSession.equals(session.getCookies().read(DTALK_SESSION));
+    }
+    private void checkAuthorizationSession(IHTTPSession session){
+    	checkState(isAuthorizationSession(session),UNAUTH_SESSION);
+    }
     private <T> Response responseAck(Ack<T> ack){
     	String json=BaseJsonEncoder.getEncoder().toJsonString(ack);
     	return newFixedLengthResponse(
@@ -93,8 +114,19 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
     			APPICATION_JSON, 
     			json);
     }
+
     @Override
     public Response serve(IHTTPSession session) {
+    	if (isWebsocketRequested(session) && ! isAuthorizationSession(session)) {
+    		return newFixedLengthResponse(
+        			Status.INTERNAL_ERROR, 
+        					NanoHTTPD.MIME_PLAINTEXT, 
+        					UNAUTH_SESSION);
+    	}
+		return super.serve(session);    	
+    }
+    @Override
+    public Response serveHttp(IHTTPSession session) {
     	Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK).setDeviceMac(selfMac);
     	try{
     		switch(session.getUri()){
@@ -111,8 +143,7 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
     		}
     		default:
     			if(session.getUri().startsWith(DTALK_PREFIX )){
-    				checkState(dtalkSession != null && dtalkSession.equals(session.getCookies().read(DTALK_SESSION)),
-    						"UNAUTHORIZATION SESSION");
+    				checkAuthorizationSession(session);
     				if(DTALK_PREFIX.equals(session.getUri())){
     					checkState(Method.POST.equals(session.getMethod()),"POST method supported only");
     				}
@@ -122,7 +153,6 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
 	    				jsonObject.put("path", path);
     				} 
     				try {    					
-    					checkNotNull(engine,"engine is uninitialized").onSubscribe(jsonObject);
     					return engine.getResponse();
 					} catch (SmqUnsubscribeException e) {
 						logout(session, ack);
@@ -131,7 +161,7 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
     			}
     			ack.setStatus(Ack.Status.ERROR).setStatusMessage("error " + session.getUri());
     		}
-    	}catch (Exception e) {
+    	}catch (Exception e) {    		
     		ack.setStatus(Ack.Status.ERROR).setException(e.getClass().getName()).setStatusMessage(e.getMessage());
     	}
     	return responseAck(ack);
@@ -140,7 +170,7 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
 	 * @param isMd5 
 	 * @return 
 	 */
-	public boolean validate(String pwd, boolean isMd5) {
+	private boolean validate(String pwd, boolean isMd5) {
 		checkArgument(pwd != null,"NULL PASSWORD");
 		
 		String admPwd = checkNotNull(DEVINFO_PROVIDER.getPassword(),"admin password for device is null");
@@ -154,14 +184,14 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
 		}
 	}
 	
-	private Map<String, String> getParamOfPostBody(IHTTPSession session) throws IOException, ResponseException{
+	private static  Map<String, String> getParamOfPostBody(IHTTPSession session) throws IOException, ResponseException{
 		Map<String,String> postData = Maps.newHashMap();
 		session.parseBody(postData);
 		return BaseJsonEncoder.getEncoder().fromJson(postData.get(POST_DATA), 
 				new TypeReference<Map<String, String>>(){}.getType());		
 	}
 	@SuppressWarnings("deprecation")
-	private JSONObject getJSONObject(IHTTPSession session) throws IOException, ResponseException{
+	private static JSONObject getJSONObject(IHTTPSession session) throws IOException, ResponseException{
     	String jsonstr;
     	if(Method.POST.equals(session.getMethod())){ 
     		Map<String,String> postData = Maps.newHashMap();
@@ -172,15 +202,21 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
     	}
 		return BaseJsonEncoder.getEncoder().fromJson(jsonstr,JSONObject.class);
 	}
-	@SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation")
+	private static Map<String, String> getParams(IHTTPSession session) throws IOException, ResponseException{
+    	Map<String,String> params = Maps.newHashMap();
+    	if(Method.POST.equals(session.getMethod())){    		
+			params = getParamOfPostBody(session);			
+    	}else{
+    		params = session.getParms();
+    	}
+    	return params;
+    }
+    
 	protected synchronized void login(IHTTPSession session, Ack<Object> ack) throws IOException, ResponseException{
 
-    	Map<String,String> parms = Maps.newHashMap();
-    	if(Method.POST.equals(session.getMethod())){    		
-			parms = getParamOfPostBody(session);			
-    	}else{
-    		parms = session.getParms();
-    	}
+    	Map<String,String> parms = getParams(session);
+
     	String sid=parms.get(DTALK_SESSION);
     	if(sid ==null){
     		sid=session.getCookies().read(DTALK_SESSION);
@@ -188,23 +224,18 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
     	
     	if (dtalkSession == null || sid == null ){
 			checkState(validate(parms.get("password"), 
-					Boolean.valueOf(MoreObjects.firstNonNull(parms.get("isMd5"), "true"))),"INVALID REQUEST PASSWORD");
+					Boolean.valueOf(MoreObjects.firstNonNull(parms.get("isMd5"), "true"))),INVALID_PWD);
 			sid = dtalkSession = Long.toHexString(System.nanoTime());
 	    	session.getCookies().set(DTALK_SESSION, dtalkSession, 1);
     	}
-    	checkState(Objects.equal(dtalkSession, sid),"ANOTHER CLIENT LOCKED");
-        ack.setStatus(Ack.Status.OK).setStatusMessage("AUTHORIZATION OK");
+    	checkState(Objects.equal(dtalkSession, sid),CLIENT_LOCKED);
+        ack.setStatus(Ack.Status.OK).setStatusMessage(AUTH_OK);
+       	engine.setLastHitTime(System.currentTimeMillis());
 
 	}
-    @SuppressWarnings("deprecation")
-	protected synchronized void logout(IHTTPSession session, Ack<Object> ack) throws IOException, ResponseException{
+    protected synchronized void logout(IHTTPSession session, Ack<Object> ack) throws IOException, ResponseException{
 
-    	Map<String,String> parms = Maps.newHashMap();
-    	if(Method.POST.equals(session.getMethod())){
-    		parms = getParamOfPostBody(session);
-    	}else{
-    		parms = session.getParms();
-    	}
+    	Map<String,String> parms = getParams(session);
     	String sid=parms.get(DTALK_SESSION);
     	if(sid ==null){
     		sid=session.getCookies().read(DTALK_SESSION);
@@ -212,6 +243,10 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
 
     	if (dtalkSession != null && Objects.equal(dtalkSession, sid)){
     		dtalkSession = null;
+    		if(null != wsSocket){
+	    		wsSocket.close(CloseCode.NormalClosure, "", false);
+	    		wsSocket=null;
+    		}
         	ack.setStatus(Ack.Status.OK).setStatusMessage("logout OK");
     	}        
     }
@@ -219,7 +254,7 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
 	/**
 	 * @return engine
 	 */
-	public ItemEngineHttpImpl getEngine() {
+	public ItemEngineHttpImpl getItemAdapter() {
 		return engine;
 	}
 
@@ -228,7 +263,25 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
 	 * @return 
 	 */
 	public ItemAdapterHttpServer setItemAdapter(ItemEngineHttpImpl engine) {
-		this.engine = engine;
+		this.engine = checkNotNull(engine,"engine is null").setSupplier(webSocketSupplier);
+		return this;
+	}
+	
+	/**
+	 * @return
+	 * @see gu.dtalk.engine.BaseItemEngine#getRoot()
+	 */
+	public ItemAdapterHttpServer getRoot() {
+		engine.getRoot();
+		return this;
+	}
+	/**
+	 * @param root
+	 * @return
+	 * @see gu.dtalk.engine.BaseItemEngine#setRoot(gu.dtalk.MenuItem)
+	 */
+	public ItemAdapterHttpServer setRoot(MenuItem root) {
+		engine.setRoot(root);
 		return this;
 	}
 	/**
@@ -241,5 +294,47 @@ public class ItemAdapterHttpServer extends NanoHTTPD {
 			this.timerPeriod = timerPeriod;
 		}
 		return this;
+	}
+	@Override
+	protected WebSocket openWebSocket(IHTTPSession handshake) {
+		return new DtalkWebSocket(handshake);
+	}
+	private class DtalkWebSocket extends WebSocket {
+
+		public DtalkWebSocket(IHTTPSession handshakeRequest) {
+			super(handshakeRequest);
+		}
+
+		@Override
+		protected void onOpen() {
+			wsSocket = this;
+		}
+
+		@Override
+		protected void onClose(CloseCode code, String reason, boolean initiatedByRemote) {
+			wsSocket = null;
+            logger.info("C [" + (initiatedByRemote ? "Remote" : "Self") + "] " + (code != null ? code : "UnknownCloseCode[" + code + "]")
+                    + (reason != null && !reason.isEmpty() ? ": " + reason : ""));
+		}
+
+		@Override
+		protected void onMessage(WebSocketFrame message) {
+			logger.info("message:{}",message.getTextPayload());
+		}
+
+		@Override
+		protected void onPong(WebSocketFrame pong) {
+			try {
+				send("PONG");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		protected void onException(IOException exception) {
+			logger.info("{}:{}",exception.getClass().getName(),exception.getMessage());
+		}
+		
 	}
 }
