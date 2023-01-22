@@ -107,29 +107,30 @@
 				</os>
 			</activation>
 			<build>
-			<plugins>
-			   <plugin>
-			    <groupId>org.codehaus.mojo</groupId>
-			    <artifactId>exec-maven-plugin</artifactId>
-			    <version>1.2.1</version>
-			    <executions>
-				<execution>
-				    <id>chmod-bash-script</id>
-				    <phase>install</phase>
-				    <goals>
-					<goal>exec</goal>
-				    </goals>
-				    <configuration>
-					<executable>bash</executable>
-					<arguments>
-					    <argument>-c</argument>
-					    <argument>chmod +x ${project.build.directory}/shell/*.sh</argument>
-					</arguments>
-				    </configuration>
-				</execution>
-			    </executions>
-			</plugin>
-			</plugins>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.2.1</version>
+						<executions>
+							<!-- 为所有 target/shell下自动生成的bash shell脚本添加执行权限  -->
+							<execution>
+								<id>chmod-bash-script</id>
+								<phase>install</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>bash</executable>
+									<arguments>
+										<argument>-c</argument>
+										<argument>chmod +x ${project.build.directory}/shell/*.sh</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
 			</build>
 		</profile>
 	</profiles>

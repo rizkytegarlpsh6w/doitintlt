@@ -24,6 +24,7 @@ import com.google.common.collect.Maps;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
+import fi.iki.elonen.NanoWSD.WebSocketFrame.OpCode;
 import fi.iki.elonen.NanoWSD;
 import gu.dtalk.Ack;
 import gu.dtalk.MenuItem;
@@ -77,13 +78,14 @@ public class ItemAdapterHttpServer extends NanoWSD {
 		}
 	};
 	private ItemEngineHttpImpl engine = new ItemEngineHttpImpl().setSupplier(webSocketSupplier);
+	private boolean debug=false;
 	public ItemAdapterHttpServer()  {
 		this(DEFAULT_HTTP_PORT);
 	}
     public ItemAdapterHttpServer(int port)  {
         super(port);
         selfMac = FaceUtilits.toHex(DeviceUtils.DEVINFO_PROVIDER.getMac());
-		// 定时检查itemAdapter工作状态，当itemAdapter 空闲超时，则中止频道
+		// 定时检查引擎工作状态，当空闲超时，则中止连接
 		getTimer().schedule(new TimerTask() {
 
 			@Override
@@ -94,12 +96,16 @@ public class ItemAdapterHttpServer extends NanoWSD {
 						if(System.currentTimeMillis() - lasthit > idleTimeLimit){
 							dtalkSession = null;
 						}
+						if(dtalkSession != null && wsSocket != null && wsSocket.isOpen()){
+							wsSocket.sendFrame(new WebSocketFrame(OpCode.Pong, true, ""));
+						}
 					}
 				}catch (Exception e) {
 					logger.error(e.getMessage());
 				}
 			}
 		}, 0, timerPeriod);
+
     }
     private boolean isAuthorizationSession(IHTTPSession session){
     	return dtalkSession != null && dtalkSession.equals(session.getCookies().read(DTALK_SESSION));
@@ -114,7 +120,28 @@ public class ItemAdapterHttpServer extends NanoWSD {
     			APPICATION_JSON, 
     			json);
     }
+	@Override
+	public void start(int timeout, boolean daemon) throws IOException {
+		if(!isAlive()){
+			super.start(timeout, daemon);
+			// 定时发送PING
+			getTimer().schedule(new TimerTask() {
 
+				@Override
+				public void run() {
+					try{
+						if(null != dtalkSession && ItemAdapterHttpServer.this.isAlive()){						
+							if(dtalkSession != null && wsSocket != null && wsSocket.isOpen()){
+								wsSocket.ping(new byte[0]);
+							}
+						}
+					}catch (Exception e) {
+						logger.error(e.getMessage());
+					}
+				}
+			}, 0, timeout*3/4);
+		}
+	}
     @Override
     public Response serve(IHTTPSession session) {
     	if (isWebsocketRequested(session) && ! isAuthorizationSession(session)) {
@@ -125,7 +152,9 @@ public class ItemAdapterHttpServer extends NanoWSD {
     	}
 		return super.serve(session);    	
     }
-    @Override
+
+
+	@Override
     public Response serveHttp(IHTTPSession session) {
     	Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK).setDeviceMac(selfMac);
     	try{
@@ -227,6 +256,7 @@ public class ItemAdapterHttpServer extends NanoWSD {
 					Boolean.valueOf(MoreObjects.firstNonNull(parms.get("isMd5"), "true"))),INVALID_PWD);
 			sid = dtalkSession = Long.toHexString(System.nanoTime());
 	    	session.getCookies().set(DTALK_SESSION, dtalkSession, 1);
+	    	logger.info("session {} connected",dtalkSession);
     	}
     	checkState(Objects.equal(dtalkSession, sid),CLIENT_LOCKED);
         ack.setStatus(Ack.Status.OK).setStatusMessage(AUTH_OK);
@@ -313,28 +343,41 @@ public class ItemAdapterHttpServer extends NanoWSD {
 		@Override
 		protected void onClose(CloseCode code, String reason, boolean initiatedByRemote) {
 			wsSocket = null;
-            logger.info("C [" + (initiatedByRemote ? "Remote" : "Self") + "] " + (code != null ? code : "UnknownCloseCode[" + code + "]")
-                    + (reason != null && !reason.isEmpty() ? ": " + reason : ""));
-		}
-
-		@Override
-		protected void onMessage(WebSocketFrame message) {
-			logger.info("message:{}",message.getTextPayload());
-		}
-
-		@Override
-		protected void onPong(WebSocketFrame pong) {
-			try {
-				send("PONG");
-			} catch (IOException e) {
-				e.printStackTrace();
+			if(debug){
+	            logger.info("C [" + (initiatedByRemote ? "Remote" : "Self") + "] " + (code != null ? code : "UnknownCloseCode[" + code + "]")
+	                    + (reason != null && !reason.isEmpty() ? ": " + reason : ""));
 			}
 		}
 
 		@Override
+		protected void onMessage(WebSocketFrame message) {
+			
+		}
+
+		@Override
+		protected void debugFrameReceived(WebSocketFrame frame) {
+			if(debug){
+				logger.info("frame:{}",frame);
+			}
+		}
+
+		@Override
+		protected void onPong(WebSocketFrame pong) {
+		}
+
+		@Override
 		protected void onException(IOException exception) {
+			
 			logger.info("{}:{}",exception.getClass().getName(),exception.getMessage());
 		}
 		
+	}
+	/**
+	 * @param debug 要设置的 debug
+	 * @return 
+	 */
+	public ItemAdapterHttpServer setDebug(boolean debug) {
+		this.debug = debug;
+		return this;
 	}
 }

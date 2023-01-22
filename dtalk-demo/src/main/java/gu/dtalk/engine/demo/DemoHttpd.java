@@ -16,12 +16,12 @@ import static gu.dtalk.engine.demo.DemoHttpdConfig.*;
  *
  */
 public class DemoHttpd {
-	private final ItemAdapterHttpServer connAdapter;
+	private final ItemAdapterHttpServer httpServer;
 	public DemoHttpd() {
 		DemoMenu root = new DemoMenu().init().register(DemoListener.INSTANCE);
 		
-		connAdapter = new ItemAdapterHttpServer(DEMO_CONFIG.getPort())
-				.setItemAdapter((ItemEngineHttpImpl) new ItemEngineHttpImpl().setRoot(root));
+		httpServer = new ItemAdapterHttpServer(DEMO_CONFIG.getPort())
+				.setRoot(root).setDebug(true);
 	}
 	/**
 	 * 启动连接
@@ -30,7 +30,7 @@ public class DemoHttpd {
 		byte[] devMac = DeviceUtils.DEVINFO_PROVIDER.getMac();
 		System.out.printf("DEVICE MAC address(设备地址): %s\n",NetworkUtil.formatMac(devMac, ":"));
 		try {
-			connAdapter.start(DEMO_CONFIG.getTimeout(), false);
+			httpServer.start(DEMO_CONFIG.getTimeout(), false);
 			System.out.printf("HTTP Connect port(连接端口) : port:%d \n",DEMO_CONFIG.getPort());
 		} catch (IOException e) {
 			e.printStackTrace();
