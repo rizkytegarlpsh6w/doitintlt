@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,6 @@ import com.google.common.collect.Maps;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
-import fi.iki.elonen.NanoWSD.WebSocketFrame.OpCode;
 import fi.iki.elonen.NanoWSD;
 import gu.dtalk.Ack;
 import gu.dtalk.MenuItem;
@@ -69,12 +69,15 @@ public class ItemAdapterHttpServer extends NanoWSD {
 	 * 当前对话ID
 	 */
 	private String dtalkSession;
-	private WebSocket wsSocket;
-	private final Supplier<WebSocket> webSocketSupplier = new Supplier<NanoWSD.WebSocket>() {
+	/**
+	 * 当前websocket 连接
+	 */
+	private final AtomicReference<WebSocket> wsReference = new AtomicReference<>();
+	private final Supplier<AtomicReference<WebSocket>> webSocketSupplier = new Supplier<AtomicReference<WebSocket>>() {
 
 		@Override
-		public WebSocket get() {
-			return wsSocket;
+		public AtomicReference<WebSocket> get() {
+			return wsReference;
 		}
 	};
 	private ItemEngineHttpImpl engine = new ItemEngineHttpImpl().setSupplier(webSocketSupplier);
@@ -94,10 +97,7 @@ public class ItemAdapterHttpServer extends NanoWSD {
 					if(null != dtalkSession && ItemAdapterHttpServer.this.isAlive()){
 						long lasthit = engine.lastHitTime();
 						if(System.currentTimeMillis() - lasthit > idleTimeLimit){
-							dtalkSession = null;
-						}
-						if(dtalkSession != null && wsSocket != null && wsSocket.isOpen()){
-							wsSocket.sendFrame(new WebSocketFrame(OpCode.Pong, true, ""));
+							resetSession();
 						}
 					}
 				}catch (Exception e) {
@@ -120,6 +120,20 @@ public class ItemAdapterHttpServer extends NanoWSD {
     			APPICATION_JSON, 
     			json);
     }
+	private void resetSession(){
+		synchronized (wsReference) {
+			dtalkSession = null;
+			WebSocket wsSocket = wsReference.get();
+			if(null != wsSocket){
+	    		try {
+					wsSocket.close(CloseCode.NormalClosure, "", false);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	    		wsSocket=null;
+			}
+		}
+	}
 	@Override
 	public void start(int timeout, boolean daemon) throws IOException {
 		if(!isAlive()){
@@ -129,15 +143,22 @@ public class ItemAdapterHttpServer extends NanoWSD {
 
 				@Override
 				public void run() {
-					try{
-						if(null != dtalkSession && ItemAdapterHttpServer.this.isAlive()){						
-							if(dtalkSession != null && wsSocket != null && wsSocket.isOpen()){
-								wsSocket.ping(new byte[0]);
-							}
+					
+						if(null != dtalkSession && ItemAdapterHttpServer.this.isAlive()){
+							
+							synchronized (wsReference) {
+								try{
+									WebSocket wsSocket = wsReference.get();
+									if(dtalkSession != null && wsSocket != null && wsSocket.isOpen()){
+										wsSocket.ping(new byte[0]);
+									}
+								}catch (Exception e) {
+									logger.error("{}:{}",e.getClass().getName(),e.getMessage());
+									//logger.error(e.getMessage(),e);
+								}			
+							}										
 						}
-					}catch (Exception e) {
-						logger.error(e.getMessage());
-					}
+
 				}
 			}, 0, timeout*3/4);
 		}
@@ -181,7 +202,8 @@ public class ItemAdapterHttpServer extends NanoWSD {
 	    				String path=session.getUri().substring(DTALK_PREFIX.length());
 	    				jsonObject.put("path", path);
     				} 
-    				try {    					
+    				try {
+    					engine.onSubscribe(jsonObject);
     					return engine.getResponse();
 					} catch (SmqUnsubscribeException e) {
 						logout(session, ack);
@@ -263,22 +285,10 @@ public class ItemAdapterHttpServer extends NanoWSD {
        	engine.setLastHitTime(System.currentTimeMillis());
 
 	}
-    protected synchronized void logout(IHTTPSession session, Ack<Object> ack) throws IOException, ResponseException{
-
-    	Map<String,String> parms = getParams(session);
-    	String sid=parms.get(DTALK_SESSION);
-    	if(sid ==null){
-    		sid=session.getCookies().read(DTALK_SESSION);
-    	}
-
-    	if (dtalkSession != null && Objects.equal(dtalkSession, sid)){
-    		dtalkSession = null;
-    		if(null != wsSocket){
-	    		wsSocket.close(CloseCode.NormalClosure, "", false);
-	    		wsSocket=null;
-    		}
-        	ack.setStatus(Ack.Status.OK).setStatusMessage("logout OK");
-    	}        
+	protected synchronized void logout(IHTTPSession session, Ack<Object> ack) throws IOException, ResponseException{
+    	checkAuthorizationSession(session);
+   		resetSession();
+       	ack.setStatus(Ack.Status.OK).setStatusMessage("logout OK");
     }
 
 	/**
@@ -337,12 +347,13 @@ public class ItemAdapterHttpServer extends NanoWSD {
 
 		@Override
 		protected void onOpen() {
-			wsSocket = this;
+			synchronized (wsReference) {
+				wsReference.set(this);
+			}			
 		}
 
 		@Override
 		protected void onClose(CloseCode code, String reason, boolean initiatedByRemote) {
-			wsSocket = null;
 			if(debug){
 	            logger.info("C [" + (initiatedByRemote ? "Remote" : "Self") + "] " + (code != null ? code : "UnknownCloseCode[" + code + "]")
 	                    + (reason != null && !reason.isEmpty() ? ": " + reason : ""));
@@ -351,7 +362,12 @@ public class ItemAdapterHttpServer extends NanoWSD {
 
 		@Override
 		protected void onMessage(WebSocketFrame message) {
-			
+            try {
+                message.setUnmasked();
+                sendFrame(message);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 		}
 
 		@Override
@@ -373,6 +389,7 @@ public class ItemAdapterHttpServer extends NanoWSD {
 		
 	}
 	/**
+	 * 设置 DEBUG 模式，默认false
 	 * @param debug 要设置的 debug
 	 * @return 
 	 */

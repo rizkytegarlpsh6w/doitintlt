@@ -10,6 +10,7 @@ import gu.simplemq.json.BaseJsonEncoder;
 import static gu.dtalk.engine.ItemAdapterHttpServer.APPICATION_JSON;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -22,7 +23,7 @@ import com.google.common.base.Suppliers;
  */
 public class ItemEngineHttpImpl extends BaseItemEngine{
 	private DtalkListener listener;
-	private Supplier<WebSocket> supplier= Suppliers.ofInstance(null);
+	private Supplier<AtomicReference<WebSocket>> supplier= Suppliers.ofInstance(null);
 	private static final ThreadLocal<Response> response = new  ThreadLocal<Response>();
 	
 	public ItemEngineHttpImpl() {
@@ -57,15 +58,18 @@ public class ItemEngineHttpImpl extends BaseItemEngine{
 
 				@Override
 				protected void responseAck(Ack<Object> ack) {
-					WebSocket ws = supplier.get();
+					AtomicReference<WebSocket> ws = supplier.get();
 					if(ws != null){
-						try {
-							ws.send(BaseJsonEncoder.getEncoder().toJsonString(ack));
-						} catch (IOException e) {
-							e.printStackTrace();
+						synchronized (ws) {
+							try {
+								if(null != ws.get()){
+									ws.get().send(BaseJsonEncoder.getEncoder().toJsonString(ack));
+								}
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
 						}
-					}
-					
+					}					
 				}};
 		}
 		return listener;
@@ -81,7 +85,7 @@ public class ItemEngineHttpImpl extends BaseItemEngine{
 	 * @param supplier 要设置的 supplier
 	 * @return 
 	 */
-	ItemEngineHttpImpl setSupplier(Supplier<WebSocket> supplier) {
+	ItemEngineHttpImpl setSupplier(Supplier<AtomicReference<WebSocket>> supplier) {
 		if(null != supplier){
 			this.supplier = supplier;
 		}
