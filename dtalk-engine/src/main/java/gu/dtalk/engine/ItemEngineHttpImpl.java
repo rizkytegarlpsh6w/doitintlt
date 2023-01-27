@@ -7,7 +7,7 @@ import fi.iki.elonen.NanoWSD.WebSocket;
 import gu.dtalk.Ack;
 import gu.dtalk.MenuItem;
 import gu.simplemq.json.BaseJsonEncoder;
-import static gu.dtalk.engine.ItemAdapterHttpServer.APPICATION_JSON;
+import static gu.dtalk.engine.DtalkHttpServer.APPICATION_JSON;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;

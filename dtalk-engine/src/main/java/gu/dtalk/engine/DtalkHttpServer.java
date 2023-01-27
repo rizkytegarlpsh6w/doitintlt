@@ -39,8 +39,8 @@ import static gu.dtalk.Version.*;
  * @author guyadong
  *
  */
-public class ItemAdapterHttpServer extends NanoWSD {
-	private static final Logger logger = LoggerFactory.getLogger(ItemAdapterHttpServer.class);
+public class DtalkHttpServer extends NanoWSD {
+	private static final Logger logger = LoggerFactory.getLogger(DtalkHttpServer.class);
 	private static final String DTALK_SESSION="dtalk-session"; 
 	public static final String APPICATION_JSON="application/json";
 	private static final String UNAUTH_SESSION="UNAUTHORIZATION SESSION";
@@ -82,10 +82,10 @@ public class ItemAdapterHttpServer extends NanoWSD {
 	};
 	private ItemEngineHttpImpl engine = new ItemEngineHttpImpl().setSupplier(webSocketSupplier);
 	private boolean debug=false;
-	public ItemAdapterHttpServer()  {
+	public DtalkHttpServer()  {
 		this(DEFAULT_HTTP_PORT);
 	}
-    public ItemAdapterHttpServer(int port)  {
+    public DtalkHttpServer(int port)  {
         super(port);
         selfMac = FaceUtilits.toHex(DeviceUtils.DEVINFO_PROVIDER.getMac());
 		// 定时检查引擎工作状态，当空闲超时，则中止连接
@@ -94,7 +94,7 @@ public class ItemAdapterHttpServer extends NanoWSD {
 			@Override
 			public void run() {
 				try{
-					if(null != dtalkSession && ItemAdapterHttpServer.this.isAlive()){
+					if(null != dtalkSession && DtalkHttpServer.this.isAlive()){
 						long lasthit = engine.lastHitTime();
 						if(System.currentTimeMillis() - lasthit > idleTimeLimit){
 							resetSession();
@@ -144,7 +144,7 @@ public class ItemAdapterHttpServer extends NanoWSD {
 				@Override
 				public void run() {
 					
-						if(null != dtalkSession && ItemAdapterHttpServer.this.isAlive()){
+						if(null != dtalkSession && DtalkHttpServer.this.isAlive()){
 							
 							synchronized (wsReference) {
 								try{
@@ -302,7 +302,7 @@ public class ItemAdapterHttpServer extends NanoWSD {
 	 * @param engine 要设置的 engine
 	 * @return 
 	 */
-	public ItemAdapterHttpServer setItemAdapter(ItemEngineHttpImpl engine) {
+	public DtalkHttpServer setItemAdapter(ItemEngineHttpImpl engine) {
 		this.engine = checkNotNull(engine,"engine is null").setSupplier(webSocketSupplier);
 		return this;
 	}
@@ -311,7 +311,7 @@ public class ItemAdapterHttpServer extends NanoWSD {
 	 * @return
 	 * @see gu.dtalk.engine.BaseItemEngine#getRoot()
 	 */
-	public ItemAdapterHttpServer getRoot() {
+	public DtalkHttpServer getRoot() {
 		engine.getRoot();
 		return this;
 	}
@@ -320,7 +320,7 @@ public class ItemAdapterHttpServer extends NanoWSD {
 	 * @return
 	 * @see gu.dtalk.engine.BaseItemEngine#setRoot(gu.dtalk.MenuItem)
 	 */
-	public ItemAdapterHttpServer setRoot(MenuItem root) {
+	public DtalkHttpServer setRoot(MenuItem root) {
 		engine.setRoot(root);
 		return this;
 	}
@@ -329,7 +329,7 @@ public class ItemAdapterHttpServer extends NanoWSD {
 	 * @param timerPeriod
 	 * @return
 	 */
-	public ItemAdapterHttpServer setTimerPeriod(long timerPeriod) {
+	public DtalkHttpServer setTimerPeriod(long timerPeriod) {
 		if(timerPeriod > 0){
 			this.timerPeriod = timerPeriod;
 		}
@@ -393,7 +393,7 @@ public class ItemAdapterHttpServer extends NanoWSD {
 	 * @param debug 要设置的 debug
 	 * @return 
 	 */
-	public ItemAdapterHttpServer setDebug(boolean debug) {
+	public DtalkHttpServer setDebug(boolean debug) {
 		this.debug = debug;
 		return this;
 	}

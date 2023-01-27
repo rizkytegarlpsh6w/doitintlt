@@ -4,8 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import gu.dtalk.engine.DeviceUtils;
-import gu.dtalk.engine.ItemAdapterHttpServer;
-import gu.dtalk.engine.ItemEngineHttpImpl;
+import gu.dtalk.engine.DtalkHttpServer;
 import net.gdface.utils.NetworkUtil;
 
 import static gu.dtalk.engine.demo.DemoHttpdConfig.*;
@@ -16,11 +15,11 @@ import static gu.dtalk.engine.demo.DemoHttpdConfig.*;
  *
  */
 public class DemoHttpd {
-	private final ItemAdapterHttpServer httpServer;
+	private final DtalkHttpServer httpServer;
 	public DemoHttpd() {
 		DemoMenu root = new DemoMenu().init().register(DemoListener.INSTANCE);
 		
-		httpServer = new ItemAdapterHttpServer(DEMO_CONFIG.getPort())
+		httpServer = new DtalkHttpServer(DEMO_CONFIG.getPort())
 				.setRoot(root).setDebug(true);
 	}
 	/**
