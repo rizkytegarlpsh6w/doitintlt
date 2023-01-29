@@ -18,7 +18,9 @@ public class DemoHttpdConfig extends BaseAppConfig implements DemoConstants {
 	
 	private int port = CommonConstant.DEFAULT_HTTP_PORT;
 	private int timeout = SOCKET_READ_TIMEOUT; 
+	private boolean noauth;
 	private boolean trace;
+
 
 	public DemoHttpdConfig() {
 
@@ -32,6 +34,8 @@ public class DemoHttpdConfig extends BaseAppConfig implements DemoConstants {
 		options.addOption(Option.builder(TRACE_OPTION).longOpt(TRACE_OPTION_LONG)
 				.desc(TRACE_OPTION_DESC ).hasArg(false).build());
 
+		options.addOption(Option.builder().longOpt(HTTP_NOAUTH_OPTION_LONG)
+				.desc(HTTP_NOAUTH_OPTION_DESC ).hasArg(false).build());
 		
 		defaultValue.setProperty(HTTP_PORT_OPTION_LONG, port);
 		defaultValue.setProperty(HTTP_TIMEOUT_OPTION_LONG, timeout);
@@ -46,8 +50,27 @@ public class DemoHttpdConfig extends BaseAppConfig implements DemoConstants {
 		if(hasProperty(HTTP_TIMEOUT_OPTION_LONG)){
 			timeout =  ((Number)getProperty(HTTP_TIMEOUT_OPTION_LONG)).intValue();
 		}
+		this.noauth = getProperty(HTTP_NOAUTH_OPTION_LONG);
 		this.trace = getProperty(TRACE_OPTION_LONG);
 		
+	}
+	/**
+	 * @return port
+	 */
+	public int getPort() {
+		return port;
+	}
+	/**
+	 * @return timeout
+	 */
+	public int getTimeout() {
+		return timeout;
+	}
+	/**
+	 * @return noauth
+	 */
+	public boolean isNoauth() {
+		return noauth;
 	}
 	/**
 	 * @return 发生异常时是否输出详细堆栈信息
@@ -62,17 +85,5 @@ public class DemoHttpdConfig extends BaseAppConfig implements DemoConstants {
 	@Override
 	protected String getHeader() {
 		return "Device talk Demo starting(设备模拟器HTTP)";
-	}
-	/**
-	 * @return port
-	 */
-	public int getPort() {
-		return port;
-	}
-	/**
-	 * @return timeout
-	 */
-	public int getTimeout() {
-		return timeout;
 	}
 }

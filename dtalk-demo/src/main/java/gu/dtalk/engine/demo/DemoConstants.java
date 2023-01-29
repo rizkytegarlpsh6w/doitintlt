@@ -30,5 +30,6 @@ public interface DemoConstants extends CommonCliConstants {
 	public static final String HTTP_PORT_OPTION_DESC = "http port number,default:";
 	public static final String HTTP_TIMEOUT_OPTION_LONG = "timout";
 	public static final String HTTP_TIMEOUT_OPTION_DESC = "http timeout,default:";
-
+	public static final String HTTP_NOAUTH_OPTION_LONG = "noauth";
+	public static final String HTTP_NOAUTH_OPTION_DESC = "skip authorization session,default:";
 }

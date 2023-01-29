@@ -7,6 +7,7 @@ import static gu.dtalk.CommonConstant.DEFAULT_IDLE_TIME_MILLS;
 import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -21,6 +22,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
@@ -81,7 +83,8 @@ public class DtalkHttpServer extends NanoWSD {
 		}
 	};
 	private ItemEngineHttpImpl engine = new ItemEngineHttpImpl().setSupplier(webSocketSupplier);
-	private boolean debug=false;
+	private boolean debug = false;
+	private boolean noAuth = false;
 	public DtalkHttpServer()  {
 		this(DEFAULT_HTTP_PORT);
 	}
@@ -111,7 +114,7 @@ public class DtalkHttpServer extends NanoWSD {
     	return dtalkSession != null && dtalkSession.equals(session.getCookies().read(DTALK_SESSION));
     }
     private void checkAuthorizationSession(IHTTPSession session){
-    	checkState(isAuthorizationSession(session),UNAUTH_SESSION);
+    	checkState(noAuth  || isAuthorizationSession(session),UNAUTH_SESSION);
     }
     private <T> Response responseAck(Ack<T> ack){
     	String json=BaseJsonEncoder.getEncoder().toJsonString(ack);
@@ -173,7 +176,44 @@ public class DtalkHttpServer extends NanoWSD {
     	}
 		return super.serve(session);    	
     }
-
+    private static final Map<String,String>MIME_OF_SUFFIX = ImmutableMap.<String,String>builder()
+    		.put(".jpeg", "image/jpeg")
+    		.put(".jpg", "image/jpeg")
+    		.put(".png", "image/png")
+    		.put(".gif", "image/gif")
+    		.put(".htm","text/html")
+    		.put(".html","text/html")
+    		.put(".txt","text/plain")
+    		.put(".csv","text/csv")
+    		.put(".json","application/json")
+    		.put(".js","application/javascript")
+    		.put(".xml","application/xml")
+    		.put(".zip","application/zip")
+    		.put(".pdf","application/pdf")
+    		.put(".sql","application/sql")
+    		.put(".doc","application/msword")    		
+    		.build(); 
+    private Response responseStaticResource(String uri){    	
+		InputStream res = getClass().getResourceAsStream(uri);
+		if(null != res){
+			String suffix = uri.substring(uri.lastIndexOf('.'));
+			if(MIME_OF_SUFFIX.containsKey(suffix)){
+				return newChunkedResponse(
+						Status.OK, 
+						MIME_OF_SUFFIX.get(suffix), 
+						res);
+			}else{
+				return newFixedLengthResponse(
+		    			Status.UNSUPPORTED_MEDIA_TYPE, 
+		    			NanoHTTPD.MIME_PLAINTEXT, 
+		    			String.format("UNSUPPORTED MEDIA TYPE %s", suffix));	
+			}
+		}
+		return newFixedLengthResponse(
+    			Status.NOT_FOUND, 
+    			NanoHTTPD.MIME_PLAINTEXT, 
+    			String.format("NOT FOUND resource %s", uri));	
+    }
 
 	@Override
     public Response serveHttp(IHTTPSession session) {
@@ -192,7 +232,8 @@ public class DtalkHttpServer extends NanoWSD {
     			return newFixedLengthResponse(Status.OK, NanoHTTPD.MIME_HTML, msg);
     		}
     		default:
-    			if(session.getUri().startsWith(DTALK_PREFIX )){
+    			
+				if(session.getUri().startsWith(DTALK_PREFIX )){
     				checkAuthorizationSession(session);
     				if(DTALK_PREFIX.equals(session.getUri())){
     					checkState(Method.POST.equals(session.getMethod()),"POST method supported only");
@@ -210,7 +251,7 @@ public class DtalkHttpServer extends NanoWSD {
 						break;
 					}     				
     			}
-    			ack.setStatus(Ack.Status.ERROR).setStatusMessage("error " + session.getUri());
+				return responseStaticResource(session.getUri());
     		}
     	}catch (Exception e) {    		
     		ack.setStatus(Ack.Status.ERROR).setException(e.getClass().getName()).setStatusMessage(e.getMessage());
@@ -395,6 +436,16 @@ public class DtalkHttpServer extends NanoWSD {
 	 */
 	public DtalkHttpServer setDebug(boolean debug) {
 		this.debug = debug;
+		return this;
+	}
+	/**
+	 * 设置是否不验证session合法性,默认false<br>
+	 * 开发模式下可以设置为true,跳过安全验证
+	 * @param noAuth 要设置的 noAuth
+	 * @return 
+	 */
+	public DtalkHttpServer setNoAuth(boolean noAuth) {
+		this.noAuth = noAuth;
 		return this;
 	}
 }
