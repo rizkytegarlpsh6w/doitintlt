@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Dtalk Menu</title>
+  <link href="jquery-ui-1.12.1/jquery-ui.css" rel="stylesheet">
+  <script src="jquery-ui-1.12.1/external/jquery/jquery.js"></script>
+  <script src="jquery-ui-1.12.1/jquery-ui.js"></script>
+  <style>
+	body{
+		font-family: "Trebuchet MS", sans-serif;
+		margin: 50px;
+	}
+	.demoHeaders {
+		margin-top: 2em;
+	}
+	#dialog-link {
+		padding: .4em 1em .4em 20px;
+		text-decoration: none;
+		position: relative;
+	}
+	#dialog-link span.ui-icon {
+		margin: 0 5px 0 0;
+		position: absolute;
+		left: .2em;
+		top: 50%;
+		margin-top: -8px;
+	}
+	#icons {
+		margin: 0;
+		padding: 0;
+	}
+	#icons li {
+		margin: 2px;
+		position: relative;
+		padding: 4px 0;
+		cursor: pointer;
+		float: left;
+		list-style: none;
+	}
+	#icons span.ui-icon {
+		float: left;
+		margin: 0 4px;
+	}
+	.fakewindowcontain .ui-widget-overlay {
+		position: absolute;
+	}
+	select {
+		width: 200px;
+	}
+  </style>
+</head>
+<script>
+
+</script>
+<body>
+  <h1>Dtalk Menu</h1>
+  <ul style="width:100px;" id="menu">
+  </ul>
+  <h4 id="req-status"></h4>
+
+  <script>
+    var root_menu,current_item;    
+    function render_menu(menu){
+      var childs = "";
+      for(var c in menu.childs){
+          childs += "<li onclick=req_menu('" + menu.childs[c].path + "')><div>"+ (menu.childs[c].uiName ? menu.childs[c].uiName : menu.childs[c].name) +"</div></li>"      
+      }
+      return childs;
+    }
+    function req_menu(path){
+      $.get("/dtalk" + path,function(data,status){
+        if(status = 'success'){
+          current_item=data;
+          $('#menu').html(render_menu(current_item));
+        }else{
+          $("#req-status").text=data;
+        }
+          
+      });
+    }
+    $.get("/dtalk/",function(data,status){
+        if(status = 'success'){
+          root_menu=data;
+          $('#menu').html(render_menu(root_menu));
+        }else{
+          $("#req-status").text=data;
+        }
+          
+      });
+
+  $( "#menu" ).menu();    
+  </script>
+</body>
+
+</html>
