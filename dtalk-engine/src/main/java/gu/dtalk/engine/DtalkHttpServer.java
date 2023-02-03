@@ -8,6 +8,7 @@ import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -43,6 +45,444 @@ import static gu.dtalk.Version.*;
  */
 public class DtalkHttpServer extends NanoWSD {
 	private static final Logger logger = LoggerFactory.getLogger(DtalkHttpServer.class);
+    /**
+     * Standard HTTP header names.
+     */
+    public static final class HeaderNames {
+        /**
+         * {@code "Accept"}
+         */
+        public static final String ACCEPT = "Accept";
+        /**
+         * {@code "Accept-Charset"}
+         */
+        public static final String ACCEPT_CHARSET = "Accept-Charset";
+        /**
+         * {@code "Accept-Encoding"}
+         */
+        public static final String ACCEPT_ENCODING = "Accept-Encoding";
+        /**
+         * {@code "Accept-Language"}
+         */
+        public static final String ACCEPT_LANGUAGE = "Accept-Language";
+        /**
+         * {@code "Accept-Ranges"}
+         */
+        public static final String ACCEPT_RANGES = "Accept-Ranges";
+        /**
+         * {@code "Accept-Patch"}
+         */
+        public static final String ACCEPT_PATCH = "Accept-Patch";
+        /**
+         * {@code "Access-Control-Allow-Credentials"}
+         */
+        public static final String ACCESS_CONTROL_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
+        /**
+         * {@code "Access-Control-Allow-Headers"}
+         */
+        public static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
+        /**
+         * {@code "Access-Control-Allow-Methods"}
+         */
+        public static final String ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods";
+        /**
+         * {@code "Access-Control-Allow-Origin"}
+         */
+        public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+        /**
+         * {@code "Access-Control-Expose-Headers"}
+         */
+        public static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+        /**
+         * {@code "Access-Control-Max-Age"}
+         */
+        public static final String ACCESS_CONTROL_MAX_AGE = "Access-Control-Max-Age";
+        /**
+         * {@code "Access-Control-Request-Headers"}
+         */
+        public static final String ACCESS_CONTROL_REQUEST_HEADERS = "Access-Control-Request-Headers";
+        /**
+         * {@code "Access-Control-Request-Method"}
+         */
+        public static final String ACCESS_CONTROL_REQUEST_METHOD = "Access-Control-Request-Method";
+        /**
+         * {@code "Age"}
+         */
+        public static final String AGE = "Age";
+        /**
+         * {@code "Allow"}
+         */
+        public static final String ALLOW = "Allow";
+        /**
+         * {@code "Authorization"}
+         */
+        public static final String AUTHORIZATION = "Authorization";
+        /**
+         * {@code "Cache-Control"}
+         */
+        public static final String CACHE_CONTROL = "Cache-Control";
+        /**
+         * {@code "Connection"}
+         */
+        public static final String CONNECTION = "Connection";
+        /**
+         * {@code "Content-Base"}
+         */
+        public static final String CONTENT_BASE = "Content-Base";
+        /**
+         * {@code "Content-Encoding"}
+         */
+        public static final String CONTENT_ENCODING = "Content-Encoding";
+        /**
+         * {@code "Content-Language"}
+         */
+        public static final String CONTENT_LANGUAGE = "Content-Language";
+        /**
+         * {@code "Content-Length"}
+         */
+        public static final String CONTENT_LENGTH = "Content-Length";
+        /**
+         * {@code "Content-Location"}
+         */
+        public static final String CONTENT_LOCATION = "Content-Location";
+        /**
+         * {@code "Content-Transfer-Encoding"}
+         */
+        public static final String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
+        /**
+         * {@code "Content-MD5"}
+         */
+        public static final String CONTENT_MD5 = "Content-MD5";
+        /**
+         * {@code "Content-Range"}
+         */
+        public static final String CONTENT_RANGE = "Content-Range";
+        /**
+         * {@code "Content-Type"}
+         */
+        public static final String CONTENT_TYPE = "Content-Type";
+        /**
+         * {@code "Cookie"}
+         */
+        public static final String COOKIE = "Cookie";
+        /**
+         * {@code "Date"}
+         */
+        public static final String DATE = "Date";
+        /**
+         * {@code "ETag"}
+         */
+        public static final String ETAG = "ETag";
+        /**
+         * {@code "Expect"}
+         */
+        public static final String EXPECT = "Expect";
+        /**
+         * {@code "Expires"}
+         */
+        public static final String EXPIRES = "Expires";
+        /**
+         * {@code "From"}
+         */
+        public static final String FROM = "From";
+        /**
+         * {@code "Host"}
+         */
+        public static final String HOST = "Host";
+        /**
+         * {@code "If-Match"}
+         */
+        public static final String IF_MATCH = "If-Match";
+        /**
+         * {@code "If-Modified-Since"}
+         */
+        public static final String IF_MODIFIED_SINCE = "If-Modified-Since";
+        /**
+         * {@code "If-None-Match"}
+         */
+        public static final String IF_NONE_MATCH = "If-None-Match";
+        /**
+         * {@code "If-Range"}
+         */
+        public static final String IF_RANGE = "If-Range";
+        /**
+         * {@code "If-Unmodified-Since"}
+         */
+        public static final String IF_UNMODIFIED_SINCE = "If-Unmodified-Since";
+        /**
+         * {@code "Last-Modified"}
+         */
+        public static final String LAST_MODIFIED = "Last-Modified";
+        /**
+         * {@code "Location"}
+         */
+        public static final String LOCATION = "Location";
+        /**
+         * {@code "Max-Forwards"}
+         */
+        public static final String MAX_FORWARDS = "Max-Forwards";
+        /**
+         * {@code "Origin"}
+         */
+        public static final String ORIGIN = "Origin";
+        /**
+         * {@code "Pragma"}
+         */
+        public static final String PRAGMA = "Pragma";
+        /**
+         * {@code "Proxy-Authenticate"}
+         */
+        public static final String PROXY_AUTHENTICATE = "Proxy-Authenticate";
+        /**
+         * {@code "Proxy-Authorization"}
+         */
+        public static final String PROXY_AUTHORIZATION = "Proxy-Authorization";
+        /**
+         * {@code "Range"}
+         */
+        public static final String RANGE = "Range";
+        /**
+         * {@code "Referer"}
+         */
+        public static final String REFERER = "Referer";
+        /**
+         * {@code "Retry-After"}
+         */
+        public static final String RETRY_AFTER = "Retry-After";
+        /**
+         * {@code "Sec-WebSocket-Key1"}
+         */
+        public static final String SEC_WEBSOCKET_KEY1 = "Sec-WebSocket-Key1";
+        /**
+         * {@code "Sec-WebSocket-Key2"}
+         */
+        public static final String SEC_WEBSOCKET_KEY2 = "Sec-WebSocket-Key2";
+        /**
+         * {@code "Sec-WebSocket-Location"}
+         */
+        public static final String SEC_WEBSOCKET_LOCATION = "Sec-WebSocket-Location";
+        /**
+         * {@code "Sec-WebSocket-Origin"}
+         */
+        public static final String SEC_WEBSOCKET_ORIGIN = "Sec-WebSocket-Origin";
+        /**
+         * {@code "Sec-WebSocket-Protocol"}
+         */
+        public static final String SEC_WEBSOCKET_PROTOCOL = "Sec-WebSocket-Protocol";
+        /**
+         * {@code "Sec-WebSocket-Version"}
+         */
+        public static final String SEC_WEBSOCKET_VERSION = "Sec-WebSocket-Version";
+        /**
+         * {@code "Sec-WebSocket-Key"}
+         */
+        public static final String SEC_WEBSOCKET_KEY = "Sec-WebSocket-Key";
+        /**
+         * {@code "Sec-WebSocket-Accept"}
+         */
+        public static final String SEC_WEBSOCKET_ACCEPT = "Sec-WebSocket-Accept";
+        /**
+         * {@code "Server"}
+         */
+        public static final String SERVER = "Server";
+        /**
+         * {@code "Set-Cookie"}
+         */
+        public static final String SET_COOKIE = "Set-Cookie";
+        /**
+         * {@code "Set-Cookie2"}
+         */
+        public static final String SET_COOKIE2 = "Set-Cookie2";
+        /**
+         * {@code "TE"}
+         */
+        public static final String TE = "TE";
+        /**
+         * {@code "Trailer"}
+         */
+        public static final String TRAILER = "Trailer";
+        /**
+         * {@code "Transfer-Encoding"}
+         */
+        public static final String TRANSFER_ENCODING = "Transfer-Encoding";
+        /**
+         * {@code "Upgrade"}
+         */
+        public static final String UPGRADE = "Upgrade";
+        /**
+         * {@code "User-Agent"}
+         */
+        public static final String USER_AGENT = "User-Agent";
+        /**
+         * {@code "Vary"}
+         */
+        public static final String VARY = "Vary";
+        /**
+         * {@code "Via"}
+         */
+        public static final String VIA = "Via";
+        /**
+         * {@code "Warning"}
+         */
+        public static final String WARNING = "Warning";
+        /**
+         * {@code "WebSocket-Location"}
+         */
+        public static final String WEBSOCKET_LOCATION = "WebSocket-Location";
+        /**
+         * {@code "WebSocket-Origin"}
+         */
+        public static final String WEBSOCKET_ORIGIN = "WebSocket-Origin";
+        /**
+         * {@code "WebSocket-Protocol"}
+         */
+        public static final String WEBSOCKET_PROTOCOL = "WebSocket-Protocol";
+        /**
+         * {@code "WWW-Authenticate"}
+         */
+        public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
+
+        private HeaderNames() {
+        }
+    }
+
+    /**
+     * Standard HTTP header values.
+     */
+    public static final class HeaderValues {
+        /**
+         * {@code "application/x-www-form-urlencoded"}
+         */
+        public static final String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
+        /**
+         * {@code "base64"}
+         */
+        public static final String BASE64 = "base64";
+        /**
+         * {@code "binary"}
+         */
+        public static final String BINARY = "binary";
+        /**
+         * {@code "boundary"}
+         */
+        public static final String BOUNDARY = "boundary";
+        /**
+         * {@code "bytes"}
+         */
+        public static final String BYTES = "bytes";
+        /**
+         * {@code "charset"}
+         */
+        public static final String CHARSET = "charset";
+        /**
+         * {@code "chunked"}
+         */
+        public static final String CHUNKED = "chunked";
+        /**
+         * {@code "close"}
+         */
+        public static final String CLOSE = "close";
+        /**
+         * {@code "compress"}
+         */
+        public static final String COMPRESS = "compress";
+        /**
+         * {@code "100-continue"}
+         */
+        public static final String CONTINUE =  "100-continue";
+        /**
+         * {@code "deflate"}
+         */
+        public static final String DEFLATE = "deflate";
+        /**
+         * {@code "gzip"}
+         */
+        public static final String GZIP = "gzip";
+        /**
+         * {@code "identity"}
+         */
+        public static final String IDENTITY = "identity";
+        /**
+         * {@code "keep-alive"}
+         */
+        public static final String KEEP_ALIVE = "keep-alive";
+        /**
+         * {@code "max-age"}
+         */
+        public static final String MAX_AGE = "max-age";
+        /**
+         * {@code "max-stale"}
+         */
+        public static final String MAX_STALE = "max-stale";
+        /**
+         * {@code "min-fresh"}
+         */
+        public static final String MIN_FRESH = "min-fresh";
+        /**
+         * {@code "multipart/form-data"}
+         */
+        public static final String MULTIPART_FORM_DATA = "multipart/form-data";
+        /**
+         * {@code "must-revalidate"}
+         */
+        public static final String MUST_REVALIDATE = "must-revalidate";
+        /**
+         * {@code "no-cache"}
+         */
+        public static final String NO_CACHE = "no-cache";
+        /**
+         * {@code "no-store"}
+         */
+        public static final String NO_STORE = "no-store";
+        /**
+         * {@code "no-transform"}
+         */
+        public static final String NO_TRANSFORM = "no-transform";
+        /**
+         * {@code "none"}
+         */
+        public static final String NONE = "none";
+        /**
+         * {@code "only-if-cached"}
+         */
+        public static final String ONLY_IF_CACHED = "only-if-cached";
+        /**
+         * {@code "private"}
+         */
+        public static final String PRIVATE = "private";
+        /**
+         * {@code "proxy-revalidate"}
+         */
+        public static final String PROXY_REVALIDATE = "proxy-revalidate";
+        /**
+         * {@code "public"}
+         */
+        public static final String PUBLIC = "public";
+        /**
+         * {@code "quoted-printable"}
+         */
+        public static final String QUOTED_PRINTABLE = "quoted-printable";
+        /**
+         * {@code "s-maxage"}
+         */
+        public static final String S_MAXAGE = "s-maxage";
+        /**
+         * {@code "trailers"}
+         */
+        public static final String TRAILERS = "trailers";
+        /**
+         * {@code "Upgrade"}
+         */
+        public static final String UPGRADE = "Upgrade";
+        /**
+         * {@code "WebSocket"}
+         */
+        public static final String WEBSOCKET = "WebSocket";
+
+        private HeaderValues() {
+        }
+    }
+
 	private static final String DTALK_SESSION="dtalk-session"; 
 	public static final String APPICATION_JSON="application/json";
 	private static final String UNAUTH_SESSION="UNAUTHORIZATION SESSION";
@@ -85,6 +525,23 @@ public class DtalkHttpServer extends NanoWSD {
 	private ItemEngineHttpImpl engine = new ItemEngineHttpImpl().setSupplier(webSocketSupplier);
 	private boolean debug = false;
 	private boolean noAuth = false;
+	private static final Map<String,String>MIME_OF_SUFFIX = ImmutableMap.<String,String>builder()
+	.put(".jpeg", "image/jpeg")
+	.put(".jpg", "image/jpeg")
+	.put(".png", "image/png")
+	.put(".gif", "image/gif")
+	.put(".htm","text/html")
+	.put(".html","text/html")
+	.put(".txt","text/plain")
+	.put(".csv","text/csv")
+	.put(".json","application/json")
+	.put(".js","application/javascript")
+	.put(".xml","application/xml")
+	.put(".zip","application/zip")
+	.put(".pdf","application/pdf")
+	.put(".sql","application/sql")
+	.put(".doc","application/msword")    		
+	.build();
 	public DtalkHttpServer()  {
 		this(DEFAULT_HTTP_PORT);
 	}
@@ -137,6 +594,45 @@ public class DtalkHttpServer extends NanoWSD {
 			}
 		}
 	}
+	private Response responseStaticResource(String uri){    	
+		InputStream res = getClass().getResourceAsStream(uri);
+		if(null != res){
+			String suffix = uri.substring(uri.lastIndexOf('.'));
+			if(MIME_OF_SUFFIX.containsKey(suffix)){
+				return newChunkedResponse(
+						Status.OK, 
+						MIME_OF_SUFFIX.get(suffix), 
+						res);
+			}else{
+				return newFixedLengthResponse(
+		    			Status.UNSUPPORTED_MEDIA_TYPE, 
+		    			NanoHTTPD.MIME_PLAINTEXT, 
+		    			String.format("UNSUPPORTED MEDIA TYPE %s", suffix));	
+			}
+		}
+		return newFixedLengthResponse(
+				Status.NOT_FOUND, 
+				NanoHTTPD.MIME_PLAINTEXT, 
+				String.format("NOT FOUND resource %s", uri));	
+	}
+	private boolean isCORS(IHTTPSession session) {
+		Map<String, String> headers = session.getHeaders();
+		return Method.OPTIONS.equals(session.getMethod()) && 
+			headers.containsKey(HeaderNames.ORIGIN);
+	}
+	private static Response responseCORS(IHTTPSession session,Response resp) {
+		resp = MoreObjects.firstNonNull(resp,newFixedLengthResponse(""));
+		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+		String allowMethods = Joiner.on(',').join(Arrays.asList(Method.POST,Method.GET,Method.OPTIONS));
+		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_METHODS, allowMethods);
+		String allowHeaders = Joiner.on(',').join(Arrays.asList(HeaderNames.CONTENT_TYPE,"X-PINGOTHER"	));
+		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_HEADERS, allowHeaders);
+		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
+		resp.addHeader(HeaderNames.ACCESS_CONTROL_MAX_AGE, "86400");
+		//resp.addHeader(HeaderNames.ACCESS_CONTROL_MAX_AGE, "0");
+		resp.addHeader("withCredentials", "true");
+		return resp;
+	}
 	@Override
 	public void start(int timeout, boolean daemon) throws IOException {
 		if(!isAlive()){
@@ -166,7 +662,7 @@ public class DtalkHttpServer extends NanoWSD {
 			}, 0, timeout*3/4);
 		}
 	}
-    @Override
+	@Override
     public Response serve(IHTTPSession session) {
     	if (isWebsocketRequested(session) && ! isAuthorizationSession(session)) {
     		return newFixedLengthResponse(
@@ -176,47 +672,11 @@ public class DtalkHttpServer extends NanoWSD {
     	}
 		return super.serve(session);    	
     }
-    private static final Map<String,String>MIME_OF_SUFFIX = ImmutableMap.<String,String>builder()
-    		.put(".jpeg", "image/jpeg")
-    		.put(".jpg", "image/jpeg")
-    		.put(".png", "image/png")
-    		.put(".gif", "image/gif")
-    		.put(".htm","text/html")
-    		.put(".html","text/html")
-    		.put(".txt","text/plain")
-    		.put(".csv","text/csv")
-    		.put(".json","application/json")
-    		.put(".js","application/javascript")
-    		.put(".xml","application/xml")
-    		.put(".zip","application/zip")
-    		.put(".pdf","application/pdf")
-    		.put(".sql","application/sql")
-    		.put(".doc","application/msword")    		
-    		.build(); 
-    private Response responseStaticResource(String uri){    	
-		InputStream res = getClass().getResourceAsStream(uri);
-		if(null != res){
-			String suffix = uri.substring(uri.lastIndexOf('.'));
-			if(MIME_OF_SUFFIX.containsKey(suffix)){
-				return newChunkedResponse(
-						Status.OK, 
-						MIME_OF_SUFFIX.get(suffix), 
-						res);
-			}else{
-				return newFixedLengthResponse(
-		    			Status.UNSUPPORTED_MEDIA_TYPE, 
-		    			NanoHTTPD.MIME_PLAINTEXT, 
-		    			String.format("UNSUPPORTED MEDIA TYPE %s", suffix));	
-			}
-		}
-		return newFixedLengthResponse(
-    			Status.NOT_FOUND, 
-    			NanoHTTPD.MIME_PLAINTEXT, 
-    			String.format("NOT FOUND resource %s", uri));	
-    }
-
-	@Override
+    @Override
     public Response serveHttp(IHTTPSession session) {
+    	if(isCORS(session)){
+    		return responseCORS(session,null);
+    	}
     	Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK).setDeviceMac(selfMac);
     	try{
     		switch(session.getUri()){
@@ -245,7 +705,7 @@ public class DtalkHttpServer extends NanoWSD {
     				} 
     				try {
     					engine.onSubscribe(jsonObject);
-    					return engine.getResponse();
+    					return responseCORS(session,engine.getResponse());
 					} catch (SmqUnsubscribeException e) {
 						logout(session, ack);
 						break;
@@ -256,7 +716,7 @@ public class DtalkHttpServer extends NanoWSD {
     	}catch (Exception e) {    		
     		ack.setStatus(Ack.Status.ERROR).setException(e.getClass().getName()).setStatusMessage(e.getMessage());
     	}
-    	return responseAck(ack);
+    	return responseCORS(session,responseAck(ack));
     }
 	/**
 	 * @param isMd5 
