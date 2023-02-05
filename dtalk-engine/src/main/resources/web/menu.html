@@ -66,7 +66,7 @@
 
 <body>
   <h1>Dtalk Menu</h1>
-  <ul style="width:200px;" id="menu">
+  <ul style="width:400px;" id="menu">
   </ul>
   <h4 id="req-status"></h4>
 
@@ -96,13 +96,6 @@
     function render_menu(menu) {
       var childs = "";
       for (var c in menu.childs) {
-        // var item = "<li {ONCLICK} ><div>" + (menu.childs[c].uiName ? menu.childs[c].uiName : menu.childs[c].name) + "</div></li>"
-        // if (menu.childs[c].catalog == 'MENU')
-        //   item = item.replace('{ONCLICK}', "onclick=req_menu('" + menu.childs[c].path + "')")
-        // else if (menu.childs[c].catalog == 'CMD' && /(back)/.test(menu.childs[c].name))
-        //   item = item.replace('{ONCLICK}', "onclick=req_menu('" + menu.childs[c].path + "')")
-        // else
-        //   item = item.replace('{ONCLICK}', '')
         childs += render_item(menu.childs[c])
       }
       return childs;

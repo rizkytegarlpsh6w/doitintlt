@@ -6,6 +6,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static gu.dtalk.CommonConstant.DEFAULT_IDLE_TIME_MILLS;
 import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -491,6 +492,7 @@ public class DtalkHttpServer extends NanoWSD {
 	private static final String INVALID_PWD="INVALID REQUEST PASSWORD";
 	private static final String POST_DATA="postData";
 	private static final String DTALK_PREFIX="/dtalk";
+	private static final String STATIC_PAGE_PREFIX="/web";
 	private static class SingletonTimer{
 		private static final Timer instnace = new Timer(true);
 	}
@@ -595,7 +597,7 @@ public class DtalkHttpServer extends NanoWSD {
 		}
 	}
 	private Response responseStaticResource(String uri){    	
-		InputStream res = getClass().getResourceAsStream(uri);
+		InputStream res = getClass().getResourceAsStream(STATIC_PAGE_PREFIX + uri);
 		if(null != res){
 			String suffix = uri.substring(uri.lastIndexOf('.'));
 			if(MIME_OF_SUFFIX.containsKey(suffix)){
@@ -674,9 +676,9 @@ public class DtalkHttpServer extends NanoWSD {
     }
     @Override
     public Response serveHttp(IHTTPSession session) {
-    	if(isCORS(session)){
-    		return responseCORS(session,null);
-    	}
+//    	if(isCORS(session)){
+//    		return responseCORS(session,null);
+//    	}
     	Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK).setDeviceMac(selfMac);
     	try{
     		switch(session.getUri()){
@@ -687,8 +689,11 @@ public class DtalkHttpServer extends NanoWSD {
     			logout(session, ack);
     			break;
     		case "/":
+    		case "/index.html":
+    		case "/index.htm":
     		{
-    			String msg = "<html><body><h1>Dtalk server "+VERSION+"</h1>\n</body></html>\n";
+    			String msg = new String(FaceUtilits.getBytes(getClass().getResource(STATIC_PAGE_PREFIX + "/index.html")))
+    					.replace("{VERSION}", VERSION);
     			return newFixedLengthResponse(Status.OK, NanoHTTPD.MIME_HTML, msg);
     		}
     		default:
