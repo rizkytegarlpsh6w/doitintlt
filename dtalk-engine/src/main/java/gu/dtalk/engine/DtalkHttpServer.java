@@ -6,7 +6,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static gu.dtalk.CommonConstant.DEFAULT_IDLE_TIME_MILLS;
 import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -496,6 +495,7 @@ public class DtalkHttpServer extends NanoWSD {
 	private static class SingletonTimer{
 		private static final Timer instnace = new Timer(true);
 	}
+
 	private Timer timer;
 	private Timer getTimer(){
 		// 懒加载
@@ -526,7 +526,14 @@ public class DtalkHttpServer extends NanoWSD {
 	};
 	private ItemEngineHttpImpl engine = new ItemEngineHttpImpl().setSupplier(webSocketSupplier);
 	private boolean debug = false;
+	/**
+	 * 不做安全验证
+	 */
 	private boolean noAuth = false;
+	/**
+	 * 不支持跨域请求(CORS)
+	 */
+	private boolean noCORS = false;
 	private static final Map<String,String>MIME_OF_SUFFIX = ImmutableMap.<String,String>builder()
 	.put(".jpeg", "image/jpeg")
 	.put(".jpg", "image/jpeg")
@@ -617,12 +624,27 @@ public class DtalkHttpServer extends NanoWSD {
 				NanoHTTPD.MIME_PLAINTEXT, 
 				String.format("NOT FOUND resource %s", uri));	
 	}
-	private boolean isCORS(IHTTPSession session) {
+	/**
+	 * 判断是否为CORS请求
+	 * @param session
+	 * @return
+	 */
+	@SuppressWarnings("unused")
+	private static boolean isCORS(IHTTPSession session) {
 		Map<String, String> headers = session.getHeaders();
 		return Method.OPTIONS.equals(session.getMethod()) && 
 			headers.containsKey(HeaderNames.ORIGIN);
 	}
-	private static Response responseCORS(IHTTPSession session,Response resp) {
+	/**
+	 * 向响应包中添加CORS包头数据
+	 * @param session
+	 * @param resp
+	 * @return
+	 */
+	private Response responseCORS(IHTTPSession session,Response resp) {
+		if(noCORS ){
+			return resp;
+		}
 		resp = MoreObjects.firstNonNull(resp,newFixedLengthResponse(""));
 		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
 		String allowMethods = Joiner.on(',').join(Arrays.asList(Method.POST,Method.GET,Method.OPTIONS));
@@ -911,6 +933,15 @@ public class DtalkHttpServer extends NanoWSD {
 	 */
 	public DtalkHttpServer setNoAuth(boolean noAuth) {
 		this.noAuth = noAuth;
+		return this;
+	}
+	/**
+	 * 设置是否不支持跨域请求(CORS),默认false<br>
+	 * @param noCORS 要设置的 noCORS
+	 * @return 
+	 */
+	public DtalkHttpServer setNoCORS(boolean noCORS) {
+		this.noCORS = noCORS;
 		return this;
 	}
 }

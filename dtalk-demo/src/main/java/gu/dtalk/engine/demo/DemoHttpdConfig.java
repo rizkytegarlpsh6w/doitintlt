@@ -19,6 +19,7 @@ public class DemoHttpdConfig extends BaseAppConfig implements DemoConstants {
 	private int port = CommonConstant.DEFAULT_HTTP_PORT;
 	private int timeout = SOCKET_READ_TIMEOUT; 
 	private boolean noauth;
+	private boolean noCORS;
 	private boolean trace;
 
 
@@ -37,6 +38,9 @@ public class DemoHttpdConfig extends BaseAppConfig implements DemoConstants {
 		options.addOption(Option.builder().longOpt(HTTP_NOAUTH_OPTION_LONG)
 				.desc(HTTP_NOAUTH_OPTION_DESC ).hasArg(false).build());
 		
+		options.addOption(Option.builder().longOpt(HTTP_NOCORS_OPTION_LONG)
+				.desc(HTTP_NOCORS_OPTION_DESC ).hasArg(false).build());
+		
 		defaultValue.setProperty(HTTP_PORT_OPTION_LONG, port);
 		defaultValue.setProperty(HTTP_TIMEOUT_OPTION_LONG, timeout);
 
@@ -51,6 +55,7 @@ public class DemoHttpdConfig extends BaseAppConfig implements DemoConstants {
 			timeout =  ((Number)getProperty(HTTP_TIMEOUT_OPTION_LONG)).intValue();
 		}
 		this.noauth = getProperty(HTTP_NOAUTH_OPTION_LONG);
+		this.noCORS = getProperty(HTTP_NOCORS_OPTION_LONG);
 		this.trace = getProperty(TRACE_OPTION_LONG);
 		
 	}
@@ -67,10 +72,18 @@ public class DemoHttpdConfig extends BaseAppConfig implements DemoConstants {
 		return timeout;
 	}
 	/**
+	 * 是否跳过session安全验证
 	 * @return noauth
 	 */
 	public boolean isNoauth() {
 		return noauth;
+	}
+	/**
+	 * 是否拒绝跨域(CORS)请求
+	 * @return noCORS
+	 */
+	public boolean isNoCORS() {
+		return noCORS;
 	}
 	/**
 	 * @return 发生异常时是否输出详细堆栈信息

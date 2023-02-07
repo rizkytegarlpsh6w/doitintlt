@@ -20,7 +20,10 @@ public class DemoHttpd {
 		DemoMenu root = new DemoMenu().init().register(DemoListener.INSTANCE);
 		
 		httpServer = new DtalkHttpServer(DEMO_CONFIG.getPort())
-				.setRoot(root).setDebug(true).setNoAuth(DEMO_CONFIG.isNoauth());
+				.setRoot(root)
+				.setDebug(true)
+				.setNoAuth(DEMO_CONFIG.isNoauth())
+				.setNoCORS(DEMO_CONFIG.isNoCORS());
 	}
 	/**
 	 * 启动连接
@@ -30,7 +33,10 @@ public class DemoHttpd {
 		System.out.printf("DEVICE MAC address(设备地址): %s\n",NetworkUtil.formatMac(devMac, ":"));
 		try {
 			httpServer.start(DEMO_CONFIG.getTimeout(), false);
-			System.out.printf("HTTP Connect port(连接端口) : port:%d %s\n",DEMO_CONFIG.getPort(),DEMO_CONFIG.isNoauth()?"NOAUTH":"");
+			System.out.printf("HTTP Connect port(连接端口) : port:%d %s %s\n",
+					DEMO_CONFIG.getPort(),
+					DEMO_CONFIG.isNoauth() ? "NOAUTH" : "",
+					DEMO_CONFIG.isNoCORS()? "NOCORS" : "");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
