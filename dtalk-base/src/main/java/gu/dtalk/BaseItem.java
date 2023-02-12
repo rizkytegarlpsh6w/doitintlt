@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * 菜单选项抽象类<br>
@@ -547,6 +548,38 @@ public abstract class BaseItem{
 			if(!items.containsKey(child.getName())){
 				child.setParent(this);
 				items.put(child.getName(), child);
+			}
+		}
+		return this;
+	}
+	/**
+	 * 在index指定索引位置添加子条目,如果元素已经存在则跳过
+	 * @param index 索引位置，越界则默认为最后位置，当前子条目数量为0时忽略此值
+	 * @param child
+	 * @return 当前对象
+	 */
+	public BaseItem addChilds(int index,BaseItem child) {
+		checkArgument(child != null,"child is null");
+		if(items.size() == 0){
+			return addChilds(child);
+		}
+		if(!items.containsKey(child.getName())){
+
+			if(index >= items.size() || index < 0){
+				index = items.size() -1;
+			}
+			int i = 0;
+			List<Entry<String, BaseItem>> rest = new ArrayList<Entry<String, BaseItem>>();
+			for (Entry<String, BaseItem> entry : items.entrySet()) {
+				if (i++ >= index) {
+					rest.add(entry);
+				}
+			}
+			child.setParent(this);
+			items.put(child.getName(), child);
+			for (Entry<String, BaseItem> entry : rest) {
+				items.remove(entry.getKey());
+				items.put(entry.getKey(), entry.getValue());
 			}
 		}
 		return this;
