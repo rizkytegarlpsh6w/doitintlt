@@ -542,6 +542,7 @@ public class DtalkHttpServer extends NanoWSD {
 	.put(".htm","text/html")
 	.put(".html","text/html")
 	.put(".txt","text/plain")
+	.put(".css","text/css")
 	.put(".csv","text/csv")
 	.put(".json","application/json")
 	.put(".js","application/javascript")
