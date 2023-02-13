@@ -178,7 +178,7 @@ dtalk默认的实现方式是密码验证
 
 上面这个例子中，`cmd1`这个设备命令定义了一个参数`param1`作为子节点
 
-关于命令交互的设备端实现参见 [gu.dtalk.engine.ItemEngine](../dtalk-engine/src/main/java/gu/dtalk/engine/ItemEngine.java)
+关于命令交互的设备端实现参见 [gu.dtalk.engine.BaseItemEngine](../dtalk-engine/src/main/java/gu/dtalk/engine/BaseItemEngine.java)
 
 关于命令交互的管理端实现参见 [gu.dtalk.client.BaseConsole#cmdInteractive()](../dtalk-client/src/main/java/gu/dtalk/client/BaseConsole.java)方法
 
@@ -392,6 +392,14 @@ dtalk的交互设备命令由交互设备命令执行接口([gu.dtalk.ICmdIntera
 		int getProgressInternal();
 	}
 
+## http连接
+
+为了增加dtalk的易用性，dtalk增加了http直接连接的功能。也就是设备端启动时启动一个基于nanohttpd的微型http服务。接收来自管理端的服务请求。
+
+在此运行模式下，管理端与设备端的连接不再需要借助redis中转，而是直接送http请求到设备端。
+
+dtalk http服务由[gu.dtalk.engine.DtalkHttpServer](../dtalk-engine/src/main/java/gu/dtalk/engine/DtalkHttpServer.java)实现
+调用示例参见 [gu.dtalk.engine.demo.DemoHttpd](..//dtalk-demo/src/main/java/gu/dtalk/engine/demo/DemoHttpd.java)
 
 ## 任务队列
 
