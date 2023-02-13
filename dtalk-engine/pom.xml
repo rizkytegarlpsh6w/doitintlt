@@ -46,6 +46,18 @@
 		</dependency>		
 	</dependencies>
 	<build>
+		<!-- 编译时用运行时(runtime)前端配置config.js替换开发模式下的同名文件 -->
+		<resources>
+			<resource>
+				<directory>${project.basedir}/src/main/resources</directory>
+				<excludes>
+					<exclude>web/config.js</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>${project.basedir}/src/main/resources-rt</directory>
+			</resource>
+		</resources>
 		<plugins>
 			<!-- 跳过测试 -->
 			<plugin>

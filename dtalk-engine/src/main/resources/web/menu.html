@@ -8,6 +8,7 @@
   <link href="jquery-ui-1.12.1/jquery-ui.css" rel="stylesheet">
   <script src="jquery-ui-1.12.1/external/jquery/jquery.js"></script>
   <script src="jquery-ui-1.12.1/jquery-ui.js"></script>
+  <script src="config.js"></script>
   <style>
     body {
       font-family: "Trebuchet MS", sans-serif;
@@ -71,7 +72,6 @@
   <h4 id="req-status"></h4>
 
   <script>
-    var req_prefix = "http://127.0.0.1:8181"
     var root_menu, current_item;
     function render_item(item) {
       var li = "<li {ONCLICK} ><div>" + (item.uiName ? item.uiName : item.name) + "{VALUE}</div></li>"
