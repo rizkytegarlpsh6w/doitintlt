@@ -727,10 +727,11 @@ public class DtalkHttpServer extends NanoWSD {
     					checkState(Method.POST.equals(session.getMethod()),"POST method supported only");
     				}
     				JSONObject jsonObject = getJSONObject(session);
-    				if(session.getUri().startsWith(DTALK_PREFIX + '/')){
-	    				String path=session.getUri().substring(DTALK_PREFIX.length());
-	    				jsonObject.put("path", path);
-    				} 
+					if(session.getUri().startsWith(DTALK_PREFIX + '/')){
+						String path=session.getUri().substring(DTALK_PREFIX.length());
+						jsonObject.put("path", path);
+					} 
+				
     				try {
     					engine.onSubscribe(jsonObject);
     					return responseCORS(session,engine.getResponse());
@@ -764,12 +765,30 @@ public class DtalkHttpServer extends NanoWSD {
 		}
 	}
 	
+	/**
+	 * 从HTTP请求body中解析参数返回{@link Map}实例
+	 * @param session
+	 * @return
+	 * @throws IOException
+	 * @throws ResponseException
+	 */
 	private static  Map<String, String> getParamOfPostBody(IHTTPSession session) throws IOException, ResponseException{
 		Map<String,String> postData = Maps.newHashMap();
 		session.parseBody(postData);
-		return BaseJsonEncoder.getEncoder().fromJson(postData.get(POST_DATA), 
+		String jsonstr = postData.get(POST_DATA);
+		if (null == jsonstr) {
+			return Maps.newHashMap();
+		}
+		return BaseJsonEncoder.getEncoder().fromJson(jsonstr, 
 				new TypeReference<Map<String, String>>(){}.getType());		
 	}
+	/**
+	 * 从HTTP请求中解析参数返回{@link JSONObject}实例
+	 * @param session
+	 * @return
+	 * @throws IOException
+	 * @throws ResponseException
+	 */
 	@SuppressWarnings("deprecation")
 	private static JSONObject getJSONObject(IHTTPSession session) throws IOException, ResponseException{
     	String jsonstr;
@@ -780,8 +799,15 @@ public class DtalkHttpServer extends NanoWSD {
     	}else{
     		jsonstr = BaseJsonEncoder.getEncoder().toJsonString(session.getParms());
     	}
-		return BaseJsonEncoder.getEncoder().fromJson(jsonstr,JSONObject.class);
+		return null == jsonstr ? new  JSONObject():BaseJsonEncoder.getEncoder().fromJson(jsonstr,JSONObject.class);
 	}
+    /**
+     * 从HTTP请求中解析参数返回{@link Map}实例
+     * @param session
+     * @return
+     * @throws IOException
+     * @throws ResponseException
+     */
     @SuppressWarnings("deprecation")
 	private static Map<String, String> getParams(IHTTPSession session) throws IOException, ResponseException{
     	Map<String,String> params = Maps.newHashMap();
