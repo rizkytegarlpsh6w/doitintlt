@@ -401,6 +401,19 @@ dtalk的交互设备命令由交互设备命令执行接口([gu.dtalk.ICmdIntera
 dtalk http服务由[gu.dtalk.engine.DtalkHttpServer](../dtalk-engine/src/main/java/gu/dtalk/engine/DtalkHttpServer.java)实现
 调用示例参见 [gu.dtalk.engine.demo.DemoHttpd](..//dtalk-demo/src/main/java/gu/dtalk/engine/demo/DemoHttpd.java)
 
+## http接口说明
+
+与Redis连接实现一样，http连接的菜单协议没有任何改变，不同的就是Redis实现时，菜单命令是从redis消息订阅频道接收,而http实现时，菜单命令直接来自http请求。
+
+|GET|POST|路径|参数|描述|
+|:---------|:---------|:---------|:---------|:-----------------|
+|Y|Y|/<br>/index.html<br>/index.htm||首页(静态页面)|
+|Y|Y|/login|password:连接密码(默认为MAC地址后4位，比如3fbf)<br>isMd5(true/false):密码是否为MD5加密,默认为'true'|安全连接密码验证|
+|Y|Y|/logout||关闭连接|
+||Y|/dtalk|所有参数须为json格式,<br>指定菜单条目的'path'参数是必不可少的,比如:<br>{path:'/device'}|dtalk菜单请求|
+|Y|Y|/dtalk${path}|POST请求时参数须为json格式,<br>指定菜单条目的'path'参数由${path}定义,比如 '/device/name'|dtalk菜单请求|
+ 
+
 ## 任务队列
 
 (待续)

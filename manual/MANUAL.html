@@ -487,7 +487,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <p>设备端收到这条命令后，会执行指定的动作，设备命令的内容由应用程序实现，比如设备重启，比如远程升级</p>
 <p>上面这个例子中，<code>cmd1</code>这个设备命令定义了一个参数<code>param1</code>作为子节点</p>
-<p>关于命令交互的设备端实现参见 <a href="../dtalk-engine/src/main/java/gu/dtalk/engine/ItemEngine.java">gu.dtalk.engine.ItemEngine</a></p>
+<p>关于命令交互的设备端实现参见 <a href="../dtalk-engine/src/main/java/gu/dtalk/engine/BaseItemEngine.java">gu.dtalk.engine.BaseItemEngine</a></p>
 <p>关于命令交互的管理端实现参见 <a href="../dtalk-client/src/main/java/gu/dtalk/client/BaseConsole.java">gu.dtalk.client.BaseConsole#cmdInteractive()</a>方法</p>
 <h2>(菜单)条目定义</h2>
 <h3>(菜单)条目类型说明</h3>
@@ -878,6 +878,61 @@ public interface ICmdInteractiveStatusListener{
 }
 </code></pre>
 
+<h2>http连接</h2>
+<p>为了增加dtalk的易用性，dtalk增加了http直接连接的功能。也就是设备端启动时启动一个基于nanohttpd的微型http服务。接收来自管理端的服务请求。</p>
+<p>在此运行模式下，管理端与设备端的连接不再需要借助redis中转，而是直接送http请求到设备端。</p>
+<p>dtalk http服务由<a href="../dtalk-engine/src/main/java/gu/dtalk/engine/DtalkHttpServer.java">gu.dtalk.engine.DtalkHttpServer</a>实现
+调用示例参见 <a href="..//dtalk-demo/src/main/java/gu/dtalk/engine/demo/DemoHttpd.java">gu.dtalk.engine.demo.DemoHttpd</a></p>
+<h2>http接口说明</h2>
+<p>与Redis连接实现一样，http连接的菜单协议没有任何改变，不同的就是Redis实现时，菜单命令是从redis消息订阅频道接收,而http实现时，菜单命令直接来自http请求。</p>
+<table>
+<thead>
+<tr>
+	<th align="left">GET</th>
+	<th align="left">POST</th>
+	<th align="left">路径</th>
+	<th align="left">参数</th>
+	<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+	<td align="left">/<br>/index.html<br>/index.htm</td>
+	<td align="left"></td>
+	<td align="left">首页(静态页面)</td>
+</tr>
+<tr>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+	<td align="left">/login</td>
+	<td align="left">password:连接密码(默认为MAC地址后4位，比如3fbf)<br>isMd5(true/false):密码是否为MD5加密,默认为'true'</td>
+	<td align="left">安全连接密码验证</td>
+</tr>
+<tr>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+	<td align="left">/logout</td>
+	<td align="left"></td>
+	<td align="left">关闭连接</td>
+</tr>
+<tr>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left">/dtalk</td>
+	<td align="left">所有参数须为json格式,<br>指定菜单条目的'path'参数是必不可少的,比如:<br>{path:'/device'}</td>
+	<td align="left">dtalk菜单请求</td>
+</tr>
+<tr>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+	<td align="left">/dtalk${path}</td>
+	<td align="left">POST请求时参数须为json格式,<br>指定菜单条目的'path'参数由${path}定义,比如 '/device/name'</td>
+	<td align="left">dtalk菜单请求</td>
+</tr>
+</tbody>
+</table>
 <h2>任务队列</h2>
 <p>(待续)</p>
 
