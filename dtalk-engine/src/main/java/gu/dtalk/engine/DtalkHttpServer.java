@@ -604,6 +604,11 @@ public class DtalkHttpServer extends NanoWSD {
 			}
 		}
 	}
+	/**
+	 * 根据提供的路径返回静态资源响应对象,如果资源不存在则返回{@code null}
+	 * @param uri
+	 * @return
+	 */
 	private Response responseStaticResource(String uri){    	
 		InputStream res = getClass().getResourceAsStream(STATIC_PAGE_PREFIX + uri);
 		if(null != res){
@@ -620,10 +625,7 @@ public class DtalkHttpServer extends NanoWSD {
 		    			String.format("UNSUPPORTED MEDIA TYPE %s", suffix));	
 			}
 		}
-		return newFixedLengthResponse(
-				Status.NOT_FOUND, 
-				NanoHTTPD.MIME_PLAINTEXT, 
-				String.format("NOT FOUND resource %s", uri));	
+		return null;
 	}
 	/**
 	 * 判断是否为CORS请求
@@ -720,7 +722,10 @@ public class DtalkHttpServer extends NanoWSD {
     			return newFixedLengthResponse(Status.OK, NanoHTTPD.MIME_HTML, msg);
     		}
     		default:
-    			
+    			Response resp = responseStaticResource(session.getUri());
+    			if(null != resp){
+    				return resp;
+    			}
 				if(session.getUri().startsWith(DTALK_PREFIX )){
     				checkAuthorizationSession(session);
     				if(DTALK_PREFIX.equals(session.getUri())){
@@ -740,7 +745,10 @@ public class DtalkHttpServer extends NanoWSD {
 						break;
 					}     				
     			}
-				return responseStaticResource(session.getUri());
+				return newFixedLengthResponse(
+						Status.NOT_FOUND, 
+						NanoHTTPD.MIME_PLAINTEXT, 
+						String.format("NOT FOUND %s", session.getUri()));	
     		}
     	}catch (Exception e) {    		
     		ack.setStatus(Ack.Status.ERROR).setException(e.getClass().getName()).setStatusMessage(e.getMessage());
