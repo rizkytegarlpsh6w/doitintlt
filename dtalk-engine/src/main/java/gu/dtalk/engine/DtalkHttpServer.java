@@ -612,17 +612,25 @@ public class DtalkHttpServer extends NanoWSD {
 	private Response responseStaticResource(String uri){    	
 		InputStream res = getClass().getResourceAsStream(STATIC_PAGE_PREFIX + uri);
 		if(null != res){
-			String suffix = uri.substring(uri.lastIndexOf('.'));
-			if(MIME_OF_SUFFIX.containsKey(suffix)){
-				return newChunkedResponse(
-						Status.OK, 
-						MIME_OF_SUFFIX.get(suffix), 
-						res);
-			}else{
-				return newFixedLengthResponse(
-		    			Status.UNSUPPORTED_MEDIA_TYPE, 
-		    			NanoHTTPD.MIME_PLAINTEXT, 
-		    			String.format("UNSUPPORTED MEDIA TYPE %s", suffix));	
+			try {
+				String suffix = uri.substring(uri.lastIndexOf('.'));
+				if(MIME_OF_SUFFIX.containsKey(suffix)){
+					return newChunkedResponse(
+							Status.OK, 
+							MIME_OF_SUFFIX.get(suffix), 
+							res);
+				}else{
+					return newFixedLengthResponse(
+			    			Status.UNSUPPORTED_MEDIA_TYPE, 
+			    			NanoHTTPD.MIME_PLAINTEXT, 
+			    			String.format("UNSUPPORTED MEDIA TYPE %s", suffix));	
+				}
+			} finally {
+				try {
+					res.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return null;
