@@ -726,7 +726,8 @@ public class DtalkHttpServer extends NanoWSD {
     		case "/index.htm":
     		{
     			String msg = new String(FaceUtilits.getBytes(getClass().getResource(STATIC_PAGE_PREFIX + "/index.html")))
-    					.replace("{VERSION}", VERSION);
+    					.replace("{VERSION}", VERSION)
+    					.replace("{MAC}", selfMac);
     			return newFixedLengthResponse(Status.OK, NanoHTTPD.MIME_HTML, msg);
     		}
     		default:
