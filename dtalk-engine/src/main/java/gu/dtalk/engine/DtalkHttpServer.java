@@ -757,16 +757,16 @@ public class DtalkHttpServer extends NanoWSD {
 						break;
 					}     				
     			}
-				return newFixedLengthResponse(
+				return responseCORS(session,newFixedLengthResponse(
 						Status.NOT_FOUND, 
 						NanoHTTPD.MIME_PLAINTEXT, 
-						String.format("NOT FOUND %s", session.getUri()));	
+						String.format("NOT FOUND %s", session.getUri())));	
     		}
     	}catch(ResponseException e){
-    		return newFixedLengthResponse(
+    		return responseCORS(session,newFixedLengthResponse(
 					e.getStatus(), 
 					NanoHTTPD.MIME_PLAINTEXT, 
-					e.getClass().getName() +":"+ e.getMessage());	
+					e.getClass().getName() +":"+ e.getMessage()));	
     	}catch (Exception e) {    		
     		ack.setStatus(Ack.Status.ERROR).setException(e.getClass().getName()).setStatusMessage(e.getMessage());
     	}
