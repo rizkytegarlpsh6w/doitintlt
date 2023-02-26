@@ -59,10 +59,10 @@ public class DefaultDevInfoProvider implements DeviceInfoProvider {
 	}
 	/**
 	 * 获取访问指定host的本地IP地址
-	 * @param host
-	 * @param port
-	 * @return
-	 * @throws IOException
+	 * @param host 主机名
+	 * @param port 端口号
+	 * @return IP地址(4 bytes)
+	 * @throws IOException IO异常
 	 */
 	public static byte[] getLocalIp(String host,int port) throws IOException {
 		Socket socket = null;

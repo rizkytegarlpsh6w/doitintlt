@@ -44,8 +44,7 @@ public class Ack<T> {
 	public Ack() {
 	}
 	/**
-	 * 返回状态信息
-	 * @return
+	 * @return 返回状态信息
 	 */
 	public String message(){
 		Preconditions.checkArgument(null != status,"status field is null");
@@ -76,7 +75,9 @@ public class Ack<T> {
 		}
 		return buffer.toString();
 	}
-	/** 返回设备命令序列号 */
+	/** 
+	 * @return 返回设备命令序列号 
+	 */
 	public Integer getCmdSn() {
 		return cmdSn;
 	}
@@ -84,13 +85,16 @@ public class Ack<T> {
 		this.cmdSn = cmdSn;
 		return this;
 	}
-	/** 返回执行设备命令的设备ID */
+	/**
+	 * @return  返回执行设备命令的设备ID 
+	 */
 	public int getDeviceId() {
 		return deviceId;
 	}
 
 	/**
-	 * @param deviceId
+	 * 设置设备ID
+	 * @param deviceId 设备ID
 	 * @return 当前{@link Ack}实例
 	 */
 	public Ack<T> setDeviceId(int deviceId) {
@@ -105,7 +109,7 @@ public class Ack<T> {
 	}
 	/**
 	 * @param deviceMac 要设置的 deviceMac
-	 * @return 当前{@link Ack}实例
+	 * @return 当前对象
 	 */
 	public Ack<T> setDeviceMac(String deviceMac) {
 		this.deviceMac = deviceMac;
@@ -120,32 +124,36 @@ public class Ack<T> {
 	/**
 	 * 设备响应的条目(item)路径
 	 * @param item 要设置的 item
-	 * @return 当前{@link Ack}实例
+	 * @return 当前对象
 	 */
 	public Ack<T> setItem(String item) {
 		this.item = item;
 		return this;
 	}
-	/** 返回设备命令执行结果对象 */
+	/** 
+	 * @return 返回设备命令执行结果对象 
+	 */
 	public T getValue() {
 		return value;
 	}
 	/**
 	 * 设置设备命令执行结果对象
-	 * @param value
-	 * @return 当前{@link Ack}实例
+	 * @param value 要设置的value
+	 * @return 当前对象
 	 */
 	public Ack<T> setValue(T value) {
 		this.value = value;
 		return this;
 	}
-	/** 返回设备命令执行状态 */
+	/** 
+	 * @return 返回设备命令执行状态 
+	 */
 	public Status getStatus() {
 		return status;
 	}
 	/**
 	 * 设置响应状态
-	 * @param status
+	 * @param status 状态
 	 * @return 当前{@link Ack}实例
 	 */
 	public Ack<T> setStatus(Status status) {
@@ -153,14 +161,14 @@ public class Ack<T> {
 		return this;
 	}
 	/** 
-	 * 返回错误信息
+	 * @return 返回错误信息
 	 */
 	public String getStatusMessage() {
 		return statusMessage;
 	}
 	/**
 	 * 设置错误信息
-	 * @param errorMessage 
+	 * @param errorMessage  错误信息
 	 * @return 当前{@link Ack}实例
 	 */
 	public Ack<T> setStatusMessage(String errorMessage) {

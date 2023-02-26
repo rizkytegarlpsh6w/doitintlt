@@ -60,7 +60,7 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 	 * 构造方法<br>
 	 * @param deviceId 当前设备ID,应用项目应确保ID是有效的
 	 * @param reqType 设备命令请求类型
-	 * @param jedisPoolLazy 
+	 * @param jedisPoolLazy  连接池对象
 	 */
 	protected BaseDispatcher(int deviceId, ReqCmdType reqType, JedisPoolLazy jedisPoolLazy) {	
 		checkArgument(reqType == ReqCmdType.MULTI  || reqType == ReqCmdType.TASKQUEUE,
@@ -139,7 +139,7 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 	}
 	/**
 	 * 验证{@link DeviceInstruction}对象的合法性
-	 * @param deviceInstruction
+	 * @param deviceInstruction 设备命令
 	 * @return 验证通过返回{@code true},否则返回{@code false}
 	 */
 	protected boolean validate(DeviceInstruction deviceInstruction){
@@ -200,7 +200,7 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 		return this;
 	}
 	/**
-	 * 设置程序退出时自动执行{@link #unregisterAll()}
+	 * 设置程序退出时自动执行{@link #unregister()}
 	 * @return 当前对象
 	 */
 	public BaseDispatcher autoUnregister(){
@@ -251,13 +251,14 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 	}
 	/**
 	 * 设置当前设备的MAC地址
-	 * @param selfMac
+	 * @param selfMac MAC地址
 	 */
 	public void setSelfMac(String selfMac) {
 		this.selfMac = selfMac;
 	}
 	/**
 	 * 将当前对象转为子类
+	 * @param <T> 子类类型
 	 * @return 当前对象
 	 */
 	@SuppressWarnings("unchecked")
@@ -266,7 +267,8 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 	}
 	/**
 	 * 将当前对象转为指定的子类
-	 * @param clazz
+	 * @param <T> 子类类型
+	 * @param clazz 子类
 	 * @return 当前对象
 	 */
 	public final <T extends BaseDispatcher> T self(Class<T> clazz){

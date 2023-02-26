@@ -61,10 +61,10 @@ public enum OptionType {
 	IP(IPv4Option.class,"^((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))$"),
 	/** base64 格式JPEG/BMP/PNG格式图像 */
 	IMAGE(ImageOption.class),
-	/** 多选项(n>1) */
+	/** 多选项{@code (n>1)} */
 	@SuppressWarnings("unchecked")
 	MULTICHECK(CheckOption.class,"^\\s*(\\d+)?([,;\\s]+\\d+)?\\s*$"),
-	/** 单选开关(n>1) */
+	/** 单选开关{@code (n>1)} */
 	@SuppressWarnings("unchecked")
 	SWITCH(SwitchOption.class,"^\\s*\\d+\\s*$");
 	final String regex;
@@ -201,7 +201,7 @@ public enum OptionType {
 	 * 返回对应类型String到目标数据类型的转换器<br>
 	 * 返回的转器实例将字符器转换为当前类型的数据，转换失败则抛出异常
 	 * @param <T> 目标数据类型
-	 * @return
+	 * @return {@link Function }对象
 	 * @see #internalTrans()
 	 */
 	@SuppressWarnings("unchecked")

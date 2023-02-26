@@ -52,7 +52,7 @@ public class StringOption extends BaseOption<String> {
 	}
 	/**
 	 * @param regex 要设置的 regex
-	 * @return 
+	 * @return 当前对象
 	 */
 	@Override
 	public StringOption setRegex(String regex) {

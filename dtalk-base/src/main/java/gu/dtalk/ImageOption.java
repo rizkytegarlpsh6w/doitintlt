@@ -35,7 +35,7 @@ public class ImageOption extends BaseBinary {
 	/**
 	 * 
 	 * @return 返回图像对象,如果值为空则返回{@code null}
-	 * @throws ImageErrorException
+	 * @throws ImageErrorException 图像读取异常
 	 */
 	public BaseLazyImage imageObj() throws ImageErrorException{
 		if(Judge.isEmpty(getValue())){
@@ -110,6 +110,8 @@ public class ImageOption extends BaseBinary {
 	/**
 	 * 从input(Base64格式)中解码为byte[]调用{@link #setDefaultValue(Object)}
 	 * @see gu.dtalk.BaseOption#asDefaultValue(java.lang.String)
+	 * @param input base64格式输入图像
+	 * @return 当前对象
 	 */
 	@Override
 	public ImageOption asDefaultValue(String input) {
@@ -124,6 +126,8 @@ public class ImageOption extends BaseBinary {
 	/**
 	 * 从input中读取字节流转为byte[]调用{@link #setValue(byte[])}
 	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
+	 * @param input 图像数据
+	 * @return 当前对象
 	 */
 	public <T>ImageOption asDefaultValue(T input) {
 		super.asDefaultValue(input);
@@ -132,6 +136,8 @@ public class ImageOption extends BaseBinary {
 	/**
 	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(Object)}
 	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
+	 * @param input 输入图像
+	 * @return 当前对象
 	 */
 	public <T>ImageOption asValue(BaseLazyImage input) {
 		setValue(input.wirteJPEGBytes());
@@ -141,6 +147,8 @@ public class ImageOption extends BaseBinary {
 	/**
 	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(Object)}
 	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
+	 * @param input 输入图像
+	 * @return 当前对象
 	 */
 	public <T>ImageOption asDefaultValue(BaseLazyImage input) {
 		setDefaultValue(input.wirteJPEGBytes());

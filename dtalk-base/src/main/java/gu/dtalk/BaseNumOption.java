@@ -6,7 +6,7 @@ import com.alibaba.fastjson.TypeReference;
  * 数字类型选项基类
  * @author guyadong
  *
- * @param <T>
+ * @param <T> OPTION数据类型
  */
 public abstract class BaseNumOption<T extends Number> extends BaseOption<T> {
 

@@ -17,13 +17,12 @@ public interface DeviceInfoProvider {
 	/**
 	 * 保存在管理密码.<br>
 	 * 应用层通过此方法保存底层传回的管理密码
-	 * @param password
+	 * @param password 密码
 	 */
 	void savePassword(String password);
 	
 	/**
-	 * 返回当前使用的网卡mac地址,不可为空或{@code null}
-	 * @return
+	 * @return 返回当前使用的网卡mac地址,不可为空或{@code null}
 	 */
 	byte[] getMac();
 	/**
@@ -31,8 +30,7 @@ public interface DeviceInfoProvider {
 	 */
 	String getMacAsString();
 	/**
-	 * 返回当前使用的IP地址,不可为空或{@code null}
-	 * @return
+	 * @return 返回当前使用的IP地址,不可为空或{@code null}
 	 */
 	byte[] getIp();
 	/**

@@ -6,7 +6,7 @@ import gu.dtalk.BaseOption;
  * value改变事件
  * @author guyadong
  *
- * @param <O>
+ * @param <O> OPTION类型
  */
 public class ValueChangeEvent<O extends BaseOption<?>> extends ItemEvent<O> {
 

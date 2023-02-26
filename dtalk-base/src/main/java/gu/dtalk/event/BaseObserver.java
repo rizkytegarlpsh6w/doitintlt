@@ -15,7 +15,7 @@ public abstract class BaseObserver<E extends ItemEvent<?>> implements Observer {
 	}
 	/**
 	 * 执行更新事件
-	 * @param event
+	 * @param event 事件
 	 */
 	protected abstract void doUpdate(E event);
 	@SuppressWarnings("unchecked")

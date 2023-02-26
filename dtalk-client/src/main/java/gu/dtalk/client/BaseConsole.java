@@ -153,7 +153,7 @@ public abstract class BaseConsole {
 
 	/**
 	 * 输入目标设备的MAC地址
-	 * @return
+	 * @return MAC地址
 	 */
 	protected static String inputMac(){
 		System.out.println("Input MAC address of Device,such as '00:00:7f:2a:39:4A' or '00e8992730FF':"
@@ -414,7 +414,7 @@ public abstract class BaseConsole {
 	protected abstract boolean authorize();
 	/**
 	 * @param stackTrace 要设置的 stackTrace
-	 * @return 
+	 * @return 当前对象
 	 */
 	public BaseConsole setStackTrace(boolean stackTrace) {
 		this.stackTrace = stackTrace;

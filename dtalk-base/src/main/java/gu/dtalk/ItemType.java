@@ -16,7 +16,7 @@ public enum ItemType {
 	/** 命令 */CMD,
 	/** 菜单*/MENU;
 	/**
-	 * @param jsonObject
+	 * @param jsonObject 包含菜单条目的参数Map对象
 	 * @return {@code jsonObject}反序列化为{@link BaseItem}实例
 	 * @throws IllegalArgumentException 反序列化失败
 	 */

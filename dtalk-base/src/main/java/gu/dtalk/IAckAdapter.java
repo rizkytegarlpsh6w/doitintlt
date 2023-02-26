@@ -35,7 +35,7 @@ public interface IAckAdapter <T> extends IMessageAdapter<Ack<T>>{
      * 应用项目可以继承此类的方法({@link #doOnTimeout()},{@link #doOnSubscribe(Ack)},{@link #doOnZeroClient()})实现自己的业务逻辑 
      * @author guyadong
      *
-     * @param <T>
+     * @param <T> 设备命令响应返回数据类型
      */
     public static abstract class BaseAdapter<T> implements IAckAdapter<T> {
     	/** 收到命令的client端数量,初始值-1,只有{@link #setClientNum(long)}被调用后才有效 */
@@ -52,7 +52,6 @@ public interface IAckAdapter <T> extends IMessageAdapter<Ack<T>>{
         /**
          * 默认构造函数<br>
          * 有效期使用默认值{@link #DEFAULT_DURATION}
-         * @see #BaseAdapter(long, TimeUnit)
          */
         public BaseAdapter() {
         	this(DEFAULT_DURATION,TimeUnit.MILLISECONDS);
@@ -69,13 +68,20 @@ public interface IAckAdapter <T> extends IMessageAdapter<Ack<T>>{
 		protected void doOnTimeout(){}
 		/** 处理接收命令的设备端数量为0的情况,应用项目应重写此方法实现自己的业务逻辑 */
 		protected void doOnZeroClient(){}
-		/** 执行正常响应处理业务逻辑,应用项目应重写此方法实现自己的业务逻辑 */
+		/** 
+		 * 执行正常响应处理业务逻辑,应用项目应重写此方法实现自己的业务逻辑
+		 * @param t 响应对象
+		  */
 		protected void doOnSubscribe(Ack<T> t){}
-		/** 返回{@link #clientNum}值 */
+		/** 
+		 * @return 返回{@link #clientNum}值 
+		 */
 		protected final long getClientNum(){
 			return clientNum.get();
 		}
-		/** 返回{@link #ackCount}值 */
+		/** 
+		 * @return 返回{@link #ackCount}值 
+		 */
 		protected final long getAckCount() {
 			return ackCount;
 		}
@@ -133,7 +139,7 @@ public interface IAckAdapter <T> extends IMessageAdapter<Ack<T>>{
 		/**
 		 * 设置超时时间(毫秒)
 		 * @param duration 大于0有效
-		 * @return
+		 * @return 当前对象
 		 */
 		public final BaseAdapter<T> setDuration(long duration) {
 			this.duration = duration;
@@ -141,24 +147,24 @@ public interface IAckAdapter <T> extends IMessageAdapter<Ack<T>>{
 		}
 		/**
 		 * 设置超时时间
-		 * @param duration
+		 * @param duration 超时时间
 		 * @param unit 时间单位
-		 * @return
+		 * @return 当前对象
 		 */
 		public final BaseAdapter<T> setDuration(long duration,TimeUnit unit) {
 		    return setDuration(TimeUnit.MILLISECONDS.convert(duration, checkNotNull(unit,"unit is null")));
 		}
 		/**
 		 * 设置有效期时间戳(毫秒)
-		 * @param expire
-		 * @return
+		 * @param expire 效期时间戳(毫秒)
+		 * @return 当前对象
 		 */
 		public final BaseAdapter<T> setExpire(long expire) {
             return setDuration(expire - System.currentTimeMillis());
         }
 		/**
-		 * @param expire
-		 * @return
+		 * @param expire 效期时间戳
+		 * @return 当前对象
 		 * @see #setExpire(long)
 		 */
 		public final BaseAdapter<T> setExpire(Date expire) {
@@ -166,7 +172,7 @@ public interface IAckAdapter <T> extends IMessageAdapter<Ack<T>>{
         }
 		/**
 		 * 等待命令响应订阅结束,用于同步接收命令响应
-		 * @throws InterruptedException
+		 * @throws InterruptedException 中断异常
 		 */
 		public final void waitFinished() throws InterruptedException{
 			synchronized(this){
@@ -175,7 +181,10 @@ public interface IAckAdapter <T> extends IMessageAdapter<Ack<T>>{
 				}
 			}
 		}
-		/** 复位所有成员变量到初始状态,以便于对象下次复用 */
+		/** 
+		 * 复位所有成员变量到初始状态,以便于对象下次复用
+		 * @return 当前对象
+		  */
 		public final synchronized BaseAdapter<T> reset(){
 			this.clientNum.set(-1L);
 			this.duration = 0L;
@@ -187,18 +196,16 @@ public interface IAckAdapter <T> extends IMessageAdapter<Ack<T>>{
 	/**
 	 * 设置收到命令的client端数量<br>
 	 * 用于判断是否已经收到所有设备的响应命令.
-	 * @param clientNum
-	 * @return
+	 * @param clientNum 收到命令的client端数量
+	 * @return 当前对象
 	 */
 	public IAckAdapter<T> setClientNum(long clientNum);
     /**
-     * 返回命令响应等待持续时间(毫秒)
-     * @return
+     * @return 返回命令响应等待持续时间(毫秒)
      */
     public long getDuration();
     /**
-     * 返回当前响应任务是否结束
-     * @return
+     * @return 返回当前响应任务是否结束
      */
     public boolean isFinished();
 }

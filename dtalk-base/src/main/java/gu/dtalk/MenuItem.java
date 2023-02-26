@@ -35,11 +35,11 @@ public class MenuItem extends BaseItem {
 	}
 	/**
 	 * 执行cmdpath指定的命令
-	 * @param cmdpath
+	 * @param cmdpath 设备命令路径
 	 * @param parameters 命令参数,参数名-参数值(json格式),没有参数，可以输入{@code null}或空
 	 * @return 返回值，没有返回值则返回null
-	 * @throws UnsupportCmdException 
-	 * @throws CmdExecutionException 
+	 * @throws UnsupportCmdException  -
+	 * @throws CmdExecutionException  -
 	 */
 	public Object runCmd(String cmdpath,Map<String, ?> parameters) throws UnsupportCmdException, CmdExecutionException{
 		checkArgument(!Strings.isNullOrEmpty(cmdpath),"cmd's path is null or empty");
@@ -67,9 +67,9 @@ public class MenuItem extends BaseItem {
 	}
 
 	/**
-	 * 返回选项的值，如果{@code optpath}指定的{@link BaseOption}不存在则返回{@code null}
-	 * @param optpath
-	 * @return
+	 * @param <T> 选项的数据类型
+	 * @param optpath 选项路径
+	 * @return 返回选项的值，如果{@code optpath}指定的{@link BaseOption}不存在则返回{@code null}
 	 * @see BaseOption#fetch()
 	 */
 	public <T> T fetchOption(String optpath){
@@ -80,9 +80,9 @@ public class MenuItem extends BaseItem {
 		return null;
 	}
 	/**
-	 * 返回选项的值，如果{@code optpath}指定的{@link BaseOption}不存在则返回{@code null}
-	 * @param optpath
-	 * @return
+	 * @param <T> 选项的数据类型
+	 * @param optpath 选项路径
+	 * @return 返回选项的值，如果{@code optpath}指定的{@link BaseOption}不存在则返回{@code null}
 	 * @see BaseOption#getValue()
 	 */
 	public <T> T optionValueOf(String optpath){
@@ -94,9 +94,10 @@ public class MenuItem extends BaseItem {
 	}
 	/**
 	 * 更新选项的值，如果{@code optpath}指定的{@link BaseOption}不存在则跳过
-	 * @param optpath
-	 * @param value
-	 * @return
+	 * @param <T> 选项的数据类型
+	 * @param optpath 选项路径
+	 * @param value 选项值
+	 * @return 当前对象
 	 * @see BaseOption#updateFrom(Object)
 	 */
 	public <T>MenuItem  updateValueOf(String optpath,T value){

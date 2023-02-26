@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.*;
  * 单选列表选项
  * @author guyadong
  *
- * @param <E>
+ * @param <E> OPTION数据类型
  */
 public class SwitchOption<E> extends CheckOption<E> {
 	@JSONField(serialize = false,deserialize = false)

@@ -102,7 +102,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	}
 	/**
 	 * 设置该选项是否为只读的
-	 * @param readOnly
+	 * @param readOnly -
 	 * @return 当前对象
 	 */
 	public BaseOption<T> setReadOnly(boolean readOnly) {
@@ -118,7 +118,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	/**
 	 * 设置修改此选项值时会不会导致应用重启
 	 * @param needReset 要设置的 needReset
-	 * @return 
+	 * @return 当前对象
 	 */
 	public BaseOption<T> setNeedReset(boolean needReset) {
 		this.needReset = needReset;
@@ -132,6 +132,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	}
 	/**
 	 * @param regex 要设置的 regex
+	 * @return 当前对象
 	 */
 	public BaseOption<T> setRegex(String regex) {
 		return this;
@@ -152,7 +153,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	}
 	/**
 	 * 验证value是否有效,该方法不会抛出异常
-	 * @param value
+	 * @param value -
 	 * @return 成功返回true，否则返回false
 	 */
 	@SuppressWarnings("unchecked")
@@ -172,7 +173,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	/**
 	 * 设置指定的值<br>
 	 * 如果值有改变则向observer发送{@link ValueChangeEvent}消息
-	 * @param value
+	 * @param value -
 	 * @return 当前对象
 	 * @throws IllegalArgumentException 数值验证失败
 	 * @see #validate(Object)
@@ -186,7 +187,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	}
 	/**
 	 * 更新选项的值，如果选项为只读(readonly)或value不满足条件({@link #validate(Object)})则抛出异常
-	 * @param value
+	 * @param value 要更新的值
 	 * @see #setValue(Object)
 	 */
 	public void updateFrom(T value){
@@ -196,7 +197,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	}
 	/**
 	 * 用选项req的值更新当前选项的值
-	 * @param req
+	 * @param req 更新源对象
 	 * @see #updateFrom(Object)
 	 */
 	public void updateFrom(BaseOption<T> req){
@@ -213,8 +214,8 @@ public abstract class BaseOption<T> extends BaseItem {
 	}
 	/**
 	 * 设置默认值，同时验证数据有效性，失败抛出异常
-	 * @param defaultValue
-	 * @return
+	 * @param defaultValue 默认值
+	 * @return 当前对象
 	 * @throws IllegalArgumentException 数值验证失败
 	 * @see #validate(Object)
 	 */
@@ -224,8 +225,7 @@ public abstract class BaseOption<T> extends BaseItem {
 		return this;
 	}
 	/**
-	 * 返回选项的值，如果为null则返回默认值
-	 * @return
+	 * @return 返回选项的值，如果为null则返回默认值
 	 */
 	public T fetch(){
 		if(getValue() == null){
@@ -236,7 +236,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	/**
 	 * 设置数据验证器
 	 * @param validator 为null忽略
-	 * @return
+	 * @return 当前对象
 	 */
 	public synchronized BaseOption<T> setValidator(Predicate<T> validator) {
 		if(validator != null){
@@ -254,7 +254,7 @@ public abstract class BaseOption<T> extends BaseItem {
 
 	/**
 	 * 设置该选项是否为必须的
-	 * @param required
+	 * @param required -
 	 * @return 当前对象
 	 */
 	public BaseOption<T> setRequired(boolean required) {
@@ -271,7 +271,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	/**
 	 * 以字符串形式设置值
 	 * @param input 如果不符合数据类型的格式则抛出异常
-	 * @return
+	 * @return 当前对象
 	 * @see OptionType#trans()
 	 */
 	public BaseOption<T> asValue(String input){
@@ -280,7 +280,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	/**
 	 * 以字符串形式设置默认值
 	 * @param input 如果不符合数据类型的格式则抛出异常
-	 * @return
+	 * @return 当前对象
 	 * @see OptionType#trans()
 	 */
 	public BaseOption<T> asDefaultValue(String input){
@@ -289,6 +289,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	/**
 	 * 检查value,defaultValue的有效性，无效则抛出异常
 	 * @throws IllegalArgumentException value,defaultValue的值无效
+	 * @return 当前对象
 	 */
 	public BaseOption<T> compile(){
 		// 检测value,defaultValue的值是否有效,无效则抛出异常
@@ -300,8 +301,8 @@ public abstract class BaseOption<T> extends BaseItem {
 	}
 	/**
 	 * 添加事件侦听器
-	 * @param listeners
-	 * @return
+	 * @param listeners 侦听器列表
+	 * @return 当前对象
 	 */
 	@SuppressWarnings("unchecked")
 	@SafeVarargs
@@ -335,8 +336,7 @@ public abstract class BaseOption<T> extends BaseItem {
 		return this;
 	}
 	/**
-	 * 返回所有可用的值
-	 * @return avaiableValues
+	 * @return 返回所有可用的值
 	 */
 	public List<T> getAvaiable() {
 		return Lists.newArrayList(available);
@@ -345,7 +345,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	/**
 	 * 设置可用的值
 	 * @param available 要设置的 availableValues
-	 * @return 
+	 * @return 当前对象
 	 */
 	public BaseOption<T> setAvaiable(List<T> available) {
 		this.available.clear();
@@ -355,8 +355,8 @@ public abstract class BaseOption<T> extends BaseItem {
 
 	/**
 	 * 添加可用的值
-	 * @param values
-	 * @return
+	 * @param values 可用的值列表
+	 * @return 当前对象
 	 */
 	@SuppressWarnings("unchecked")
 	public BaseOption<T> addAvailable(T... values){
@@ -367,8 +367,8 @@ public abstract class BaseOption<T> extends BaseItem {
 	}
 	/**
 	 * 删除可用的值
-	 * @param values
-	 * @return
+	 * @param values 删除值的列表
+	 * @return 当前对象
 	 */
 	@SuppressWarnings("unchecked")
 	public BaseOption<T> removeAvailable(T... values){

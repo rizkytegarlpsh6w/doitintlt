@@ -17,15 +17,17 @@ public class InteractiveCmdStartException extends CmdExecutionException {
 	private final String statusMessage;
 	/**
 	 * 构造方法
-	 * @param status 命令执行状态，参见 {@link #InteractiveCmdExecutionException(Status, String, Throwable)}
+	 * @param status 命令执行状态
+	 * @see #InteractiveCmdStartException(Status, String, Throwable)
 	 */
 	public InteractiveCmdStartException(Status status) {
 		this(status, null);
 	}
 	/**
 	 * 构造方法
-	 * @param status 命令执行状态，参见 {@link #InteractiveCmdExecutionException(Status, String, Throwable)}
+	 * @param status 命令执行状态
 	 * @param statusMessage 附加的状态信息,可为{@code null}
+	 * @see #InteractiveCmdStartException(Status, String, Throwable)
 	 */
 	public InteractiveCmdStartException(Status status, String statusMessage) {
 		this(status,statusMessage,null);

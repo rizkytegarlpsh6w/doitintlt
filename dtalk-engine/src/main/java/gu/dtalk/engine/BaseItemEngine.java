@@ -34,9 +34,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 消息驱动的菜单引擎，根据收到的请求执行对应的动作<br>
+ * <ul>
  * <li>OPTION：修改指定的参数</li>
  * <li>CMD:执行指定的命令</li>
  * <li>MENU:输出菜单内容</li>
+ * </ul>
  * @author guyadong
  *
  */
@@ -81,12 +83,12 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 
 	/**
 	 * 发送菜单数据
-	 * @param object
+	 * @param object 菜单实例
 	 */
 	protected abstract void responseMenu(MenuItem object);
 	/**
 	 * 发送ack消息
-	 * @param ack
+	 * @param ack 响应实例
 	 */
 	protected abstract void responseAck(Ack<Object> ack);
 	protected abstract DtalkListener getDtalkListener();
@@ -361,7 +363,7 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 		}
 		/**
 		 * 发送ack消息
-		 * @param ack
+		 * @param ack 响应实例
 		 */
 		protected abstract void responseAck(Ack<Object> ack);
 	}

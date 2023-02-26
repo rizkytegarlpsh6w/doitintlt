@@ -110,8 +110,8 @@ public class OptionBuilder<T,O extends BaseOption<T>> {
 	}
 	/**
 	 * 添加事件侦听器
-	 * @param listeners
-	 * @return
+	 * @param listeners  侦听器列表
+	 * @return 当前对象
 	 */
 	@SafeVarargs
 	public final OptionBuilder<T, O> addListener(ValueListener<T> ...listeners) {
@@ -119,8 +119,7 @@ public class OptionBuilder<T,O extends BaseOption<T>> {
 		return this;
 	}
 	/**
-	 * 返回<T>对象
-	 * @return
+	 * @return 返回option对象
 	 * @throws IllegalArgumentException 返回前检查value,defaultValue的有效性，无效则抛出异常
 	 */
 	public O instance(){

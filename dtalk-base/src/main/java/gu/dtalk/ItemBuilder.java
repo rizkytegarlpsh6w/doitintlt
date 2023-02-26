@@ -12,7 +12,7 @@ import com.google.common.base.Throwables;
  * 菜单条目构造器
  * @author guyadong
  *
- * @param <T>
+ * @param <T> 菜单条目子类类型
  */
 public class ItemBuilder<T extends BaseItem> {
 

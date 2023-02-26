@@ -194,8 +194,8 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	/**
 	 * 设置执行定时时任的{@link Timer}实例,如果不指定则使用内置的{@link Timer}实例，
 	 * 内置实例会在JVM结束自动cancel<br>
-	 * @param timer
-	 * @return
+	 * @param timer 定时器实例
+	 * @return 当前对象
 	 */
 	public RequestValidator setTimer(Timer timer) {
 		if(timer != null){
@@ -205,9 +205,9 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	}
 
 	/**
-	 * 空闲时间限制(毫秒),超过此时间,自动中断连接
-	 * @param idleTimeLimit
-	 * @return
+	 * 设置空闲时间限制(毫秒),超过此时间,自动中断连接
+	 * @param idleTimeLimit 空闲时间限制(毫秒)
+	 * @return 当前对象
 	 */
 	public RequestValidator setIdleTimeLimit(long idleTimeLimit) {
 		if(idleTimeLimit >0){
@@ -218,8 +218,8 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 
 	/**
 	 * 设置定义检查连接的任务时间间隔(毫秒)
-	 * @param timerPeriod
-	 * @return
+	 * @param timerPeriod 时间间隔(毫秒)
+	 * @return 当前对象
 	 */
 	public RequestValidator setTimerPeriod(long timerPeriod) {
 		if(timerPeriod > 0){
@@ -236,7 +236,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	 * 设置连接请求验证接口实例，如果不指定，默认使用基于{@link ConnectReq}格式的请求验证
 	 * 参见 {@link #validate(String)}
 	 * @param requestValidator 不可为{@code null}
-	 * @return
+	 * @return 当前对象
 	 */
 	public SampleConnector setRequestValidator(RequestValidator requestValidator) {
 		this.requestValidator = checkNotNull(requestValidator);
@@ -253,7 +253,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	/**
 	 * 设置当前设备的MAC地址(HEX字符串)
 	 * @param selfMac 要设置的 selfMac
-	 * @return 
+	 * @return 当前对象
 	 */
 	public SampleConnector setSelfMac(String selfMac) {
 		this.selfMac = selfMac;

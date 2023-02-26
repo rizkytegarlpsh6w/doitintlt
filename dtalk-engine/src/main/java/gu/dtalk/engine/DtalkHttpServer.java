@@ -821,7 +821,7 @@ public class DtalkHttpServer extends NanoWSD {
     /**
      * 从HTTP请求中解析参数返回{@link Map}实例
      * @param session
-     * @return
+     * @return 参数K-V映射
      * @throws IOException
      * @throws ResponseException
      */
@@ -872,7 +872,7 @@ public class DtalkHttpServer extends NanoWSD {
 
 	/**
 	 * @param engine 要设置的 engine
-	 * @return 
+	 * @return 当前对象
 	 */
 	public DtalkHttpServer setItemAdapter(ItemEngineHttpImpl engine) {
 		this.engine = checkNotNull(engine,"engine is null").setSupplier(webSocketSupplier);
@@ -880,7 +880,7 @@ public class DtalkHttpServer extends NanoWSD {
 	}
 	
 	/**
-	 * @return
+	 * @return 当前对象
 	 * @see gu.dtalk.engine.BaseItemEngine#getRoot()
 	 */
 	public DtalkHttpServer getRoot() {
@@ -888,8 +888,8 @@ public class DtalkHttpServer extends NanoWSD {
 		return this;
 	}
 	/**
-	 * @param root
-	 * @return
+	 * @param root 根菜单对象
+	 * @return 当前对象
 	 * @see gu.dtalk.engine.BaseItemEngine#setRoot(gu.dtalk.MenuItem)
 	 */
 	public DtalkHttpServer setRoot(MenuItem root) {
@@ -898,8 +898,8 @@ public class DtalkHttpServer extends NanoWSD {
 	}
 	/**
 	 * 设置定义检查连接的任务时间间隔(毫秒)
-	 * @param timerPeriod
-	 * @return
+	 * @param timerPeriod 时间间隔(毫秒)
+	 * @return 当前对象
 	 */
 	public DtalkHttpServer setTimerPeriod(long timerPeriod) {
 		if(timerPeriod > 0){
@@ -963,7 +963,7 @@ public class DtalkHttpServer extends NanoWSD {
 	/**
 	 * 设置 DEBUG 模式，默认false
 	 * @param debug 要设置的 debug
-	 * @return 
+	 * @return 当前对象
 	 */
 	public DtalkHttpServer setDebug(boolean debug) {
 		this.debug = debug;
@@ -973,7 +973,7 @@ public class DtalkHttpServer extends NanoWSD {
 	 * 设置是否不验证session合法性,默认false<br>
 	 * 开发模式下可以设置为true,跳过安全验证
 	 * @param noAuth 要设置的 noAuth
-	 * @return 
+	 * @return 当前对象
 	 */
 	public DtalkHttpServer setNoAuth(boolean noAuth) {
 		this.noAuth = noAuth;
@@ -982,7 +982,7 @@ public class DtalkHttpServer extends NanoWSD {
 	/**
 	 * 设置是否不支持跨域请求(CORS),默认false<br>
 	 * @param noCORS 要设置的 noCORS
-	 * @return 
+	 * @return 当前对象
 	 */
 	public DtalkHttpServer setNoCORS(boolean noCORS) {
 		this.noCORS = noCORS;

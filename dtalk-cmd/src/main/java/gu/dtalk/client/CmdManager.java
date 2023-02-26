@@ -19,7 +19,7 @@ public class CmdManager extends BaseCmdManager{
     private final FreshedChannelSupplier channelSupplier;
     /**
      * 构造方法
-     * @param poolLazy 
+     * @param poolLazy 连接池对象
      * @param cmdChannelSupplier 提供命令频道名的{@link Supplier}对象
      */
     public CmdManager(JedisPoolLazy poolLazy, Supplier<String> cmdChannelSupplier) {
@@ -28,7 +28,6 @@ public class CmdManager extends BaseCmdManager{
     }
     /**
      * 构造方法
-     * @param poolLazy 
      * @param cmdChannelSupplier 命令频道名
      */
     public CmdManager(Supplier<String> cmdChannelSupplier) {
@@ -36,7 +35,6 @@ public class CmdManager extends BaseCmdManager{
     }
     /**
      * 构造方法
-     * @param poolLazy 
      * @param cmdChannel 命令频道名
      */
     public CmdManager(String cmdChannel) {

@@ -10,7 +10,7 @@ import gu.dtalk.BaseOption;
  * 选项数据值改变侦听器
  * @author guyadong
  *
- * @param <T>
+ * @param <T> OPTION的数据类型
  */
 public abstract class ValueListener<T> extends BaseObserver<ValueChangeEvent<BaseOption<T>>> {
 

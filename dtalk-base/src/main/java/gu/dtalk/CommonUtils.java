@@ -12,9 +12,9 @@ import net.gdface.utils.FaceUtilits;
 public class CommonUtils {
 
 	/**
-	 * 返回响应通道名
-	 * @param mac
-	 * @return
+	 * 
+	 * @param mac 设备MAC地址
+	 * @return 返回响应通道名
 	 */
 	public static String getAckChannel(String mac){
 		return mac + ACK_SUFFIX;
@@ -24,8 +24,8 @@ public class CommonUtils {
 	}
 	/**
 	 * 生成连接频道名
-	 * @param mac
-	 * @return
+	 * @param mac 设备MAC地址
+	 * @return 频道名
 	 */
 	public static String getConnChannel(String mac){
 		return mac + CONNECT_SUFFIX;
@@ -84,18 +84,17 @@ public class CommonUtils {
 	}
 	/**
 	 * 归一化输入的{@link JSONObject}对象<br>
-	 * 根据{@value CommonConstant#ITEM_FIELD_NAME}或{@value CommonConstant#ITEM_FIELD_PATH}字段的值
+	 * 根据{@link CommonConstant#ITEM_FIELD_NAME}或{@link CommonConstant#ITEM_FIELD_PATH}字段的值
 	 * 查找是否存在指定的item,如果不存在抛出异常,
-	 * 如果没有定义{@value CommonConstant#ITEM_FIELD_NAME}或{@value CommonConstant#ITEM_FIELD_PATH}则抛出异常<br>
-	 * 如果 {@link JSONObject}没有指定{@value CommonConstant#ITEM_FIELD_CATALOG}字段，
+	 * 如果没有定义{@link CommonConstant#ITEM_FIELD_NAME}或{@link CommonConstant#ITEM_FIELD_PATH}则抛出异常<br>
+	 * 如果 {@link JSONObject}没有指定{@link CommonConstant#ITEM_FIELD_CATALOG}字段，
 	 * 则设置为找到的item的对应字段.<br>
-	 * 找到的item为{@link BaseOption}对象,且 {@link JSONObject}没有指定{@value CommonConstant#OPTION_FIELD_TYPE}字段，
+	 * 找到的item为{@link BaseOption}对象,且 {@link JSONObject}没有指定{@link CommonConstant#OPTION_FIELD_TYPE}字段，
 	 * 则设置为找到的item的对应字段.
-	 * @param jsonObject
+	 * @param jsonObject {@link JSONObject}对象
 	 * @param start 搜索起始对象
 	 * @return 返回归一化的{@code jsonObject}，
-	 * 保证有定义{@value CommonConstant#ITEM_FIELD_NAME},{@value CommonConstant#ITEM_FIELD_PATH}字段
-	 * @throws IllegalArgumentException
+	 * 保证有定义{@link CommonConstant#ITEM_FIELD_NAME},{@link CommonConstant#ITEM_FIELD_PATH}字段
 	 */
 	public static JSONObject normalize(JSONObject jsonObject, BaseItem start){
 		if(null != jsonObject && null != start){

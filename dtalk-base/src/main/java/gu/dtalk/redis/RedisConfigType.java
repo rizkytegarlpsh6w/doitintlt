@@ -95,9 +95,9 @@ public enum RedisConfigType{
 		return HostAndPort.fromParts(host, port);
 	}
 	/**
-	 * 根据SPI加载的{@link RedisConfigProvider}实例提供的参数创建Redis连接参数<b>
+	 * 根据SPI加载的{@link RedisConfigProvider}实例提供的参数创建Redis连接参数<br>
 	 * 如果{@link #findRedisConfigProvider()}返回{@code null}则返回{@code null}
-	 * @return
+	 * @return Redis连接参数
 	 */
 	public Map<PropName, Object> readRedisParam(){
 		// double checking
@@ -142,7 +142,7 @@ public enum RedisConfigType{
 	}
 	/**
 	 * 保存redis参数到当前类型对应的{@link RedisConfigProvider}实例
-	 * @param param
+	 * @param param redis参数
 	 */
 	public synchronized void saveRedisParam(Map<PropName, Object> param){
 		RedisConfigProvider config = findRedisConfigProvider();
@@ -207,10 +207,12 @@ public enum RedisConfigType{
 
 	/**
 	 * 按照如下优先顺序测试配置的redis连接，返回第一个能建立有效连接的配置，否则抛出异常<br>
+	 * <ul>
 	 * <li>{@link RedisConfigType#CUSTOM}</li>
 	 * <li>{@link RedisConfigType#LAN}</li>
 	 * <li>{@link RedisConfigType#CLOUD}</li>
 	 * <li>{@link RedisConfigType#LOCALHOST}</li>
+	 * </ul>
 	 * @return {@link #activeConfigType}不为{@code null}时直接返回{@link #activeConfigType}的值
 	 * @throws DtalkException 没有找到有效redis连接
 	 */

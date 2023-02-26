@@ -32,8 +32,7 @@ public class TaskManager extends BaseCmdManager {
     private String cmdpath;
 	/**
      * 构造方法
-     * @param poolLazy 
-     * @param taskQueueSupplier 提供任务队列名的{@link Supplier}对象
+     * @param poolLazy 连接池对象
      */
     public TaskManager(JedisPoolLazy poolLazy) {
     	super(poolLazy);
@@ -41,7 +40,7 @@ public class TaskManager extends BaseCmdManager {
     }
 	/**
      * 构造方法
-     * @param poolLazy 
+     * @param poolLazy 连接池对象
      * @param taskQueueSupplier 提供任务队列名的{@link Supplier}对象
      */
     public TaskManager(JedisPoolLazy poolLazy, Supplier<String> taskQueueSupplier) {
@@ -86,7 +85,7 @@ public class TaskManager extends BaseCmdManager {
 	}
 	/**
 	 * @param cmdpath 要设置的 cmdpath
-	 * @return 
+	 * @return 当前对象
 	 */
 	public TaskManager setCmdpath(String cmdpath) {
 		this.cmdpath = checkNotNull(Strings.emptyToNull(cmdpath),"cmdpath is null or empty");
@@ -117,7 +116,7 @@ public class TaskManager extends BaseCmdManager {
 	}
 	/**
      * 发送设备命令
-     * @param cmd
+     * @param cmd 设备命令
      * @return 1--成功提交任务,0--任务提交失败
      */
     @Override
@@ -169,12 +168,8 @@ public class TaskManager extends BaseCmdManager {
 		return super.runCmdSync(cmdpath, params, throwIfTimeout);
 	}
 	/**
-	 * @param params
-	 * @return
-	 */
-	/**
      * 发送设备命令<br>
-	 * @param params 
+	 * @param params 命令参数
 	 * @return 任务成功提交返回{@code true},否则返回{@code false}
 	 * @see gu.dtalk.client.BaseCmdManager#runCmd(java.lang.String, java.util.Map)
 	 */
@@ -183,6 +178,8 @@ public class TaskManager extends BaseCmdManager {
 	}
 
 	/**
+	 * @param params -
+	 * @param adapter -
 	 * @see gu.dtalk.client.BaseCmdManager#runCmd(java.lang.String, java.util.Map, gu.dtalk.IAckAdapter)
 	 */
 	public void runCmd(Map<String, Object> params, IAckAdapter<Object> adapter) {
@@ -190,6 +187,11 @@ public class TaskManager extends BaseCmdManager {
 	}
 
 	/**
+	 * @param params -
+	 * @param throwIfTimeout -
+	 * @return -
+	 * @throws InterruptedException -
+	 * @throws AckTimtoutException -
 	 * @see gu.dtalk.client.BaseCmdManager#runCmdSync(java.lang.String, java.util.Map, boolean)
 	 */
 	public List<Ack<Object>> runCmdSync(Map<String, Object> params, boolean throwIfTimeout)

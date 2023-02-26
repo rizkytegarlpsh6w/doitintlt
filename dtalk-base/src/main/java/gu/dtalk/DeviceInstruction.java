@@ -32,13 +32,13 @@ public class DeviceInstruction{
 		this.cmdpath = cmdpath;
 		return this;
 	}
-	/** 设置要执行的设备命令类型 */
+	/** @return 设置要执行的设备命令类型 */
 	public int getCmdSn() {
 		return cmdSn;
 	}
 	/**
 	 * 设置唯一的命令序列号
-	 * @param cmdSn
+	 * @param cmdSn 命令序列号
 	 * @return 当前对象
 	 */
 	public DeviceInstruction setCmdSn(int cmdSn) {
@@ -52,7 +52,7 @@ public class DeviceInstruction{
 
 	/**
 	 * 设置执行命令的设备组或设备ID,类型由{@link #setGroup(boolean)}确定
-	 * @param target
+	 * @param target 目标设备列表
 	 * @return 当前对象
 	 */
 	public DeviceInstruction setTarget(List<Integer> target) {
@@ -62,9 +62,9 @@ public class DeviceInstruction{
 	}
 	/**
 	 * 指定设备命令的目标ID及目标类型(设备/设备组)
-	 * @param target
-	 * @param group
-	 * @return
+	 * @param target 目标设备列表
+	 * @param group 目标是否为设备组
+	 * @return 当前对象
 	 * @see #setTarget(List)
 	 * @see #setGroup(boolean)
 	 */
@@ -92,7 +92,7 @@ public class DeviceInstruction{
 	 * 设置用于接收设备命令响应的通道,
 	 * 如果不指定命令响应通道,则命令发送方法无法知道命令执行状态,
 	 * 每一次设备命令发送都应该有一个唯一的命令响应接受通道,以便于命令发送方区命令响应来源
-	 * @param ackChannel
+	 * @param ackChannel 响应频道名
 	 * @return 当前对象
 	 */
 	public DeviceInstruction setAckChannel(String ackChannel) {
@@ -108,7 +108,7 @@ public class DeviceInstruction{
 	/**
 	 * 
 	 * 设置设备命令参数
-	 * @param parameters
+	 * @param parameters 设备命令参数
 	 * @return 当前对象
 	 */
 	public DeviceInstruction setParameters(Map<String,Object> parameters) {
@@ -117,8 +117,8 @@ public class DeviceInstruction{
 	}
 	/**
 	 * 设置设备命令参数
-	 * @param key
-	 * @param value
+	 * @param key 参数名
+	 * @param value 参数值
 	 * @return 当前对象
 	 */
 	public DeviceInstruction withParameters(String key,Object value) {

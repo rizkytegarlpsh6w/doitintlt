@@ -95,8 +95,8 @@ public class CmdItem extends BaseItem {
 	}
 	/**
 	 * 设置交互设备命令执行器
-	 * @param cmdAdapter
-	 * @return
+	 * @param cmdAdapter 设备命令执行器
+	 * @return 当前对象
 	 */
 	public CmdItem setInteractiveCmdAdapter(ICmdInteractiveAdapter cmdAdapter) {
 		this.cmdAdapter = cmdAdapter;
@@ -104,8 +104,8 @@ public class CmdItem extends BaseItem {
 	}
 	/**
 	 * 设置立即设备命令执行器
-	 * @param cmdAdapter
-	 * @return
+	 * @param cmdAdapter 设备命令执行器
+	 * @return 当前对象
 	 */
 	public CmdItem setImmediateCmdAdapter(ICmdImmediateAdapter cmdAdapter) {
 		this.cmdAdapter = cmdAdapter;
@@ -114,9 +114,9 @@ public class CmdItem extends BaseItem {
     /**
      * 将{@code value}转为{@code type}指定的类型
      * @param <T> 目标参数类型
-     * @param value
-     * @param type
-     * @return
+     * @param value 待转换的值
+     * @param type 目标类型
+     * @return 目标对象
      * @see TypeUtils#cast(Object, Type, ParserConfig)
      */
     @SuppressWarnings("unchecked")
@@ -125,8 +125,8 @@ public class CmdItem extends BaseItem {
     }
 	/**
 	 * 更新命令参数
-	 * @param parameters
-	 * @return
+	 * @param parameters 命令参数
+	 * @return 当前对象
 	 */
 	public CmdItem updateParameter(Map<String, ?> parameters){
 		parameters = MoreObjects.firstNonNull(parameters, Collections.<String, Object>emptyMap());
@@ -153,7 +153,7 @@ public class CmdItem extends BaseItem {
 	}
 	/**
 	 * 执行立即命令
-	 * @return
+	 * @return 执行设备命令的返回结果对象
 	 * @throws CmdExecutionException 设备命令执行异常
 	 */
 	public final Object runImmediateCmd() throws CmdExecutionException{
@@ -162,7 +162,7 @@ public class CmdItem extends BaseItem {
 	/**
 	 * 执行立即命令
 	 * @param parameters 命令参数
-	 * @return
+	 * @return 执行设备命令的返回结果对象
 	 * @throws CmdExecutionException 设备命令执行异常
 	 */
 	public final Object runImmediateCmd(Map<String, ?> parameters) throws CmdExecutionException{
@@ -184,7 +184,6 @@ public class CmdItem extends BaseItem {
 	/**
 	 * 启动交互命令
 	 * @param statusListener 设备命令状态侦听器
-	 * @return
 	 * @throws InteractiveCmdStartException 交互命令执行异常，当设备命令被拒绝或出错时抛出此异常
 	 */
 	public final void startInteractiveCmd(ICmdInteractiveStatusListener statusListener) throws InteractiveCmdStartException{
@@ -206,7 +205,6 @@ public class CmdItem extends BaseItem {
 	 * 启动交互命令
 	 * @param parameters 命令参数
 	 * @param statusListener 设备命令状态侦听器
-	 * @return
 	 * @throws InteractiveCmdStartException 当设备命令被拒绝或不支持或其他出错时抛出此异常,通过{@link InteractiveCmdStartException#getStatus() }获取状态类型
 	 */
 	final void startInteractiveCmd(Map<String, ?> parameters, ICmdInteractiveStatusListener statusListener) throws InteractiveCmdStartException{
@@ -272,7 +270,7 @@ public class CmdItem extends BaseItem {
 	/**
 	 * 设置执行此命令时会不会导致应用重启
 	 * @param needReset 要设置的 needReset
-	 * @return 
+	 * @return 当前对象
 	 */
 	public CmdItem setNeedReset(boolean needReset) {
 		this.needReset = needReset;

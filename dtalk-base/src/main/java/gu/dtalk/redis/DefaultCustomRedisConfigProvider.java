@@ -89,7 +89,7 @@ public class DefaultCustomRedisConfigProvider implements RedisConfigProvider {
 
 	/**
 	 * 初始化redis参数
-	 * @param redisParameters
+	 * @param redisParameters redis参数
 	 */
 	public static void initredisParameters(Map<PropName, Object> redisParameters){
 		redisParameters = MoreObjects.firstNonNull(redisParameters, Collections.<PropName, Object>emptyMap());

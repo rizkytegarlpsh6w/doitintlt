@@ -16,7 +16,7 @@ public interface ItemAdapter extends BaseItemDriver {
 
 	/**
 	 * 指定请求响应频道
-	 * @param ackChannelName
+	 * @param ackChannelName 频道名
 	 */
 	void setAckChannel(String ackChannelName);
 

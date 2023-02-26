@@ -30,7 +30,7 @@ public interface ICmdInteractiveStatusListener{
 	/**
 	 * 此方法用于设备命令发送方控制设备端定时报告进度的间隔(秒)，
 	 * 设备端调用此方法获取数值后，用于控制调用{@link #onProgress(Integer, String)}方法的调用间隔
-	 * @return 返回要求的{@link #onProgress(Integer, String)}方法调用间隔(秒)，<=0时，使用设备自定义的默认值
+	 * @return 返回要求的{@link #onProgress(Integer, String)}方法调用间隔(秒)，{@code <=0}时，使用设备自定义的默认值
 	 */
 	int getProgressInternal();
 }

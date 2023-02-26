@@ -60,7 +60,7 @@ public abstract class BaseCmdManager {
 
     /**
      * 执行数据发送<br>
-     * @param cmd
+     * @param cmd 设备命令
      * @return 收到命令的客户端数目
      */
 	protected abstract long doSendCmd(DeviceInstruction cmd);
@@ -135,25 +135,46 @@ public abstract class BaseCmdManager {
             return this;
         }
 
-        /** 指定目标ID(设备/设备组)列表,参见 {@link DeviceInstruction#setTarget(List, boolean)} */
+        /**
+         * 指定目标ID(设备/设备组)列表,参见 {@link DeviceInstruction#setTarget(List, boolean)}
+         * @param target 目标列表
+         * @param group 目标是否为设备组
+         * @return 当前对象
+         */
         public CmdBuilder setTarget(List<Integer> target,boolean group){
             this.target = target;
             this.group = group;
             return this;
         }
-        /** 指定设备目标为设备ID列表,参见 {@link DeviceInstruction#setTarget(List, boolean)} */
+        /**
+         * 指定设备目标为设备ID列表,参见 {@link DeviceInstruction#setTarget(List, boolean)}
+         * @param target 目标列表
+         * @return 当前对象
+         */
         public CmdBuilder setDeviceTarget(List<Integer> target){
             return setTarget(target,false);
         }
-        /** 指定设备目标为设备ID列表,参见 {@link DeviceInstruction#setTarget(List, boolean)} */
+        /**
+         * 指定设备目标为设备ID列表,参见 {@link DeviceInstruction#setTarget(List, boolean)}
+         * @param target 目标列表
+         * @return 当前对象
+         */
         public CmdBuilder setDeviceTarget(int... target){
             return setDeviceTarget(Ints.asList(target));
         }
-        /** 指定设备目标为设备组ID列表,参见 {@link DeviceInstruction#setTarget(List, boolean)} */
+        /**
+         * 指定设备目标为设备组ID列表,参见 {@link DeviceInstruction#setTarget(List, boolean)}
+         * @param target 目标列表
+         * @return 当前对象
+         */
         public CmdBuilder setDeviceGroupTarget(List<Integer> target){
             return setTarget(target,true);
         }
-        /** 指定设备目标为设备组ID列表,参见 {@link DeviceInstruction#setTarget(List, boolean)} */
+        /**
+         * 指定设备目标为设备组ID列表,参见 {@link DeviceInstruction#setTarget(List, boolean)}
+         * @param target 目标列表
+         * @return 当前对象
+         */
         public CmdBuilder setDeviceGroupTarget(int... target){
             return setDeviceGroupTarget(Ints.asList(target));
         }
@@ -161,6 +182,7 @@ public abstract class BaseCmdManager {
         /**
          * @param autoRemove 为{@code true}时,完成设备命令发送后自动清除Thread Local Storage变量{@link CmdManager#TLS_BUILDER},
          *                                    默认值为{@code true}
+         * @return 当前对象
          */
         public CmdBuilder autoRemove(boolean autoRemove){
             this.autoRemove = autoRemove;
@@ -168,7 +190,7 @@ public abstract class BaseCmdManager {
         }
 		/**
 		 * @param ackChannel 要设置的 ackChannel
-		 * @return 
+		 * @return 当前对象
 		 */
 		public CmdBuilder setAckChannel(String ackChannel) {
 			this.ackChannel = ackChannel;
@@ -197,6 +219,7 @@ public abstract class BaseCmdManager {
 
 	/** 
 	 * 清除TLS变量 {@link #TLS_BUILDER}
+	 * @return 当前对象
 	 * @see ThreadLocal#remove()
 	 */
 	public BaseCmdManager removeTlsTarget() {
@@ -204,20 +227,27 @@ public abstract class BaseCmdManager {
 	    return this;
 	}
 
-	/** 
-     * 指定提供命令序列号的{@code Supplier}实例
+    /**
+     * 指定提供命令序列号的{@link Supplier}实例
+     * @param cmdSnSupplier {@link Supplier}实例
+     * @return 当前对象
      */
     public BaseCmdManager setCmdSn(Supplier<Integer> cmdSnSupplier) {
         this.cmdSnSupplier = checkNotNull(cmdSnSupplier);
         return this;
     }
-    /** 
-     * 指定命令响应通道,参见 {@link DeviceInstruction#setAckChannel(String)} */
+    /**
+     * 指定命令响应通道,参见 {@link DeviceInstruction#setAckChannel(String)}
+     * @param ackChannel 响应频道名
+     * @return 当前对象
+     */
     public BaseCmdManager setAckChannel(String ackChannel){
         return this.setAckChannel(Suppliers.ofInstance(checkNotNull(Strings.emptyToNull(ackChannel),"ackChannel is null or empty")));
     }
-    /** 
-     * 指定提供命令响应通道的{@code Supplier}实例,
+    /**
+     * 指定提供命令响应通道的{@link Supplier}实例
+     * @param ackChannelSupplier {@link Supplier}实例
+     * @return 当前对象
      */
     public BaseCmdManager setAckChannel(Supplier<String> ackChannelSupplier){
         this.ackChannelSupplier = checkNotNull(ackChannelSupplier);
@@ -296,7 +326,7 @@ public abstract class BaseCmdManager {
 	 * @param params 设备命令参数对象, {@code 参数名(key)->参数值(value)映射},没有参数可为{@code null}
 	 * @param throwIfTimeout 当响应超时时，是否抛出{@link AckTimtoutException}异常
 	 * @return 设备端返回的所有命令响应对象
-	 * @throws InterruptedException
+	 * @throws InterruptedException 中断异常
 	 * @throws AckTimtoutException 命令响应超时
 	 * @see #runCmd(String, Map, IAckAdapter)
 	 */
@@ -312,6 +342,7 @@ public abstract class BaseCmdManager {
 	}
 	/**
 	 * 将当前对象转为子类
+	 * @param <T> 子类类型
 	 * @return 当前对象
 	 */
 	@SuppressWarnings("unchecked")
@@ -320,7 +351,8 @@ public abstract class BaseCmdManager {
 	}
 	/**
 	 * 将当前对象转为指定的子类
-	 * @param clazz
+	 * @param <T> 子类类型
+	 * @param clazz 子类类型
 	 * @return 当前对象
 	 */
 	public final <T extends BaseCmdManager> T self(Class<T> clazz){

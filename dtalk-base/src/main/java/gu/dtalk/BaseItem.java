@@ -79,7 +79,7 @@ public abstract class BaseItem{
 	}
 	/**
 	 * @param name 允许的字符[a-zA-Z0-9_],不允许有空格
-	 * @return 
+	 * @return 当前对象
 	 */
 	public BaseItem setName(String name) {
 		name = checkNotNull(name,"name is null").trim();
@@ -90,8 +90,7 @@ public abstract class BaseItem{
 	}
 
 	/**
-	 * 返回父结点
-	 * @return
+	 * @return 返回父结点 
 	 */
 	public BaseItem getParent() {
 		return parent;
@@ -108,8 +107,8 @@ public abstract class BaseItem{
 	}
 	/**
 	 * 设置父结点
-	 * @param parent
-	 * @return
+	 * @param parent 父结点
+	 * @return 当前对象
 	 */
 	BaseItem setParent(BaseItem parent) {
 		checkArgument(parent ==null || parent.isContainer(),"INVALID parent");
@@ -154,8 +153,8 @@ public abstract class BaseItem{
 	}
 	/**
 	 * 路径名归一化,以'/'开始，不以'/'结尾
-	 * @param path
-	 * @return
+	 * @param path 原路径
+	 * @return 归一化路径
 	 */
 	private String normalizePath(String path){
 		path = MoreObjects.firstNonNull(path, "").trim();
@@ -180,7 +179,7 @@ public abstract class BaseItem{
 	}
 	/**
 	 * 设置当前对象在整个菜单树形结构中的全路径
-	 * @param path
+	 * @param path -
 	 * @return 当前对象
 	 */
 	public BaseItem setPath(String path) {
@@ -195,7 +194,7 @@ public abstract class BaseItem{
 	}
 	/**
 	 * 设置当前条目是否禁用
-	 * @param disable
+	 * @param disable -
 	 * @return 当前对象
 	 */
 	public BaseItem setDisable(boolean disable) {
@@ -219,14 +218,13 @@ public abstract class BaseItem{
 	}
 	/**
 	 * @return 对当前条目的说明文字
-
 	 */
 	public String getDescription() {
 		return description;
 	}
 	/**
 	 * 设置对当前条目的说明文字
-	 * @param description
+	 * @param description 描述内容
 	 * @return 当前对象
 	 */
 	public BaseItem setDescription(String description) {
@@ -241,7 +239,7 @@ public abstract class BaseItem{
 	}
 	/**
 	 * 设置条目的界面显示名称
-	 * @param uiName
+	 * @param uiName 界面显示名称
 	 * @return 当前对象
 	 */
 	public BaseItem setUiName(String uiName) {
@@ -280,7 +278,7 @@ public abstract class BaseItem{
 	}
 	/**
 	 * 返回{@code path}指定的路径查找当前对象下的子条目<br>
-	 * @param path
+	 * @param path 菜单条目路径
 	 * @return 返回子条目，没有找到返回{@code null}
 	 */
 	public BaseItem getChildByPath(String path){
@@ -321,7 +319,7 @@ public abstract class BaseItem{
 	/**
 	 * 根据{@code path}指定的路径查找对象,
 	 * 先在当前对象中查找，如果找不到，从根结点查找
-	 * @param path
+	 * @param path 菜单条目路径
 	 * @return 返回找到的{@link BaseItem},找不到返回{@code null}
 	 */
 	public BaseItem find(String path){
@@ -338,7 +336,7 @@ public abstract class BaseItem{
 	/**
 	 * 根据{@code path}指定的路径查找对象,
 	 * 与{@link #find(String)}基本相同,只是当找不到指定的对象时抛出异常
-	 * @param path
+	 * @param path 菜单条目路径
 	 * @return 返回找到的{@link BaseItem}对象
 	 * @throws IllegalArgumentException 没找到指定的对象
 	 */
@@ -347,7 +345,7 @@ public abstract class BaseItem{
 	}
 	/**
 	 * 根据path指定的路径查找menu对象, 先在当前对象中查找，如果找不到，从根结点查找
-	 * @param path
+	 * @param path 菜单条目路径
 	 * @return 返回找到的{@link CmdItem}对象,找不到返回null
 	 */
 	public MenuItem findMenu(String path){
@@ -360,7 +358,7 @@ public abstract class BaseItem{
 	}
 	/**
 	 * 根据path指定的路径查找menu对象, 与{@link #findCmd(String)}基本相同,只是当找不到指定的对象时抛出异常
-	 * @param path
+	 * @param path 菜单条目路径
 	 * @return 返回找到的{@link MenuItem}对象
 	 * @throws IllegalArgumentException 没找到指定的对象
 	 */
@@ -369,7 +367,7 @@ public abstract class BaseItem{
 	}
 	/**
 	 * 根据path指定的路径查找cmd对象, 先在当前对象中查找，如果找不到，从根结点查找
-	 * @param path
+	 * @param path 菜单条目路径
 	 * @return 返回找到的{@link CmdItem}对象,找不到返回null
 	 */
 	public CmdItem findCmd(String path){
@@ -382,7 +380,7 @@ public abstract class BaseItem{
 	}
 	/**
 	 * 根据path指定的路径查找cmd对象, 与{@link #findCmd(String)}基本相同,只是当找不到指定的对象时抛出异常
-	 * @param path
+	 * @param path 菜单条目路径
 	 * @return 返回找到的{@link CmdItem}对象
 	 * @throws IllegalArgumentException 没找到指定的对象
 	 */
@@ -391,7 +389,8 @@ public abstract class BaseItem{
 	}
 	/**
 	 * 根据path指定的路径查找对象, 先在当前对象中查找，如果找不到，从根结点查找
-	 * @param path
+	 * @param <T> OPTION数据类型
+	 * @param path 菜单条目路径
 	 * @return 返回找到的{@link BaseOption},找不到返回{@code null}
 	 */
 	@SuppressWarnings("unchecked")
@@ -408,6 +407,8 @@ public abstract class BaseItem{
 	/**
 	 * 根据{@code path}指定的路径查找option对象,
 	 * 与{@link #findOption(String)}基本相同,只是当找不到指定的对象时抛出异常
+	 * @param <T> OPTION数据类型
+	 * @param path 菜单条目路径
 	 * @return 返回找到的{@link BaseItem}
 	 * @throws IllegalArgumentException 没找到指定的对象
 	 * @see #findOption(String)
@@ -419,7 +420,8 @@ public abstract class BaseItem{
 
 	/**
 	 * 根据{@code path}指定的路径查找对象<br>
-	 * @param path
+	 * @param <T> OPTION数据类型
+	 * @param path 菜单条目路径
 	 * @param type 要查找的选项类型
 	 * @return 返回找到的{@link BaseOption},找不到返回{@code null}
 	 * @see #findOption(String)
@@ -436,93 +438,133 @@ public abstract class BaseItem{
 		return (T) type.optionClass().cast(item);
 	}
 	/**
+	 * 查找指定的路径BASE64 OPTION选项
+	 * @param path 菜单条目路径 
+	 * @return BASE64 OPTION OR {@code null}
 	 * @see #findOption(String, OptionType)
 	 */
 	public Base64Option findBase64Option(String path){
 		return findOption(path,OptionType.BASE64);
 	}
 	/**
+	 * 查找指定的路径BOOL OPTION选项
+	 * @param path 菜单条目路径 
+	 * @return BOOL OPTION OR {@code null}
 	 * @see #findOption(String, OptionType)
 	 */
 	public BoolOption findBoolOption(String path){
 		return findOption(path,OptionType.BOOL);
 	}
 	/**
+	 * 查找指定的路径IP OPTION选项
+	 * @param path 菜单条目路径 
+	 * @return IP OPTION OR {@code null}
 	 * @see #findOption(String, OptionType)
 	 */
 	public IPv4Option findIPv4Option(String path){
 		return findOption(path,OptionType.IP);
 	}
 	/**
+	 * 查找指定的路径MAC OPTION选项
+	 * @param path 菜单条目路径 
+	 * @return MAC OPTION OR {@code null}
 	 * @see #findOption(String, OptionType)
 	 */
 	public MACOption findMACOption(String path){
 		return findOption(path,OptionType.MAC);
 	}
 	/**
+	 * 查找指定的路径INTEGER OPTION选项
+	 * @param path 菜单条目路径 
+	 * @return INTEGER OPTION OR {@code null}
 	 * @see #findOption(String, OptionType)
 	 */
 	public IntOption findIntOption(String path){
 		return findOption(path,OptionType.INTEGER);
 	}
 	/**
+	 * 查找指定的路径FLOAT OPTION选项
+	 * @param path 菜单条目路径 
+	 * @return FLOAT OPTION OR {@code null}
 	 * @see #findOption(String, OptionType)
 	 */
 	public FloatOption findFloatOption(String path){
 		return findOption(path,OptionType.FLOAT);
 	}
 	/**
+	 * 查找指定的路径DATE OPTION选项
+	 * @param path 菜单条目路径 
+	 * @return DATE OPTION OR {@code null}
 	 * @see #findOption(String, OptionType)
 	 */
 	public DateOption findDateOption(String path){
 		return findOption(path,OptionType.DATE);
 	}
 	/**
+	 * 查找指定的路径STRING OPTION选项
+	 * @param path 菜单条目路径 
+	 * @return STRING OPTION OR {@code null}
 	 * @see #findOption(String, OptionType)
 	 */
 	public StringOption findStringOption(String path){
 		return findOption(path,OptionType.STRING);
 	}
 	/**
+	 * 查找指定的路径PASSWORD OPTION选项
+	 * @param path 菜单条目路径 
+	 * @return PASSWORD OPTION OR {@code null}
 	 * @see #findOption(String, OptionType)
 	 */
 	public PasswordOption findPasswordOption(String path){
 		return findOption(path,OptionType.PASSWORD);
 	}
 	/**
+	 * 查找指定的路径URL OPTION选项
+	 * @param path 菜单条目路径 
+	 * @return URL OPTION OR {@code null}
 	 * @see #findOption(String, OptionType)
 	 */
 	public UrlOption findUrlOption(String path){
 		return findOption(path,OptionType.URL);
 	}
 	/**
+	 * 查找指定的路径IMAGE OPTION选项
+	 * @param path 菜单条目路径 
+	 * @return IMAGE OPTION OR {@code null}
 	 * @see #findOption(String, OptionType)
 	 */
 	public ImageOption findImageOption(String path){
 		return findOption(path,OptionType.IMAGE);
 	}
 	/**
+	 * 查找指定的路径MULTICHECK OPTION选项
+	 * @param <T> OPTION数据类型
+	 * @param path 菜单条目路径 
+	 * @return MULTICHECK OPTION  OR {@code null}
 	 * @see #findOption(String, OptionType)
 	 */
 	public <T>CheckOption<T> findCheckOption(String path){
 		return findOption(path,OptionType.MULTICHECK);
 	}
 	/**
+	 * 查找指定的路径SWITCH OPTION选项
+	 * @param <T> OPTION数据类型
+	 * @param path 菜单条目路径 
+	 * @return SWITCH OPTION  OR {@code null}
 	 * @see #findOption(String, OptionType)
 	 */
 	public <T>SwitchOption<T> findSwitchOption(String path){
 		return findOption(path,OptionType.SWITCH);
 	}
 	/**
-	 * 返回所有子条目
-	 * @return
+	 * @return 返回所有子条目
 	 */
 	public List<BaseItem> getChilds() {
 		return Lists.newArrayList(items.values());
 	}
 	/**
 	 * 设置子条目(会清除原有的子条目)
-	 * @param childs
+	 * @param childs 子条目对象列表
 	 * @return 当前对象
 	 */
 	public BaseItem setChilds(List<BaseItem> childs) {
@@ -531,7 +573,7 @@ public abstract class BaseItem{
 	}
 	/**
 	 * 添加子条目
-	 * @param childs
+	 * @param childs 子条目对象列表
 	 * @return 当前对象
 	 */
 	public BaseItem addChilds(BaseItem ... childs) {
@@ -539,7 +581,7 @@ public abstract class BaseItem{
 	}
 	/**
 	 * 添加子条目
-	 * @param childs
+	 * @param childs 子条目对象集合
 	 * @return 当前对象
 	 */
 	public BaseItem addChilds(Collection<BaseItem> childs) {
@@ -555,7 +597,7 @@ public abstract class BaseItem{
 	/**
 	 * 在index指定索引位置添加子条目,如果元素已经存在则跳过
 	 * @param index 索引位置，越界则默认为最后位置，当前子条目数量为0时忽略此值
-	 * @param child
+	 * @param child 子条目对象
 	 * @return 当前对象
 	 */
 	public BaseItem addChilds(int index,BaseItem child) {
@@ -605,7 +647,7 @@ public abstract class BaseItem{
 	/**
 	 * 根据{@code name}指定的条目名称查找当前对象下的子条目<br>
 	 * 如果{@code name}为数字则为子条目索引
-	 * @param name
+	 * @param name 条目名称
 	 * @return 子条目，没找到返回{@code null}
 	 */
 	public BaseItem getChild(final String name) {
@@ -620,7 +662,7 @@ public abstract class BaseItem{
 	}
 	/**
 	 * 用{@code item}更新同名的子对象，如果对象不存在则跳过
-	 * @param item
+	 * @param item 子条目
 	 */
 	public void updateChild(BaseItem item){
 		if(items.containsKey(item.getName())){
