@@ -580,8 +580,11 @@ public class DtalkHttpServer extends NanoWSD {
     private boolean isAuthorizationSession(IHTTPSession session){
     	return dtalkSession != null && dtalkSession.equals(session.getCookies().read(DTALK_SESSION));
     }
-    private void checkAuthorizationSession(IHTTPSession session){
-    	checkState(noAuth  || isAuthorizationSession(session),UNAUTH_SESSION);
+    private void checkAuthorizationSession(IHTTPSession session) throws ResponseException{
+    	if(noAuth  || isAuthorizationSession(session)){
+    		return;
+    	}
+    	throw new ResponseException(Status.UNAUTHORIZED, UNAUTH_SESSION);
     }
     private <T> Response responseAck(Ack<T> ack){
     	String json=BaseJsonEncoder.getEncoder().toJsonString(ack);
@@ -759,6 +762,11 @@ public class DtalkHttpServer extends NanoWSD {
 						NanoHTTPD.MIME_PLAINTEXT, 
 						String.format("NOT FOUND %s", session.getUri()));	
     		}
+    	}catch(ResponseException e){
+    		return newFixedLengthResponse(
+					e.getStatus(), 
+					NanoHTTPD.MIME_PLAINTEXT, 
+					e.getClass().getName() +":"+ e.getMessage());	
     	}catch (Exception e) {    		
     		ack.setStatus(Ack.Status.ERROR).setException(e.getClass().getName()).setStatusMessage(e.getMessage());
     	}
