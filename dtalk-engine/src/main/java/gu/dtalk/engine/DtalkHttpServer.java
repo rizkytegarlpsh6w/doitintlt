@@ -507,6 +507,7 @@ public class DtalkHttpServer extends NanoWSD {
 	private long idleTimeLimit = DEFAULT_IDLE_TIME_MILLS;
 	private long timerPeriod = 2000;
 
+	private final int port;
 	private String selfMac;
 	
 	/**
@@ -557,7 +558,8 @@ public class DtalkHttpServer extends NanoWSD {
 	}
     public DtalkHttpServer(int port)  {
         super(port);
-        selfMac = FaceUtilits.toHex(DeviceUtils.DEVINFO_PROVIDER.getMac());
+        this.port = port;
+        this.selfMac = FaceUtilits.toHex(DeviceUtils.DEVINFO_PROVIDER.getMac());
 		// 定时检查引擎工作状态，当空闲超时，则中止连接
 		getTimer().schedule(new TimerTask() {
 
@@ -660,7 +662,7 @@ public class DtalkHttpServer extends NanoWSD {
 			return resp;
 		}
 		resp = MoreObjects.firstNonNull(resp,newFixedLengthResponse(""));
-		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:" + port);
 		String allowMethods = Joiner.on(',').join(Arrays.asList(Method.POST,Method.GET,Method.OPTIONS));
 		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_METHODS, allowMethods);
 		String allowHeaders = Joiner.on(',').join(Arrays.asList(HeaderNames.CONTENT_TYPE,"X-PINGOTHER"	));
