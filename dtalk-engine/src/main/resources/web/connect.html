@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="renderer" content="webkit" />
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+	<title>设备操作</title>
+	<link rel="stylesheet" type="text/css" href="jquery-easyui/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="jquery-easyui/themes/icon.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+</head>
+<body>
+<div class="layoutDiv clearfix">
+	<div class="comment">
+		<table id="table" style="width: 100%;"></table>
+	</div>
+	<!-- 登录弹框 -->
+	<div id="dialog" closed="true" class="easyui-dialog" title="登录" style="width:400px;height:200px;padding:10px">
+        <form class="form">
+        	<label>密码：</label><input type="password" placeholder="请输入密码" class="password">
+        	<p class="red">请输入密码</p>
+        	<button type="button" class="onSubmit">链接</button>
+        </form>
+    </div>
+</div>
+<script src="config.js"></script>
+<script src="jquery-easyui/jquery.min.js"></script>
+<script src="jquery-easyui/jquery.easyui.min.js"></script>
+<script src="js/common.js"></script>
+</body>
+</html>
