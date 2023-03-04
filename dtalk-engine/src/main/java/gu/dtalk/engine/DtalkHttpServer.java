@@ -665,7 +665,7 @@ public class DtalkHttpServer extends NanoWSD {
 		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:" + port);
 		String allowMethods = Joiner.on(',').join(Arrays.asList(Method.POST,Method.GET,Method.OPTIONS));
 		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_METHODS, allowMethods);
-		String allowHeaders = Joiner.on(',').join(Arrays.asList(HeaderNames.CONTENT_TYPE,"X-PINGOTHER"	));
+		String allowHeaders = Joiner.on(',').join(Arrays.asList(HeaderNames.CONTENT_TYPE,HeaderNames.SET_COOKIE,"X-PINGOTHER","*"	));
 		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_HEADERS, allowHeaders);
 		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
 		resp.addHeader(HeaderNames.ACCESS_CONTROL_MAX_AGE, "86400");
