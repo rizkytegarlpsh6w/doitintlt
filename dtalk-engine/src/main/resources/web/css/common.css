@@ -11,6 +11,7 @@ ul,ol{list-style: none;}
 .form{text-align: center; padding-top: 20px;}
 .form input{width: 260px; height: 38px; line-height: 38px; border: 1px solid #dcdfe6; padding-left: 6px;}
 .form button{display: inline-block; padding: 8px 20px; font-size: 14px; white-space: nowrap; background: #409eff; color: #fff; margin-top: 20px;}
+.tips{text-align: left; font-size: 12px; margin-top: 20px; color: #666;}
 
 .comment{width: 80%; margin: 0 auto;}
 .tableList{border: 1px solid #ebeef5; width: 100%;}

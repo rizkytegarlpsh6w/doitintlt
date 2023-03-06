@@ -72,20 +72,21 @@
 
   <script>
 
-    // $.ajax({
-    //     type: "GET",
-    //     url: req_prefix + "/login?password=3fbf&isMd5=false",
-    //     xhrFields: {
-    //       withCredentials: true
-    //     },
-    //     crossDomain: true,
-    //     success:function(data){
-    //       $("#auth-status").text(data);
-    //     },
-    //     error:function(data){
-    //       $("#auth-status").text(data);
-    //     }
-    //     })
+    $.ajax({
+        type: "GET",
+        url: req_prefix + "/login?password=2d47&isMd5=false",
+        xhrFields: {
+          withCredentials: true
+        },
+        crossDomain: true,
+        success:function(data){
+          console.log(data)
+          $("#auth-status").text(data);
+        },
+        error:function(data){
+          $("#auth-status").text(data);
+        }
+        })
     var root_menu, current_item;
     function render_item(item) {
       var li = "<li {ONCLICK} ><div>" + (item.uiName ? item.uiName : item.name) + "{VALUE}</div></li>"

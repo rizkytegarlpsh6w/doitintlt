@@ -1,3 +1,31 @@
+// 登录
+$('.onSubmit').click(function(){
+    var _this = $(this)
+    var val = _this.siblings('input').val();
+    console.log(val)
+    if(val){
+        $.ajax({
+            type: "get",
+            url: req_prefix+'/login'+'?password='+val+'&isMd5=fasle',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            success: function(data,status){
+                $('#dialog').dialog('close');
+                tableData();
+            },
+            error:function(XMLHttpRequest){
+                if(XMLHttpRequest.status == 500){
+                    _this.siblings('p').show().text('请输入正确的密码');
+                }
+            },
+        })
+    }else{
+        $(this).siblings('p').show();
+    }
+});
+
 $('#table').treegrid({
     idField:'id',
     treeField:'name',
@@ -22,24 +50,33 @@ function rowFormatter(value,row){
     }
 }
 
+// 调用加载所有数据
+tableData();
+
 
 // 查询出所有内容
-$.ajax({
-    type: "get",
-    url: req_prefix + "/dtalk/",
-    success: function (data) {
-        var list = [];
-        if(data.catalog == 'MENU'){
-            list = loadMenu(data.childs)
-            $('#table').treegrid('loadData', list);
-        }
-    },
-    error: function(XMLHttpRequest) {
-        if(XMLHttpRequest.status == 401){
-            $('#dialog').dialog('open');
-        }
-    },
-});
+function tableData(){
+    $.ajax({
+        type: "GET",
+        url: req_prefix + "/dtalk/",
+        xhrFields: {
+            withCredentials: true
+        },
+        crossDomain: true,
+        success: function (data) {
+            var list = [];
+            if(data.catalog == 'MENU'){
+                list = loadMenu(data.childs)
+                $('#table').treegrid('loadData', list);
+            }
+        },
+        error: function(XMLHttpRequest) {
+            if(XMLHttpRequest.status == 401){
+                $('#dialog').dialog('open');
+            }
+        },
+    });
+}
 
 
 // 加载表格数据
@@ -100,13 +137,7 @@ function loadMenu(data){
                     }
                     // 当类型是MULTICHECK时，取option值的值为选中的值
                     if(data[i].type == 'MULTICHECK'){
-                        var number = data[i].value;
-                        var checkArr = data[i].value;
-                        var newArr = [];
-                        for (var j = 0; j < checkArr.length; j++) {
-                            newArr.push(options[checkArr[j]].value)
-                        }
-                        data[i].value = newArr;
+                        data[i].value = checkName(data[i].value,options)
                     }
 
 
@@ -153,6 +184,7 @@ function editBtn(id){
 
         // date
         if(data.type == 'DATE'){
+            console.log(data.value)
             var html = '<form class="editForm" id="f_'+data.id+'">'+
                             '<input type="text" placeholder="请输入" id="dateBox" value="'+data.value+'">'+
                             '<button type="button" onclick="keep('+id+')" class="keep">保存</button>'+
@@ -188,6 +220,7 @@ function editBtn(id){
                         '</form>'
             // 找到修改按钮的父级标签，然后将标签加入
             $("#i_"+id).parent().append(html);
+
             // 实例化多选下拉框
             var opts = [];
             for (var i = 0; i < data.options.length; i++) {
@@ -284,14 +317,6 @@ function keep(id){
         var text = $("#f_"+id).find('#selected option:selected').text();
     }else if(data.type == 'MULTICHECK'){
         var value = $('#checkBox').combobox('getValues').toString();
-        var valueArr = $('#checkBox').combobox('getValues');
-        var checkArr = valueArr.map(Number)
-        var options = data.options;
-        var newArr = [];
-        for (var j = 0; j < checkArr.length; j++) {
-            newArr.push(options[checkArr[j]].value)
-        }
-        var text = newArr;
     }else if(data.type == 'DATE'){
         var currentdate = $("#f_"+id).find('input').val();
         var value = new Date(currentdate).getTime();
@@ -312,17 +337,17 @@ function keep(id){
         }
 
 
-        $.get(req_prefix + '/dtalk'+ data.path + '?value=' + value, function (data,status) {
+        $.get(req_prefix + '/dtalk'+ data.path + '?value=' + value, function (status) {
             if (status = 'success') {
-                $("#i_"+id).show().siblings('.editForm').remove();
-                // 修改成功之后将修改状态改成已完成
-                editing = false;
-                $.messager.alert('温馨提示','修改成功','info');
-                $('#table').treegrid('reloadFooter')
+                // 调用加载所有数据
                 if(data.type == 'SWITCH'){
                     $("#i_"+id).find('span').text(text);
                 }else if(data.type == 'MULTICHECK'){
-                    $("#i_"+id).find('span').text(text)
+                    var valueArr = $('#checkBox').combobox('getValues');
+                    var checkArr = valueArr.map(Number);
+                    var options = data.options;
+                    var text = checkName(checkArr,options);
+                    $("#i_"+id).find('span').text(text);
                 }else if(data.type == 'DATE'){
                     var text = tranDate(value);
                     $("#i_"+id).find('span').text(text);
@@ -331,6 +356,10 @@ function keep(id){
                 }else{
                     $("#i_"+id).find('span').text(value);
                 }
+                $("#i_"+id).show().siblings('.editForm').remove();
+                // 修改成功之后将修改状态改成已完成
+                editing = false;
+                $.messager.alert('温馨提示','修改成功','info');
             }
         });
     }
@@ -374,6 +403,13 @@ function cancel(id){
     editing = false;
 }
 
+function checkName(data,options){
+    var newArr = [];
+    for (var j = 0; j < data.length; j++) {
+        newArr.push(options[data[j]].value)
+    }
+    return newArr;
+}
 
 // 转化日期格式
 function tranDate(date){
