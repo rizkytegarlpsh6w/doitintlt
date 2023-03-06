@@ -67,9 +67,25 @@
   <h1>Dtalk Menu</h1>
   <ul style="width:400px;" id="menu">
   </ul>
+  <h4 id="auth-status"></h4>
   <h4 id="req-status"></h4>
 
   <script>
+
+    // $.ajax({
+    //     type: "GET",
+    //     url: req_prefix + "/login?password=3fbf&isMd5=false",
+    //     xhrFields: {
+    //       withCredentials: true
+    //     },
+    //     crossDomain: true,
+    //     success:function(data){
+    //       $("#auth-status").text(data);
+    //     },
+    //     error:function(data){
+    //       $("#auth-status").text(data);
+    //     }
+    //     })
     var root_menu, current_item;
     function render_item(item) {
       var li = "<li {ONCLICK} ><div>" + (item.uiName ? item.uiName : item.name) + "{VALUE}</div></li>"
@@ -99,27 +115,39 @@
       return childs;
     }
     function req_menu(path) {
-      $.get(req_prefix + "/dtalk" + path, function (data, status) {
-        if (status == 'success') {
+      $.ajax({
+        type: "GET",
+        url: req_prefix + "/dtalk" + path,
+        xhrFields: {
+              withCredentials: true
+        },
+        crossDomain: true,
+        success:function(data){
           current_item = data;
           $('#menu').html(render_menu(current_item));
-        } else {
-          $("#req-status").text = data;
+        },
+
+        error:function(data){
+          $("#req-status").text(data);
         }
-
-      });
+        });
     }
-    $.get(req_prefix + "/dtalk/", function (data, status) {
-      if (status = 'success') {
-        root_menu = data;
-        $('#menu').html(render_menu(root_menu));
-      } else {
-        $("#req-status").text = data;
-      }
 
-    });
-
-    $("#menu").menu();    
+    $.ajax({
+        type: "GET",
+        url: req_prefix + "/dtalk/",
+        xhrFields: {
+              withCredentials: true
+        },
+        crossDomain: true,
+        success:function(data){
+          root_menu = data;
+          $('#menu').html(render_menu(root_menu));
+        },
+        error:function(data){
+          $("#req-status").text(data);
+        }
+        })
   </script>
 </body>
 

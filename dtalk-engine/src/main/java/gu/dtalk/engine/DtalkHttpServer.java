@@ -6,14 +6,14 @@ import static com.google.common.base.Preconditions.checkState;
 import static gu.dtalk.CommonConstant.DEFAULT_IDLE_TIME_MILLS;
 import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +22,12 @@ import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
@@ -492,6 +495,8 @@ public class DtalkHttpServer extends NanoWSD {
 	private static final String POST_DATA="postData";
 	private static final String DTALK_PREFIX="/dtalk";
 	private static final String STATIC_PAGE_PREFIX="/web";
+	private static final String ALLOW_METHODS = Joiner.on(',').join(Arrays.asList(Method.POST,Method.GET));
+	private static final String ALLOW_METHODS_CORS = ALLOW_METHODS + "," + Method.OPTIONS ;
 	private static class SingletonTimer{
 		private static final Timer instnace = new Timer(true);
 	}
@@ -507,7 +512,6 @@ public class DtalkHttpServer extends NanoWSD {
 	private long idleTimeLimit = DEFAULT_IDLE_TIME_MILLS;
 	private long timerPeriod = 2000;
 
-	private final int port;
 	private String selfMac;
 	
 	/**
@@ -558,7 +562,6 @@ public class DtalkHttpServer extends NanoWSD {
 	}
     public DtalkHttpServer(int port)  {
         super(port);
-        this.port = port;
         this.selfMac = FaceUtilits.toHex(DeviceUtils.DEVINFO_PROVIDER.getMac());
 		// 定时检查引擎工作状态，当空闲超时，则中止连接
 		getTimer().schedule(new TimerTask() {
@@ -610,67 +613,82 @@ public class DtalkHttpServer extends NanoWSD {
 		}
 	}
 	/**
-	 * 根据提供的路径返回静态资源响应对象,如果资源不存在则返回{@code null}
-	 * @param uri
-	 * @return
+	 * 根据提供的路径返回静态资源响应对象
+	 * @param uri 请求路径
+	 * @return 响应对象，资源没找到返回{@code null}
 	 */
 	private Response responseStaticResource(String uri){    	
-		InputStream res = getClass().getResourceAsStream(STATIC_PAGE_PREFIX + uri);
-		if(null != res){
-			try {
-				String suffix = uri.substring(uri.lastIndexOf('.'));
-				if(MIME_OF_SUFFIX.containsKey(suffix)){
-					return newChunkedResponse(
-							Status.OK, 
-							MIME_OF_SUFFIX.get(suffix), 
-							res);
-				}else{
-					return newFixedLengthResponse(
-			    			Status.UNSUPPORTED_MEDIA_TYPE, 
-			    			NanoHTTPD.MIME_PLAINTEXT, 
-			    			String.format("UNSUPPORTED MEDIA TYPE %s", suffix));	
-				}
-			} finally {
-				try {
-					res.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+		URL res = getClass().getResource(STATIC_PAGE_PREFIX + uri);
+		if(null == res){
+			return null;
 		}
-		return null;
+
+		try {
+			byte[] content = FaceUtilits.getBytes(res);				
+			String suffix = uri.substring(uri.lastIndexOf('.'));
+			if(MIME_OF_SUFFIX.containsKey(suffix)){
+				return newFixedLengthResponse(
+						Status.OK, 
+						MIME_OF_SUFFIX.get(suffix), 
+						new ByteArrayInputStream(content),content.length);
+			}else{
+				return newFixedLengthResponse(
+		    			Status.UNSUPPORTED_MEDIA_TYPE, 
+		    			NanoHTTPD.MIME_PLAINTEXT, 
+		    			String.format("UNSUPPORTED MEDIA TYPE %s", suffix));	
+			}
+		} catch (IOException e) {
+			return newFixedLengthResponse(
+	    			Status.INTERNAL_ERROR, 
+	    			NanoHTTPD.MIME_PLAINTEXT, 
+	    			String.format("IO ERROR %s", uri));	
+		} 
+	
 	}
 	/**
-	 * 判断是否为CORS请求
+	 * 判断是否为CORS 预检请求请求(Preflight)
 	 * @param session
 	 * @return
 	 */
-	@SuppressWarnings("unused")
-	private static boolean isCORS(IHTTPSession session) {
+	private static boolean isPreflightRequest(IHTTPSession session) {
 		Map<String, String> headers = session.getHeaders();
-		return Method.OPTIONS.equals(session.getMethod()) && 
-			headers.containsKey(HeaderNames.ORIGIN);
+		return Method.OPTIONS.equals(session.getMethod()) 
+				&& headers.containsKey(HeaderNames.ORIGIN) 
+				&& headers.containsKey(HeaderNames.ACCESS_CONTROL_REQUEST_METHOD) 
+				&& headers.containsKey(HeaderNames.ACCESS_CONTROL_REQUEST_HEADERS);
 	}
+	/**
+	 * 封装向响应包
+	 * @param session http请求
+	 * @param resp 响应包
+	 * @return resp
+	 */
+	private Response wrapResponse(IHTTPSession session,Response resp) {
+		if(null != resp){			
+			Map<String, String> headers = session.getHeaders();
+			// 如果请求头中包含'Origin' or 'origin'则响应头中'Access-Control-Allow-Origin'使用此值否则为'*'
+			Optional<String> found = Iterables.tryFind(headers.keySet(), Predicates.containsPattern("[Oo]rigin"));
+			String origin = found.isPresent() ? headers.get(found.get()) : "*";
+			resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
+			resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
+
+		}
+		return resp;
+	}
+
 	/**
 	 * 向响应包中添加CORS包头数据
 	 * @param session
-	 * @param resp
 	 * @return
 	 */
-	private Response responseCORS(IHTTPSession session,Response resp) {
-		if(noCORS ){
-			return resp;
-		}
-		resp = MoreObjects.firstNonNull(resp,newFixedLengthResponse(""));
-		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:" + port);
-		String allowMethods = Joiner.on(',').join(Arrays.asList(Method.POST,Method.GET,Method.OPTIONS));
-		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_METHODS, allowMethods);
-		String allowHeaders = Joiner.on(',').join(Arrays.asList(HeaderNames.CONTENT_TYPE,HeaderNames.SET_COOKIE,"X-PINGOTHER","*"	));
+	private Response responseCORS(IHTTPSession session) {
+		Response resp = wrapResponse(session,newFixedLengthResponse(""));
+		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_METHODS, 
+				noCORS ? ALLOW_METHODS : ALLOW_METHODS_CORS);
+		String allowHeaders = Joiner.on(',').join(Arrays.asList(HeaderNames.CONTENT_TYPE));
 		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_HEADERS, allowHeaders);
-		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
 		resp.addHeader(HeaderNames.ACCESS_CONTROL_MAX_AGE, "86400");
-		//resp.addHeader(HeaderNames.ACCESS_CONTROL_MAX_AGE, "0");
-		resp.addHeader("withCredentials", "true");
+//		resp.addHeader(HeaderNames.ACCESS_CONTROL_MAX_AGE, "0");
 		return resp;
 	}
 	@Override
@@ -714,9 +732,9 @@ public class DtalkHttpServer extends NanoWSD {
     }
     @Override
     public Response serveHttp(IHTTPSession session) {
-//    	if(isCORS(session)){
-//    		return responseCORS(session,null);
-//    	}
+    	if(isPreflightRequest(session)){
+    		return responseCORS(session);
+    	}
     	Ack<Object> ack = new Ack<Object>().setStatus(Ack.Status.OK).setDeviceMac(selfMac);
     	try{
     		switch(session.getUri()){
@@ -753,26 +771,26 @@ public class DtalkHttpServer extends NanoWSD {
 				
     				try {
     					engine.onSubscribe(jsonObject);
-    					return responseCORS(session,engine.getResponse());
+    					return wrapResponse(session,engine.getResponse());
 					} catch (SmqUnsubscribeException e) {
 						logout(session, ack);
 						break;
 					}     				
     			}
-				return responseCORS(session,newFixedLengthResponse(
+				return wrapResponse(session,newFixedLengthResponse(
 						Status.NOT_FOUND, 
 						NanoHTTPD.MIME_PLAINTEXT, 
 						String.format("NOT FOUND %s", session.getUri())));	
     		}
     	}catch(ResponseException e){
-    		return responseCORS(session,newFixedLengthResponse(
+    		return wrapResponse(session,newFixedLengthResponse(
 					e.getStatus(), 
 					NanoHTTPD.MIME_PLAINTEXT, 
 					e.getClass().getName() +":"+ e.getMessage()));	
     	}catch (Exception e) {    		
     		ack.setStatus(Ack.Status.ERROR).setException(e.getClass().getName()).setStatusMessage(e.getMessage());
     	}
-    	return responseCORS(session,responseAck(ack));
+    	return wrapResponse(session,responseAck(ack));
     }
 	/**
 	 * @param isMd5 
