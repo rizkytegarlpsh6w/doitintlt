@@ -666,8 +666,9 @@ public class DtalkHttpServer extends NanoWSD {
 	private Response wrapResponse(IHTTPSession session,Response resp) {
 		if(null != resp){			
 			Map<String, String> headers = session.getHeaders();
-			// 如果请求头中包含'Origin' or 'origin'则响应头中'Access-Control-Allow-Origin'使用此值否则为'*'
-			Optional<String> found = Iterables.tryFind(headers.keySet(), Predicates.containsPattern("[Oo]rigin"));
+			// 如果请求头中包含'Origin',则响应头中'Access-Control-Allow-Origin'使用此值否则为'*'
+			// nanohttd将所有请求头的名称强制转为了小写
+			Optional<String> found = Iterables.tryFind(headers.keySet(), Predicates.containsPattern(HeaderNames.ORIGIN.toLowerCase()));
 			String origin = found.isPresent() ? headers.get(found.get()) : "*";
 			resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
 			resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
