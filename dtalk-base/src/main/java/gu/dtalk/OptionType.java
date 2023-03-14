@@ -63,10 +63,10 @@ public enum OptionType {
 	IMAGE(ImageOption.class),
 	/** 多选项{@code (n>1)} */
 	@SuppressWarnings("unchecked")
-	MULTICHECK(CheckOption.class,"^\\s*(\\d+)?([,;\\s]+\\d+)?\\s*$"),
+	MULTICHECK(CheckOption.class),
 	/** 单选开关{@code (n>1)} */
 	@SuppressWarnings("unchecked")
-	SWITCH(SwitchOption.class,"^\\s*\\d+\\s*$");
+	SWITCH(SwitchOption.class);
 	final String regex;
 	private volatile Type targetType;
 	/**
