@@ -2,7 +2,6 @@
 $('.onSubmit').click(function(){
     var _this = $(this)
     var val = _this.siblings('input').val();
-    console.log(val)
     if(val){
         $.ajax({
             type: "get",
@@ -11,8 +10,9 @@ $('.onSubmit').click(function(){
                 withCredentials: true
             },
             crossDomain: true,
-            success: function(data,status){
+            success: function(status){
                 $('#dialog').dialog('close');
+                // 调用接口加载数据
                 tableData();
             },
             error:function(XMLHttpRequest){
@@ -26,6 +26,28 @@ $('.onSubmit').click(function(){
     }
 });
 
+
+// 退出
+$('.loginOut').click(function () {
+    $.messager.confirm('温馨提示', '确定要退出吗？', function (r) {
+        if (r) {
+            $.ajax({
+                type: "get",
+                url: req_prefix + '/logout',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                success: function (status) {
+                    window.location.reload();
+                },
+            })
+        }
+    });
+})
+
+
+// 加载表格数据
 $('#table').treegrid({
     idField:'id',
     treeField:'name',
@@ -50,7 +72,8 @@ function rowFormatter(value,row){
     }
 }
 
-// 调用加载所有数据
+
+// 调用接口加载数据
 tableData();
 
 
