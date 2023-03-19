@@ -22,12 +22,9 @@ import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
@@ -497,6 +494,7 @@ public class DtalkHttpServer extends NanoWSD {
 	private static final String STATIC_PAGE_PREFIX="/web";
 	private static final String ALLOW_METHODS = Joiner.on(',').join(Arrays.asList(Method.POST,Method.GET));
 	private static final String ALLOW_METHODS_CORS = ALLOW_METHODS + "," + Method.OPTIONS ;
+	private static final String DEFAULT_ALLOW_HEADERS = Joiner.on(',').join(Arrays.asList(HeaderNames.CONTENT_TYPE));
 	private static class SingletonTimer{
 		private static final Timer instnace = new Timer(true);
 	}
@@ -666,13 +664,16 @@ public class DtalkHttpServer extends NanoWSD {
 	private Response wrapResponse(IHTTPSession session,Response resp) {
 		if(null != resp){			
 			Map<String, String> headers = session.getHeaders();
+			resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
 			// 如果请求头中包含'Origin',则响应头中'Access-Control-Allow-Origin'使用此值否则为'*'
 			// nanohttd将所有请求头的名称强制转为了小写
-			Optional<String> found = Iterables.tryFind(headers.keySet(), Predicates.containsPattern(HeaderNames.ORIGIN.toLowerCase()));
-			String origin = found.isPresent() ? headers.get(found.get()) : "*";
+			String origin = MoreObjects.firstNonNull(headers.get(HeaderNames.ORIGIN.toLowerCase()), "*");
 			resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
-			resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
-
+			
+			String  requestHeaders = headers.get(HeaderNames.ACCESS_CONTROL_REQUEST_HEADERS.toLowerCase());
+			if(requestHeaders != null){
+				resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_HEADERS, requestHeaders);
+			}
 		}
 		return resp;
 	}
@@ -684,9 +685,12 @@ public class DtalkHttpServer extends NanoWSD {
 	 */
 	private Response responseCORS(IHTTPSession session) {
 		Response resp = wrapResponse(session,newFixedLengthResponse(""));
+		Map<String, String> headers = session.getHeaders();
 		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_METHODS, 
 				noCORS ? ALLOW_METHODS : ALLOW_METHODS_CORS);
-		String allowHeaders = Joiner.on(',').join(Arrays.asList(HeaderNames.CONTENT_TYPE));
+
+		String requestHeaders = headers.get(HeaderNames.ACCESS_CONTROL_REQUEST_HEADERS.toLowerCase());
+		String allowHeaders = MoreObjects.firstNonNull(requestHeaders, DEFAULT_ALLOW_HEADERS);
 		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_HEADERS, allowHeaders);
 		resp.addHeader(HeaderNames.ACCESS_CONTROL_MAX_AGE, "86400");
 //		resp.addHeader(HeaderNames.ACCESS_CONTROL_MAX_AGE, "0");
