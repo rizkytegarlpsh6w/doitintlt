@@ -14,6 +14,8 @@ $('.onSubmit').click(function(){
                 $('#dialog').dialog('close');
                 // 调用接口加载数据
                 tableData();
+                // 刷新页面
+                window.location.reload();
             },
             error:function(XMLHttpRequest){
                 if(XMLHttpRequest.status == 500){
@@ -39,6 +41,7 @@ $('.loginOut').click(function () {
                 },
                 crossDomain: true,
                 success: function (status) {
+                    // 刷新页面
                     window.location.reload();
                 },
             })
@@ -80,7 +83,7 @@ tableData();
 // 查询出所有内容
 function tableData(){
     $.ajax({
-        type: "GET",
+        type: "post",
         url: req_prefix + "/dtalk/",
         xhrFields: {
             withCredentials: true
@@ -95,6 +98,7 @@ function tableData(){
         },
         error: function(XMLHttpRequest) {
             if(XMLHttpRequest.status == 401){
+                //显示登录框
                 $('#dialog').dialog('open');
             }
         },
@@ -360,31 +364,46 @@ function keep(id){
         }
 
 
-        $.get(req_prefix + '/dtalk'+ data.path + '?value=' + value, function (status) {
-            if (status = 'success') {
+        $.ajax({
+            type: "post",
+            url: req_prefix + '/dtalk',
+            contentType :"application/json",
+            data : {
+                path:data.path,
+                value:value
+            },
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            success: function (status) {
                 // 调用加载所有数据
-                if(data.type == 'SWITCH'){
-                    $("#i_"+id).find('span').text(text);
-                }else if(data.type == 'MULTICHECK'){
+                if (data.type == 'SWITCH') {
+                    $("#i_" + id).find('span').text(text);
+                } else if (data.type == 'MULTICHECK') {
                     var valueArr = $('#checkBox').combobox('getValues');
                     var checkArr = valueArr.map(Number);
                     var options = data.options;
-                    var text = checkName(checkArr,options);
-                    $("#i_"+id).find('span').text(text);
-                }else if(data.type == 'DATE'){
+                    var text = checkName(checkArr, options);
+                    $("#i_" + id).find('span').text(text);
+                } else if (data.type == 'DATE') {
                     var text = tranDate(value);
-                    $("#i_"+id).find('span').text(text);
-                }else if(data.type == 'IMAGE'){
-                    $("#i_"+id).find('span').text('已设置')
-                }else{
-                    $("#i_"+id).find('span').text(value);
+                    $("#i_" + id).find('span').text(text);
+                } else if (data.type == 'IMAGE') {
+                    $("#i_" + id).find('span').text('已设置')
+                } else {
+                    $("#i_" + id).find('span').text(value);
                 }
-                $("#i_"+id).show().siblings('.editForm').remove();
+                $("#i_" + id).show().siblings('.editForm').remove();
                 // 修改成功之后将修改状态改成已完成
                 editing = false;
-                $.messager.alert('温馨提示','修改成功','info');
-            }
-        });
+                $.messager.alert('温馨提示', '修改成功', 'info');
+                return;
+            },
+            error: function (XMLHttpRequest) {
+                console.log(XMLHttpRequest)
+            },
+        })
     }
 }
 
