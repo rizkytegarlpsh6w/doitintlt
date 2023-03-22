@@ -651,9 +651,9 @@ public class DtalkHttpServer extends NanoWSD {
 	private static boolean isPreflightRequest(IHTTPSession session) {
 		Map<String, String> headers = session.getHeaders();
 		return Method.OPTIONS.equals(session.getMethod()) 
-				&& headers.containsKey(HeaderNames.ORIGIN) 
-				&& headers.containsKey(HeaderNames.ACCESS_CONTROL_REQUEST_METHOD) 
-				&& headers.containsKey(HeaderNames.ACCESS_CONTROL_REQUEST_HEADERS);
+				&& headers.containsKey(HeaderNames.ORIGIN.toLowerCase()) 
+				&& headers.containsKey(HeaderNames.ACCESS_CONTROL_REQUEST_METHOD.toLowerCase()) 
+				&& headers.containsKey(HeaderNames.ACCESS_CONTROL_REQUEST_HEADERS.toLowerCase());
 	}
 	/**
 	 * 封装向响应包
@@ -692,8 +692,8 @@ public class DtalkHttpServer extends NanoWSD {
 		String requestHeaders = headers.get(HeaderNames.ACCESS_CONTROL_REQUEST_HEADERS.toLowerCase());
 		String allowHeaders = MoreObjects.firstNonNull(requestHeaders, DEFAULT_ALLOW_HEADERS);
 		resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_HEADERS, allowHeaders);
-		resp.addHeader(HeaderNames.ACCESS_CONTROL_MAX_AGE, "86400");
-//		resp.addHeader(HeaderNames.ACCESS_CONTROL_MAX_AGE, "0");
+		//resp.addHeader(HeaderNames.ACCESS_CONTROL_MAX_AGE, "86400");
+		resp.addHeader(HeaderNames.ACCESS_CONTROL_MAX_AGE, "0");
 		return resp;
 	}
 	@Override
