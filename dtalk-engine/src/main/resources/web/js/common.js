@@ -194,6 +194,7 @@ function loadMenu(data){
 var editing;
 function editBtn(id){
     var data = $('#table').treegrid('find',id);
+    console.log(data)
     if(editing){    // 判断正在修改中，请先完成修改
         $.messager.alert('温馨提示','请先完成正在修改的内容','info');
     }else{
@@ -212,9 +213,8 @@ function editBtn(id){
 
         // date
         if(data.type == 'DATE'){
-            console.log(data.value)
             var html = '<form class="editForm" id="f_'+data.id+'">'+
-                            '<input type="text" placeholder="请输入" id="dateBox" value="'+data.value+'">'+
+                            '<input type="text" placeholder="请输入" id="dateBox">'+
                             '<button type="button" onclick="keep('+id+')" class="keep">保存</button>'+
                             '<button type="button" onclick="cancel('+id+')">取消</button>'+
                         '</form>'
@@ -342,18 +342,18 @@ function keep(id){
     var data = $('#table').treegrid('find',id);
     if(data.type == 'SWITCH'){
         var value = $("#f_"+id).find('#selected option:selected').val();
-        var text = $("#f_"+id).find('#selected option:selected').text();
     }else if(data.type == 'MULTICHECK'){
         var value = $('#checkBox').combobox('getValues').toString();
     }else if(data.type == 'DATE'){
         var currentdate = $("#f_"+id).find('input').val();
-        var value = data.value = new Date(currentdate).getTime();
+        var value = new Date(currentdate).getTime();
     }else if(data.type == 'BOOL'){
         var value = data.value = $("#f_"+id).find('input.switchbutton-value').val();
     }else if(data.type == 'IMAGE'){
         var value = data.value;
     }else{
         var value = $("#f_"+id).find('input').val();
+        data.value = value;
     }
     if(data.catalog == 'OPTION'){
         var regex = data.regex;
@@ -380,12 +380,14 @@ function keep(id){
             success: function (status) {
                 // 调用加载所有数据
                 if (data.type == 'SWITCH') {
+                    var text = $("#f_" + id).find('#selected option:selected').text();
                     $("#i_" + id).find('span').text(text);
                 } else if (data.type == 'MULTICHECK') {
                     var valueArr = $('#checkBox').combobox('getValues');
                     var checkArr = valueArr.map(Number);
                     var options = data.options;
                     var text = checkName(checkArr, options);
+                    data.value = text;
                     $("#i_" + id).find('span').text(text);
                 } else if (data.type == 'DATE') {
                     var text = tranDate(value);
@@ -443,6 +445,8 @@ function cancel(id){
     editing = false;
 }
 
+
+// 实例化多选列表的值
 function checkName(data,options){
     var newArr = [];
     for (var j = 0; j < data.length; j++) {
@@ -472,6 +476,9 @@ function tranDate(date){
 // 发送命令
 function execute(id) {
     var data = $('#table').treegrid('find', id);
+    editing = true;
+    var isOk = false;
+    
 }
 
 // 表单的聚失焦事件
