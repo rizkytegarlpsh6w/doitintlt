@@ -83,12 +83,13 @@ tableData();
 // 查询出所有内容
 function tableData(){
     $.ajax({
-        type: "post",
+        type: "POST",
         url: req_prefix + "/dtalk/",
         xhrFields: {
             withCredentials: true
         },
         crossDomain: true,
+        contentType: "application/json",
         success: function (data) {
             var list = [];
             if(data.catalog == 'MENU'){
@@ -346,9 +347,9 @@ function keep(id){
         var value = $('#checkBox').combobox('getValues').toString();
     }else if(data.type == 'DATE'){
         var currentdate = $("#f_"+id).find('input').val();
-        var value = new Date(currentdate).getTime();
+        var value = data.value = new Date(currentdate).getTime();
     }else if(data.type == 'BOOL'){
-        var value = $("#f_"+id).find('input.switchbutton-value').val();
+        var value = data.value = $("#f_"+id).find('input.switchbutton-value').val();
     }else if(data.type == 'IMAGE'){
         var value = data.value;
     }else{
@@ -365,13 +366,13 @@ function keep(id){
 
 
         $.ajax({
-            type: "post",
+            type: "POST",
             url: req_prefix + '/dtalk',
-            contentType :"application/json",
-            data : {
-                path:data.path,
-                value:value
-            },
+            contentType:"application/json",
+            data: JSON.stringify({
+                "path":data.path,
+                "value":value
+            }),
             xhrFields: {
                 withCredentials: true
             },
@@ -399,9 +400,6 @@ function keep(id){
                 editing = false;
                 $.messager.alert('温馨提示', '修改成功', 'info');
                 return;
-            },
-            error: function (XMLHttpRequest) {
-                console.log(XMLHttpRequest)
             },
         })
     }
@@ -470,6 +468,11 @@ function tranDate(date){
     return dd+'/'+MM+'/'+yy+' '+hh+':'+mm+':'+ss;
 }
 
+
+// 发送命令
+function execute(id) {
+    var data = $('#table').treegrid('find', id);
+}
 
 // 表单的聚失焦事件
 $('.password').focus(function(){
