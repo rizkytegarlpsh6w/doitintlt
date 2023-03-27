@@ -61,9 +61,9 @@ public enum OptionType {
 	IP(IPv4Option.class,"^((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))$"),
 	/** base64 格式JPEG/BMP/PNG格式图像 */
 	IMAGE(ImageOption.class),
-	/** 多选项{@code (n>1)} */
+	/** 多选项{@code (n>0)} */
 	@SuppressWarnings("unchecked")
-	MULTICHECK(CheckOption.class,"^\\s*(\\d+)?([,;\\s]+\\d+)?\\s*$"),
+	MULTICHECK(CheckOption.class,"^\\s*(\\d+)?([,;\\s]+\\d+)*\\s*$"),
 	/** 单选开关{@code (n>1)} */
 	@SuppressWarnings("unchecked")
 	SWITCH(SwitchOption.class,"^\\s*\\d+\\s*$");
