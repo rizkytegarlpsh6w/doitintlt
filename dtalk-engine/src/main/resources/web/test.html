@@ -13,50 +13,6 @@
       margin: 50px;
     }
 
-    .demoHeaders {
-      margin-top: 2em;
-    }
-
-    #dialog-link {
-      padding: .4em 1em .4em 20px;
-      text-decoration: none;
-      position: relative;
-    }
-
-    #dialog-link span.ui-icon {
-      margin: 0 5px 0 0;
-      position: absolute;
-      left: .2em;
-      top: 50%;
-      margin-top: -8px;
-    }
-
-    #icons {
-      margin: 0;
-      padding: 0;
-    }
-
-    #icons li {
-      margin: 2px;
-      position: relative;
-      padding: 4px 0;
-      cursor: pointer;
-      float: left;
-      list-style: none;
-    }
-
-    #icons span.ui-icon {
-      float: left;
-      margin: 0 4px;
-    }
-
-    .fakewindowcontain .ui-widget-overlay {
-      position: absolute;
-    }
-
-    select {
-      width: 200px;
-    }
   </style>
 </head>
 <script>
@@ -72,21 +28,21 @@
 
   <script>
 
-    $.ajax({
-        type: "GET",
-        url: req_prefix + "/login?password=2d47&isMd5=false",
-        xhrFields: {
-          withCredentials: true
-        },
-        crossDomain: true,
-        success:function(data){
-          console.log(data)
-          $("#auth-status").text(data);
-        },
-        error:function(data){
-          $("#auth-status").text(data);
-        }
-        })
+    // $.ajax({
+    //     type: "GET",
+    //     url: req_prefix + "/login?password=3fbf&isMd5=false",
+    //     xhrFields: {
+    //       withCredentials: true
+    //     },
+    //     crossDomain: true,
+    //     success:function(data){
+    //       console.log(data)
+    //       $("#auth-status").html(data.deviceMac + ":" + data.statusMessage +"<br>");
+    //     },
+    //     error:function(data){
+    //       $("#auth-status").html(data.statusText+"("+data.status+")<br>" + data.responseText);
+    //     }
+    //     })
     var root_menu, current_item;
     function render_item(item) {
       var li = "<li {ONCLICK} ><div>" + (item.uiName ? item.uiName : item.name) + "{VALUE}</div></li>"
@@ -123,6 +79,7 @@
               withCredentials: true
         },
         crossDomain: true,
+        contentType: "application/json",
         success:function(data){
           current_item = data;
           $('#menu').html(render_menu(current_item));
@@ -141,6 +98,7 @@
               withCredentials: true
         },
         crossDomain: true,
+        contentType: "application/json",
         success:function(data){
           root_menu = data;
           $('#menu').html(render_menu(root_menu));
