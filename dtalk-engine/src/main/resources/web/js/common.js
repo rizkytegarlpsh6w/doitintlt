@@ -56,11 +56,29 @@ $('#table').treegrid({
     treeField:'name',
     fitColumns:false,
     columns:[[
-        {field:'name',title:'菜单',width:'32%'},
-        {field:'value',title:'值', width:'40%', formatter : rowFormatter,},
-        {field:'comment',title:'描述',width:'30%'},
-    ]]
+        {field: 'name', title: '菜单', width: '50%', formatter: titleTip},
+        {field: 'value', title:'值', width:'52%', formatter: rowFormatter,},
+    ]],
+    // 点击单元格展开或收缩节点
+    onClickCell: function (rowIndex,row) {
+        if (rowIndex=='name'){
+            (row.state == 'closed') ? $(this).treegrid('expand', row.id) : $(this).treegrid('collapse', row.id);
+        }
+    },
+    onLoadSuccess: function () {
+        $('.cellTips').tooltip();
+    }
 });
+
+
+// 鼠标经过单元格，显示描述
+function titleTip(value,row) {
+    if (row.comment){
+        return '<a title="描述：'+row.comment+'" class="cellTips"> '+value+' </a>'
+    }else{
+        return '<a> '+value +' </a>'
+    }
+}
 
 
 // 格式化列的数据
@@ -194,7 +212,6 @@ function loadMenu(data){
 var editing;
 function editBtn(id){
     var data = $('#table').treegrid('find',id);
-    console.log(data)
     if(editing){    // 判断正在修改中，请先完成修改
         $.messager.alert('温馨提示','请先完成正在修改的内容','info');
     }else{
@@ -473,13 +490,43 @@ function tranDate(date){
 }
 
 
-// 发送命令
-function execute(id) {
-    var data = $('#table').treegrid('find', id);
-    editing = true;
-    var isOk = false;
-    
-}
+// // 发送命令
+// function execute(id) {
+//     var data = $('#table').treegrid('find', id);
+//     editing = true;
+//     var isOk = false;
+//     var children = data.children;
+//     if (children && children.length>0){
+//         var childArr = [];
+//         for (let i = 0; i = children.length-1; i++) {
+//             if (children[j].required && children[j].value == null){
+//                 isOk = true;
+//                 childs = [];
+//                 return;
+//             }
+//             childArr.push({ "path": children[i].path, "value": children[i].value })
+//             editing = false;
+//         }
+//         if (!isOk){
+//             $.ajax({
+//                 type: "POST",
+//                 url: req_prefix + '/dtalk',
+//                 contentType: "application/json",
+//                 data: JSON.stringify({
+//                     "path": data.path,
+//                     "childs": childArr
+//                 }),
+//                 xhrFields: {
+//                     withCredentials: true
+//                 },
+//                 crossDomain: true,
+//                 success: function (status) {}
+//             })
+//         }
+//     }
+//     childArr = []
+// }
+
 
 // 表单的聚失焦事件
 $('.password').focus(function(){

@@ -15,7 +15,7 @@ ul,ol{list-style: none;}
 .loginOut{ padding: 8px 20px; font-size: 14px; white-space: nowrap; float: right; margin-top: 20px; background: #fff; border: 1px solid #409eff;}
 .loginOut:hover{background: #409eff; color: #fff;}
 
-.comment{width: 80%; margin: 0 auto;}
+.comment{width: 90%; margin: 0 auto;}
 .tableList{border: 1px solid #ebeef5; width: 100%;}
 #menu{margin-top: -1px;}
 .tableList>li{width: 100%; overflow: hidden; border-bottom: 1px solid #ebeef5; margin: -1px 0;}
@@ -35,3 +35,14 @@ ul,ol{list-style: none;}
 .uploadDiv{position: relative; float: left;}
 .uploadDiv button,.execute{width: 80px;}
 .uploadDiv input{width: 80px; height: 40px; position: absolute; left: 0;  opacity: 0; filter: alpha(opacity=0); cursor: pointer;}
+
+
+/* 提示框内容样式 */
+.tooltip-content{max-width: 300px; line-height: 28px;}
+
+@media screen and (min-width: 720px) {
+    .layoutDiv{width: 100%;}
+}
+@media screen and (min-width: 1200px) {
+    .layoutDiv{width: 1200px;}
+}
