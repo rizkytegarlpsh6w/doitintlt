@@ -25,6 +25,7 @@
   </ul>
   <h4 id="auth-status"></h4>
   <h4 id="req-status"></h4>
+  <h4 id="ws-status"></h4>
 
   <script>
 
@@ -107,6 +108,58 @@
           $("#req-status").text(data);
         }
         })
+    /** 参见sock.io API文档事件(Event)说明 https://socket.io/docs/client-api  */
+    function connect() {
+      var wsuri = 'ws://127.0.0.1:8181'
+      socket = new WebSocket(wsuri);
+      socket.onopen = function() {
+          //成功连接到服务器
+          console.log("connected to " + wsuri);
+      }
+      socket.onclose = function(e) {
+          console.log("connection closed (" + e.code + ")");
+      }
+      socket.onmessage = function(e) {
+          //服务器发送通知
+          //开始处理
+          console.log("message received: " + e.data);
+      }
+      // socket.on('reconnecting', function (attemptNumber) {
+      //   var str = '<p>socket正在与服务器建立链接 '+attemptNumber+' </p>';
+      //   $("#ws-status").append(str);
+      // });
+      // socket.on('connect', function () {
+      //   var str = '<p>当socket与后端成功建立链接</p>';
+      //   $("#ws-status").append(str);
+      // });
+      // socket.on('disconnect', function (reason) {
+      //   var str = '<p>当与服务器断开链接:'+reason+'</p>';
+      //   $("#ws-status").append(str);
+      // });
+      // socket.on('reconnect', function (attemptNumber) {
+      //   var str = '<p>重新链接成功</p>';
+      //   $("#ws-status").append(str);
+      // });
+      // socket.on('reconnect_failed', function () {
+      //   var str = '<p>重连失败</p>';
+      //   $("#ws-status").append(str);
+      // });
+      // // 显示频道订阅显示消息  
+      // socket.on('message', function (message) {
+      //   console.log(message);
+      //   $('.hint-infor').text(message.channel + ':' + message.data);        
+      // });
+      // //显示请求响应
+      // socket.on('ack', function (ack) {
+      //   console.log(ack);
+      //   $('.hint-ack').text(ack.request + ':' + ack.respone + ':' + ack.reply);        
+      // });
+
+
+    }
+
+    connect();
+
   </script>
 </body>
 

@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -713,6 +714,9 @@ public class DtalkHttpServer extends NanoWSD {
 									WebSocket wsSocket = wsReference.get();
 									if(dtalkSession != null && wsSocket != null && wsSocket.isOpen()){
 										wsSocket.ping(new byte[0]);
+										if(debug){
+											wsSocket.send("dtalk wscocket heartbeat " + new Date());
+										}
 									}
 								}catch (Exception e) {
 									logger.error("{}:{}",e.getClass().getName(),e.getMessage());
@@ -892,7 +896,8 @@ public class DtalkHttpServer extends NanoWSD {
 	}
 	protected synchronized void logout(IHTTPSession session, Ack<Object> ack) throws IOException, ResponseException{
     	checkAuthorizationSession(session);
-   		resetSession();
+       	logger.info("session {} disconnected",dtalkSession);
+    	resetSession();
        	ack.setStatus(Ack.Status.OK).setStatusMessage("logout OK");
     }
 
@@ -968,8 +973,12 @@ public class DtalkHttpServer extends NanoWSD {
 		@Override
 		protected void onMessage(WebSocketFrame message) {
             try {
-                message.setUnmasked();
-                sendFrame(message);
+                if(debug){
+                	String payload = message.getTextPayload();
+                	if(payload!= null && !payload.startsWith("ack:")){
+                		send("ack:" + message.getTextPayload());
+                	}
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
