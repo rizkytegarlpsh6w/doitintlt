@@ -496,6 +496,25 @@ public class DtalkHttpServer extends NanoWSD {
 	private static final String ALLOW_METHODS = Joiner.on(',').join(Arrays.asList(Method.POST,Method.GET));
 	private static final String ALLOW_METHODS_CORS = ALLOW_METHODS + "," + Method.OPTIONS ;
 	private static final String DEFAULT_ALLOW_HEADERS = Joiner.on(',').join(Arrays.asList(HeaderNames.CONTENT_TYPE));
+	public static final URL DEFAULT_HOME_PAGE = DtalkHttpServer.class.getResource(STATIC_PAGE_PREFIX + "/index.html");
+	private static final Map<String,String>MIME_OF_SUFFIX = ImmutableMap.<String,String>builder()
+			.put(".jpeg", "image/jpeg")
+			.put(".jpg", "image/jpeg")
+			.put(".png", "image/png")
+			.put(".gif", "image/gif")
+			.put(".htm","text/html")
+			.put(".html","text/html")
+			.put(".txt","text/plain")
+			.put(".css","text/css")
+			.put(".csv","text/csv")
+			.put(".json","application/json")
+			.put(".js","application/javascript")
+			.put(".xml","application/xml")
+			.put(".zip","application/zip")
+			.put(".pdf","application/pdf")
+			.put(".sql","application/sql")
+			.put(".doc","application/msword")    		
+			.build();
 	private static class SingletonTimer{
 		private static final Timer instnace = new Timer(true);
 	}
@@ -538,24 +557,10 @@ public class DtalkHttpServer extends NanoWSD {
 	 * 不支持跨域请求(CORS)
 	 */
 	private boolean noCORS = false;
-	private static final Map<String,String>MIME_OF_SUFFIX = ImmutableMap.<String,String>builder()
-	.put(".jpeg", "image/jpeg")
-	.put(".jpg", "image/jpeg")
-	.put(".png", "image/png")
-	.put(".gif", "image/gif")
-	.put(".htm","text/html")
-	.put(".html","text/html")
-	.put(".txt","text/plain")
-	.put(".css","text/css")
-	.put(".csv","text/csv")
-	.put(".json","application/json")
-	.put(".js","application/javascript")
-	.put(".xml","application/xml")
-	.put(".zip","application/zip")
-	.put(".pdf","application/pdf")
-	.put(".sql","application/sql")
-	.put(".doc","application/msword")    		
-	.build();
+	/**
+	 * 首页内容
+	 */
+	private String homePageContent;
 	public DtalkHttpServer()  {
 		this(DEFAULT_HTTP_PORT);
 	}
@@ -579,6 +584,11 @@ public class DtalkHttpServer extends NanoWSD {
 				}
 			}
 		}, 0, timerPeriod);
+		try {
+			setHomePage(DEFAULT_HOME_PAGE);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 
     }
     private boolean isAuthorizationSession(IHTTPSession session){
@@ -757,10 +767,7 @@ public class DtalkHttpServer extends NanoWSD {
     		case "/index.html":
     		case "/index.htm":
     		{
-    			String msg = new String(FaceUtilits.getBytes(getClass().getResource(STATIC_PAGE_PREFIX + "/index.html")))
-    					.replace("{VERSION}", VERSION)
-    					.replace("{MAC}", selfMac);
-    			return newFixedLengthResponse(Status.OK, NanoHTTPD.MIME_HTML, msg);
+    			return newFixedLengthResponse(Status.OK, NanoHTTPD.MIME_HTML, homePageContent);
     		}
     		default:
     			Response resp = responseStaticResource(session.getUri());
@@ -1028,6 +1035,31 @@ public class DtalkHttpServer extends NanoWSD {
 	 */
 	public DtalkHttpServer setNoCORS(boolean noCORS) {
 		this.noCORS = noCORS;
+		return this;
+	}
+
+	/**
+	 * 设置http服务的首页文件,默认值为 {@link #DEFAULT_HOME_PAGE}<br>
+	 * 应用层可以用此方法替换默认的设备首页
+	 * @param homePage 要设置的 homePage
+	 * @return 当前对象
+	 * @throws IOException 从homePage中读取内容发生异常
+	 */
+	public DtalkHttpServer setHomePage(URL homePage) throws IOException {
+		String content = new String(FaceUtilits.getBytes(checkNotNull(homePage,"homePage is null")));
+		return setHomePageContent(content);
+	}
+	/**
+	 * 以字符串形式设置http服务的首页内容，默认为'/web/index.html'的内容<br>
+	 * 应用层可以用此方法替换默认的设备首页
+	 * @param homePageContent 要设置的 homePageContent
+	 * @return 当前对象
+	 */
+	public DtalkHttpServer setHomePageContent(String homePageContent) {
+		checkArgument(!Strings.isNullOrEmpty(homePageContent),"homePageContent is null or empty");
+		this.homePageContent = homePageContent
+				.replace("{VERSION}", VERSION)
+				.replace("{MAC}", selfMac);
 		return this;
 	}
 }
