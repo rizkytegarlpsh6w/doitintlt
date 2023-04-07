@@ -743,7 +743,7 @@ public class DtalkHttpServer extends NanoWSD {
     public Response serve(IHTTPSession session) {
     	if (isWebsocketRequested(session) && ! isAuthorizationSession(session)) {
     		return newFixedLengthResponse(
-        			Status.INTERNAL_ERROR, 
+        			Status.UNAUTHORIZED, 
         					NanoHTTPD.MIME_PLAINTEXT, 
         					UNAUTH_SESSION);
     	}
