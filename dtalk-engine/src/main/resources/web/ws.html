@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Dtalk Menu</title>
+  <script src="jquery-easyui/jquery.min.js"></script>
+  <script src="config.js"></script>
+  <style>
+    body {
+      font-family: "Trebuchet MS", sans-serif;
+      margin: 50px;
+    }
+
+  </style>
+</head>
+<script>
+
+</script>
+
+<body>
+  <h1>Dtalk WebSocket Test</h1>
+  <ul style="width:400px;" id="menu">
+  </ul>
+  <h4 id="auth-status"></h4>
+  <h4 id="req-status"></h4>
+  <h4 id="ws-status"></h4>
+
+  <script>
+
+    $.ajax({
+        type: "GET",
+        url: req_prefix + "/login?password=3fbf&isMd5=false",
+        xhrFields: {
+          withCredentials: true
+        },
+        crossDomain: true,
+        success:function(data){
+          console.log(data)
+          $("#auth-status").html(data.deviceMac + ":" + data.statusMessage +"<br>");
+        },
+        error:function(data){
+          $("#auth-status").html(data.statusText+"("+data.status+")<br>" + data.responseText);
+        }
+        })
+
+    function connect() {
+      socket = new WebSocket(ws_uri);
+      socket.onopen = function() {
+        //成功连接到服务器
+        $("#ws-status").append("connected to " + ws_uri + '<p>')
+        var msg='hello talk !!!!!'
+        $("#ws-status").append("message send:"+msg+ '<p>')
+        // 向服务器发送消息
+        socket.send(msg) 
+      }
+      socket.onclose = function(e) {
+        $("#ws-status").append("connection closed (" + e.code + ")" + '<p>')
+      }
+      socket.onmessage = function(e) {
+        // 收到服务器消息
+        $("#ws-status").append("message received: " + e.data + '<p>')
+      }
+
+    }
+
+    connect();
+
+  </script>
+</body>
+
+</html>
