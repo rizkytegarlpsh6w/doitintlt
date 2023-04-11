@@ -55,9 +55,10 @@ $('#table').treegrid({
     idField:'id',
     treeField:'name',
     fitColumns:false,
+    scrollbarSize : 0,
     columns:[[
         {field: 'name', title: '菜单', width: '50%', formatter: titleTip},
-        {field: 'value', title:'值', width:'52%', formatter: rowFormatter,},
+        {field: 'value', title:'值', width:'50%', formatter: rowFormatter,},
     ]],
     // 点击单元格展开或收缩节点
     onClickCell: function (rowIndex,row) {
