@@ -1046,7 +1046,7 @@ public class DtalkHttpServer extends NanoWSD {
 	 * @throws IOException 从homePage中读取内容发生异常
 	 */
 	public DtalkHttpServer setHomePage(URL homePage) throws IOException {
-		String content = new String(FaceUtilits.getBytes(checkNotNull(homePage,"homePage is null")));
+		String content = new String(FaceUtilits.getBytes(checkNotNull(homePage,"homePage is null")),"UTF-8");
 		return setHomePageContent(content);
 	}
 	/**
