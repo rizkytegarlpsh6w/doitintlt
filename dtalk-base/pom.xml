@@ -57,6 +57,14 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<resources>
+			<resource>
+				<directory>${project.basedir}/src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>${project.build.directory}/generated-sources/java-templates</directory>
+			</resource>
+		</resources>
 		<plugins>
 			<!-- 跳过测试 -->
 			<plugin>
