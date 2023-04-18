@@ -386,7 +386,7 @@ function keep(id){
         $.ajax({
             type: "POST",
             url: req_prefix + '/dtalk',
-            contentType:"application/json",
+            contentType:"application/json; charset=utf-8",
             data: JSON.stringify({
                 "path":data.path,
                 "value":value
