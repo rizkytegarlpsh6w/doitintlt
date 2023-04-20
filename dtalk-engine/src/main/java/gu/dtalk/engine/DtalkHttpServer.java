@@ -808,6 +808,16 @@ public class DtalkHttpServer extends NanoWSD {
     	}
     	return wrapResponse(session,responseAck(ack));
     }
+
+	@Override
+	protected boolean useGzipWhenAccepted(Response r) {
+		// 判断是否为websocket握手响应，如果是则调用父类方法返回false,否则按正常的http响应对待，使用 NanoHTTPD的useGzipWhenAccepted方法逻辑判断
+		if (null != r.getHeader(NanoWSD.HEADER_WEBSOCKET_ACCEPT)){
+			return super.useGzipWhenAccepted(r);
+		}
+		// 对文本响应执行Gzip压缩
+		return r.getMimeType()!= null && r.getMimeType().toLowerCase().matches(".*(text/|/json|/javascript|/xml).*");
+	}
 	/**
 	 * @param isMd5 
 	 * @return 
