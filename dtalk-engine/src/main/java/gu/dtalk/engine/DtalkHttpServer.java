@@ -900,13 +900,17 @@ public class DtalkHttpServer extends NanoWSD {
     	}
     	
     	if (dtalkSession == null || sid == null ){
-			checkState(validate(parms.get("password"), 
-					Boolean.valueOf(MoreObjects.firstNonNull(parms.get("isMd5"), "true"))),INVALID_PWD);
+    		if(!validate(parms.get("password"), 
+					Boolean.valueOf(MoreObjects.firstNonNull(parms.get("isMd5"), "true")))){
+    			throw new ResponseException(Status.FORBIDDEN, INVALID_PWD);
+    		}
 			sid = dtalkSession = Long.toHexString(System.nanoTime());
 	    	session.getCookies().set(DTALK_SESSION, dtalkSession, 1);
 	    	logger.info("session {} connected",dtalkSession);
     	}
-    	checkState(Objects.equal(dtalkSession, sid),CLIENT_LOCKED);
+    	if(!Objects.equal(dtalkSession, sid)){
+    		throw new ResponseException(Status.FORBIDDEN, CLIENT_LOCKED);
+    	}
         ack.setStatus(Ack.Status.OK).setStatusMessage(AUTH_OK);
        	engine.setLastHitTime(System.currentTimeMillis());
 
