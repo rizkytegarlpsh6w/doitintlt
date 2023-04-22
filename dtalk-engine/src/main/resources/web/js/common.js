@@ -84,11 +84,12 @@ function titleTip(value,row) {
 
 // 格式化列的数据
 function rowFormatter(value,row){
-    if(row.readOnly == false){
-        if(row.catalog == 'CMD'){
+    if(!row.readOnly){
+        if (row.catalog == 'CMD'){
             var html ='<button type="button" id="b_'+row.id+'" onclick="execute('+row.id+')" class="execute">执行</button>'
-        }else{
-            var html = '<div id="i_'+row.id+'"><span>'+row.value+'</span><i class="icon_edit right" onclick = "editBtn('+row.id+')"></i></div>'
+        }
+        if (row.catalog == 'OPTION'){
+            var html = '<div id="i_' + row.id + '"><span>' + row.value + '</span><i class="icon_edit right" onclick = "editBtn(' + row.id + ')"></i></div>'
         }
         return html ;
     }
@@ -421,6 +422,11 @@ function keep(id){
                 $.messager.alert('温馨提示', '修改成功', 'info');
                 return;
             },
+            error: function (params) {
+                if (JSON.parse(params.responseText).status == 'ERROR') {
+                    $.messager.alert('温馨提示', '操作失败', 'info');
+                }
+            }
         })
     }
 }
@@ -491,42 +497,54 @@ function tranDate(date){
 }
 
 
-// // 发送命令
-// function execute(id) {
-//     var data = $('#table').treegrid('find', id);
-//     editing = true;
-//     var isOk = false;
-//     var children = data.children;
-//     if (children && children.length>0){
-//         var childArr = [];
-//         for (let i = 0; i = children.length-1; i++) {
-//             if (children[j].required && children[j].value == null){
-//                 isOk = true;
-//                 childs = [];
-//                 return;
-//             }
-//             childArr.push({ "path": children[i].path, "value": children[i].value })
-//             editing = false;
-//         }
-//         if (!isOk){
-//             $.ajax({
-//                 type: "POST",
-//                 url: req_prefix + '/dtalk',
-//                 contentType: "application/json",
-//                 data: JSON.stringify({
-//                     "path": data.path,
-//                     "childs": childArr
-//                 }),
-//                 xhrFields: {
-//                     withCredentials: true
-//                 },
-//                 crossDomain: true,
-//                 success: function (status) {}
-//             })
-//         }
-//     }
-//     childArr = []
-// }
+// 发送命令
+function execute(id) {
+    var data = $('#table').treegrid('find', id);
+    if (editing){
+        $.messager.alert('温馨提示', '请先完成正在修改的内容', 'info');
+    }else{
+        var isOk = false;
+        var children = data.children;
+        if (children && children.length > 0) {
+            var childArr = [];
+            for (let i = 0; i < children.length; i++) {
+                if (children[i].required && children[i].value == null) {
+                    isOk = true;
+                    $.messager.alert(children[i].name + '为空，请填写必填值');
+                    childArr = [];
+                    return;
+                }
+                childArr.push({ "path": children[i].path, "value": children[i].value })
+            }
+            if (!isOk) {
+                $.ajax({
+                    type: "POST",
+                    url: req_prefix + '/dtalk',
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        "path": data.path,
+                        "childs": childArr
+                    }),
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true,
+                    success: function (status) {
+                        if (status.status == 'OK') {
+                            $.messager.alert('温馨提示', '执行成功', 'info');
+                        }
+                    },
+                    error:function(params) {
+                        if (JSON.parse(params.responseText).status == 'ERROR'){
+                            $.messager.alert('温馨提示', '操作失败', 'info');
+                        }
+                    }
+                })
+            }
+        }
+        childArr = []
+    }
+}
 
 
 // 表单的聚失焦事件
