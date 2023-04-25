@@ -17,9 +17,16 @@ $('.onSubmit').click(function(){
                 // 刷新页面
                 window.location.reload();
             },
-            error:function(XMLHttpRequest){
-                if(XMLHttpRequest.status == 500){
-                    _this.siblings('p').show().text('请输入正确的密码');
+            error: function (status){
+                if (status.status == 403){
+                    var reg = RegExp(/INVALID REQUEST PASSWORD/);
+                    if (reg.test(status.responseText)){
+                        _this.siblings('p').show().text('请输入正确的密码');
+                    }
+                    var regLocked = RegExp(/ANOTHER CLIENT LOCKED/);
+                    if (regLocked.test(status.responseText)){
+                        $.messager.alert('温馨提示', '该设备被占用', 'info');
+                    }
                 }
             },
         })
