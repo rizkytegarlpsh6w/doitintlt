@@ -25,7 +25,7 @@ $('.onSubmit').click(function(){
                     }
                     var regLocked = RegExp(/ANOTHER CLIENT LOCKED/);
                     if (regLocked.test(status.responseText)){
-                        $.messager.alert('温馨提示', '该设备被占用', 'info');
+                        $.messager.alert('温馨提示', '该设备正在被其他用户占用', 'info');
                     }
                 }
             },
