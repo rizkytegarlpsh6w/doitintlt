@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.gitee.l0km</groupId>
 		<artifactId>dtalk</artifactId>
-		<version>0.3.1</version>
+		<version>0.3.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>dtalk-cmd</artifactId>
 	<packaging>jar</packaging>
