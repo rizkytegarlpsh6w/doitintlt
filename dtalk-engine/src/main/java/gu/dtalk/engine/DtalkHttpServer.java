@@ -598,7 +598,7 @@ public class DtalkHttpServer extends NanoWSD {
     	if(noAuth  || isAuthorizationSession(session)){
     		return;
     	}
-    	throw new ResponseException(Status.UNAUTHORIZED, UNAUTH_SESSION);
+    	throw new ResponseException(Status.UNAUTHORIZED, ackError(UNAUTH_SESSION));
     }
     private <T> Response responseAck(Ack<T> ack){
     	String json=BaseJsonEncoder.getEncoder().toJsonString(ack);
@@ -607,6 +607,15 @@ public class DtalkHttpServer extends NanoWSD {
     			APPICATION_JSON, 
     			json);
     }
+    private <T> String ackMessage(Ack.Status status,String message){
+    	Ack<Object> ack = new Ack<Object>().setStatus(status).setStatusMessage(message);
+    	String json=BaseJsonEncoder.getEncoder().toJsonString(ack);
+    	return  json;
+    }
+    private <T> String ackError(String message){
+    	return  ackMessage(Ack.Status.ERROR,message);
+    }
+
 	private void resetSession(){
 		synchronized (wsReference) {
 			dtalkSession = null;
@@ -667,7 +676,7 @@ public class DtalkHttpServer extends NanoWSD {
 				&& headers.containsKey(HeaderNames.ACCESS_CONTROL_REQUEST_HEADERS.toLowerCase());
 	}
 	/**
-	 * 封装向响应包
+	 * 封装响应包
 	 * @param session http请求
 	 * @param resp 响应包
 	 * @return resp
@@ -902,14 +911,16 @@ public class DtalkHttpServer extends NanoWSD {
     	if (dtalkSession == null || sid == null ){
     		if(!validate(parms.get("password"), 
 					Boolean.valueOf(MoreObjects.firstNonNull(parms.get("isMd5"), "true")))){
-    			throw new ResponseException(Status.FORBIDDEN, INVALID_PWD);
+    			throw new ResponseException(Status.FORBIDDEN, 
+    					ackError(INVALID_PWD));
     		}
 			sid = dtalkSession = Long.toHexString(System.nanoTime());
 	    	session.getCookies().set(DTALK_SESSION, dtalkSession, 1);
 	    	logger.info("session {} connected",dtalkSession);
     	}
     	if(!Objects.equal(dtalkSession, sid)){
-    		throw new ResponseException(Status.FORBIDDEN, CLIENT_LOCKED);
+    		throw new ResponseException(Status.FORBIDDEN, 
+    				ackError(CLIENT_LOCKED));
     	}
         ack.setStatus(Ack.Status.OK).setStatusMessage(AUTH_OK);
        	engine.setLastHitTime(System.currentTimeMillis());
