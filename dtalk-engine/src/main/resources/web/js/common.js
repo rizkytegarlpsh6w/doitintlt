@@ -17,15 +17,14 @@ $('.onSubmit').click(function(){
                 // 刷新页面
                 window.location.reload();
             },
-            error: function (status){
-                if (status.status == 403){
-                    var reg = RegExp(/INVALID REQUEST PASSWORD/);
-                    if (reg.test(status.responseText)){
+            error: function (error){
+                if (error.status == 403){
+                    if (JSON.parse(error.responseText).statusMessage =='INVALID REQUEST PASSWORD'){
                         _this.siblings('p').show().text('请输入正确的密码');
-                    }
-                    var regLocked = RegExp(/ANOTHER CLIENT LOCKED/);
-                    if (regLocked.test(status.responseText)){
+                        return false;
+                    } else if (JSON.parse(error.responseText).statusMessage == 'ANOTHER CLIENT LOCKED'){
                         $.messager.alert('温馨提示', '该设备正在被其他用户占用', 'info');
+                        return false;
                     }
                 }
             },
@@ -404,6 +403,7 @@ function keep(id){
             },
             crossDomain: true,
             success: function (status) {
+                console.log(status)
                 // 调用加载所有数据
                 if (data.type == 'SWITCH') {
                     var text = $("#f_" + id).find('#selected option:selected').text();
@@ -515,12 +515,6 @@ function execute(id) {
         if (children && children.length > 0) {
             var childArr = [];
             for (let i = 0; i < children.length; i++) {
-                if (children[i].required && children[i].value == null) {
-                    isOk = true;
-                    $.messager.alert(children[i].name + '为空，请填写必填值');
-                    childArr = [];
-                    return;
-                }
                 childArr.push({ "path": children[i].path, "value": children[i].value })
             }
             if (!isOk) {
@@ -536,14 +530,18 @@ function execute(id) {
                         withCredentials: true
                     },
                     crossDomain: true,
-                    success: function (status) {
-                        if (status.status == 'OK') {
-                            $.messager.alert('温馨提示', '执行成功', 'info');
+                    success: function (success) {
+                        var result = JSON.parse(success.value);       //获取设备端返回的数据
+                        if (result.success) {
+                            $.messager.alert('温馨提示', '执行成功：' + result.msg, 'info');
+                        } else {
+                            $.messager.alert('温馨提示', '操作失败：' + result.msg, 'error');
                         }
                     },
-                    error:function(params) {
-                        if (JSON.parse(params.responseText).status == 'ERROR'){
-                            $.messager.alert('温馨提示', '操作失败', 'info');
+                    error:function(error) {
+                        var result = JSON.parse(JSON.parse(error.responseText).statusMessage);
+                        if (!result.success){
+                            $.messager.alert('温馨提示', '操作失败:' + result.msg, 'error');
                         }
                     }
                 })
