@@ -811,7 +811,7 @@ public class DtalkHttpServer extends NanoWSD {
     		return wrapResponse(session,newFixedLengthResponse(
 					e.getStatus(), 
 					NanoHTTPD.MIME_PLAINTEXT, 
-					e.getClass().getName() +":"+ e.getMessage()));	
+					e.getMessage()));	
     	}catch (Exception e) {    		
     		ack.setStatus(Ack.Status.ERROR).setException(e.getClass().getName()).setStatusMessage(e.getMessage());
     	}
