@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
@@ -46,6 +47,13 @@ import static gu.dtalk.Version.*;
  */
 public class DtalkHttpServer extends NanoWSD {
 	private static final Logger logger = LoggerFactory.getLogger(DtalkHttpServer.class);
+
+	private static Function<IHTTPSession, Response> NULL_SERVE = new Function<IHTTPSession, Response>(){
+
+		@Override
+		public Response apply(IHTTPSession session) {
+			return null;
+		}};
     /**
      * Standard HTTP header names.
      */
@@ -561,6 +569,10 @@ public class DtalkHttpServer extends NanoWSD {
 	 * 首页内容
 	 */
 	private String homePageContent;
+	/**
+	 * 处理扩展http请求的实例
+	 */
+	private Function<IHTTPSession, Response> extServe;
 	public DtalkHttpServer()  {
 		this(DEFAULT_HTTP_PORT);
 	}
@@ -589,7 +601,7 @@ public class DtalkHttpServer extends NanoWSD {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-
+		setExtServe(NULL_SERVE);
     }
     private boolean isAuthorizationSession(IHTTPSession session){
     	return dtalkSession != null && dtalkSession.equals(session.getCookies().read(DTALK_SESSION));
@@ -781,7 +793,7 @@ public class DtalkHttpServer extends NanoWSD {
     		default:
     			Response resp = responseStaticResource(session.getUri());
     			if(null != resp){
-    				return resp;
+    				return wrapResponse(session,resp);
     			}
 				if(session.getUri().startsWith(DTALK_PREFIX )){
     				checkAuthorizationSession(session);
@@ -801,6 +813,8 @@ public class DtalkHttpServer extends NanoWSD {
 						logout(session, ack);
 						break;
 					}     				
+    			}else if((resp = extServe.apply(session)) != null){
+    					return wrapResponse(session,resp);
     			}
 				return wrapResponse(session,newFixedLengthResponse(
 						Status.NOT_FOUND, 
@@ -1085,6 +1099,23 @@ public class DtalkHttpServer extends NanoWSD {
 		this.homePageContent = homePageContent
 				.replace("{VERSION}", VERSION)
 				.replace("{MAC}", selfMac);
+		return this;
+	}
+	/**
+	 * 返回扩展的http响应实例
+	 * @return extServe
+	 */
+	public Function<IHTTPSession, Response> getExtServe() {
+		return extServe;
+	}
+	/**
+	 * 设置扩展的http响应实例<br>
+	 * 应用层可以通过此实例处理额外的http请求
+	 * @param extServe 要设置的 extServe
+	 * @return 当前对象
+	 */
+	public DtalkHttpServer setExtServe(Function<IHTTPSession, Response> extServe) {
+		this.extServe = MoreObjects.firstNonNull(extServe,NULL_SERVE);
 		return this;
 	}
 }
