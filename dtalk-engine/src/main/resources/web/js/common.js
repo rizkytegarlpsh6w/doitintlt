@@ -160,13 +160,13 @@ function loadMenu(data){
             data[i].value = tranDate(data[i].value)
         }
 
-
         if(!data[i].hide){
             if(data[i].childs.length>0){
                 list.push({
                     "id" : num,
                     "name" : (data[i].uiName == null ? data[i].name:data[i].uiName),
-                    "value" : data[i].type == "BOOL" && data[i].value == null ? false : data[i].value,
+                    // "value" : data[i].type == "BOOL" && data[i].value == null ? false : data[i].value,
+                    "value": data[i].value == null ? '' : data[i].value,
                     "comment" : data[i].description,
                     "children" : data[i].path == "/cmd/time"?[]:loadMenu(data[i].childs,data[i].catalog),
                     "path" : data[i].path,
@@ -198,7 +198,8 @@ function loadMenu(data){
                     list.push({
                         "id" : num,
                         "name" : (data[i].uiName == null ? data[i].name:data[i].uiName),
-                        "value" : data[i].type == "BOOL" && data[i].value == null ? false : data[i].value,
+                        // "value" : data[i].type == "BOOL" && data[i].value == null ? false : data[i].value,
+                        "value": data[i].value == null ? '' : data[i].value,
                         "comment" : data[i].description,
                         "path" : data[i].path,
                         "type" : data[i].type,
@@ -403,7 +404,6 @@ function keep(id){
             },
             crossDomain: true,
             success: function (status) {
-                console.log(status)
                 // 调用加载所有数据
                 if (data.type == 'SWITCH') {
                     var text = $("#f_" + id).find('#selected option:selected').text();
