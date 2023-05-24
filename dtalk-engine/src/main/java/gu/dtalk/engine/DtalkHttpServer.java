@@ -10,8 +10,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
@@ -48,13 +50,7 @@ import static gu.dtalk.Version.*;
 public class DtalkHttpServer extends NanoWSD {
 	private static final Logger logger = LoggerFactory.getLogger(DtalkHttpServer.class);
 
-	private static Function<IHTTPSession, Response> NULL_SERVE = new Function<IHTTPSession, Response>(){
-
-		@Override
-		public Response apply(IHTTPSession session) {
-			return null;
-		}};
-    /**
+	/**
      * Standard HTTP header names.
      */
     public static final class HeaderNames {
@@ -501,7 +497,7 @@ public class DtalkHttpServer extends NanoWSD {
 	private static final String POST_DATA="postData";
 	private static final String DTALK_PREFIX="/dtalk";
 	private static final String STATIC_PAGE_PREFIX="/web";
-	private static final String ALLOW_METHODS = Joiner.on(',').join(Arrays.asList(Method.POST,Method.GET));
+	private static final String ALLOW_METHODS = Joiner.on(',').join(Arrays.asList(Method.POST,Method.GET,Method.PUT,Method.DELETE));
 	private static final String ALLOW_METHODS_CORS = ALLOW_METHODS + "," + Method.OPTIONS ;
 	private static final String DEFAULT_ALLOW_HEADERS = Joiner.on(',').join(Arrays.asList(HeaderNames.CONTENT_TYPE));
 	public static final URL DEFAULT_HOME_PAGE = DtalkHttpServer.class.getResource(STATIC_PAGE_PREFIX + "/index.html");
@@ -572,7 +568,8 @@ public class DtalkHttpServer extends NanoWSD {
 	/**
 	 * 处理扩展http请求的实例
 	 */
-	private Function<IHTTPSession, Response> extServe;
+	private final Map<String,Function<IHTTPSession, Response>> extServes = 
+			Collections.synchronizedMap(Maps.<String,Function<IHTTPSession, Response>>newLinkedHashMap());
 	public DtalkHttpServer()  {
 		this(DEFAULT_HTTP_PORT);
 	}
@@ -601,7 +598,6 @@ public class DtalkHttpServer extends NanoWSD {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		setExtServe(NULL_SERVE);
     }
     private boolean isAuthorizationSession(IHTTPSession session){
     	return dtalkSession != null && dtalkSession.equals(session.getCookies().read(DTALK_SESSION));
@@ -656,17 +652,7 @@ public class DtalkHttpServer extends NanoWSD {
 		try {
 			byte[] content = FaceUtilits.getBytes(res);				
 			String suffix = uri.substring(uri.lastIndexOf('.'));
-			if(MIME_OF_SUFFIX.containsKey(suffix)){
-				return newFixedLengthResponse(
-						Status.OK, 
-						MIME_OF_SUFFIX.get(suffix), 
-						new ByteArrayInputStream(content),content.length);
-			}else{
-				return newFixedLengthResponse(
-		    			Status.UNSUPPORTED_MEDIA_TYPE, 
-		    			NanoHTTPD.MIME_PLAINTEXT, 
-		    			String.format("UNSUPPORTED MEDIA TYPE %s", suffix));	
-			}
+			return makeResponse(Status.OK,suffix, content);
 		} catch (IOException e) {
 			return newFixedLengthResponse(
 	    			Status.INTERNAL_ERROR, 
@@ -727,6 +713,57 @@ public class DtalkHttpServer extends NanoWSD {
 		//resp.addHeader(HeaderNames.ACCESS_CONTROL_MAX_AGE, "86400");
 		resp.addHeader(HeaderNames.ACCESS_CONTROL_MAX_AGE, "0");
 		return resp;
+	}
+	
+	private Response runExtServs(IHTTPSession session){
+		String path = session.getUri();
+		for(Entry<String, Function<IHTTPSession, Response>> entry:extServes.entrySet()){
+			if(path.startsWith(entry.getKey())){
+				return entry.getValue().apply(session);
+			}
+		}
+		return null; 
+	}
+	/**
+	 * http响应Body数据对象
+	 * @author guyadong
+	 *
+	 */
+	public static class Body{
+		public final Status status;
+		public final String mimeType;
+		public final byte[] content;
+		public Body(Status status,String mimeType, byte[] content) {
+			checkArgument(!Strings.isNullOrEmpty(mimeType),"mimeType is null");
+			this.status = MoreObjects.firstNonNull(status, Status.OK);
+			this.mimeType = mimeType;
+			this.content = MoreObjects.firstNonNull(content, new byte[]{});
+		}
+		public Body(Status status,String mimeType, String content) {
+			this(status, content,content == null ? null : content.getBytes());
+		}
+		public Body(String mimeType, byte[] content) {
+			this(null, mimeType, content);
+		}
+		public Body(String mimeType, String content) {
+			this(null, mimeType,content);
+		}
+	}
+	public static Response makeResponse(Status status,String mimeType, byte[] content){
+		if(MIME_OF_SUFFIX.containsKey(mimeType)){
+			return newFixedLengthResponse(
+					checkNotNull(status,"status is null"), 
+					MIME_OF_SUFFIX.get(mimeType), 
+					new ByteArrayInputStream(checkNotNull(content,"content is null")),content.length);
+		}else{
+			return newFixedLengthResponse(
+	    			Status.UNSUPPORTED_MEDIA_TYPE, 
+	    			NanoHTTPD.MIME_PLAINTEXT, 
+	    			String.format("UNSUPPORTED MEDIA TYPE %s", mimeType));	
+		}
+	}
+	public static Response makeResponse(Body body){
+		return body == null ? null : makeResponse(body.status, body.mimeType, body.content);
 	}
 	@Override
 	public void start(int timeout, boolean daemon) throws IOException {
@@ -813,7 +850,7 @@ public class DtalkHttpServer extends NanoWSD {
 						logout(session, ack);
 						break;
 					}     				
-    			}else if((resp = extServe.apply(session)) != null){
+    			}else if((resp = runExtServs(session)) != null){
     					return wrapResponse(session,resp);
     			}
 				return wrapResponse(session,newFixedLengthResponse(
@@ -1102,20 +1139,34 @@ public class DtalkHttpServer extends NanoWSD {
 		return this;
 	}
 	/**
-	 * 返回扩展的http响应实例
-	 * @return extServe
+	 * 返回name指定扩展的http响应实例
+	 * @return Function 实例，没找到返回{@code null}
 	 */
-	public Function<IHTTPSession, Response> getExtServe() {
-		return extServe;
+	public Function<IHTTPSession, Response> getExtServe(String name) {
+		return extServes.get(name);
 	}
 	/**
-	 * 设置扩展的http响应实例<br>
-	 * 应用层可以通过此实例处理额外的http请求
+	 * @return 返回所有的扩展的http响应实例
+	 */
+	public Map<String, Function<IHTTPSession, Response>> getExtServes(){
+		return Collections.unmodifiableMap(extServes);
+	}
+	/**
+	 * 添加扩展的http响应实例<br>
+	 * 应用层可以通过此方法添加多个扩展实例处理额外的http请求,
+	 * 如果指定路径前缀的实例已经存在则用新实例替换
+	 * http响应实例接口(Function<IHTTPSession, Response>):<br>
+	 * INPUT (IHTTPSession) http请求<br>
+	 * OUTPU (Response) http响应<br>
+	 * @param pathPrefix http请求路径前缀
 	 * @param extServe 要设置的 extServe
 	 * @return 当前对象
 	 */
-	public DtalkHttpServer setExtServe(Function<IHTTPSession, Response> extServe) {
-		this.extServe = MoreObjects.firstNonNull(extServe,NULL_SERVE);
+	public DtalkHttpServer addExtServe(String pathPrefix,Function<IHTTPSession, Response> extServe) {
+		checkArgument(!Strings.isNullOrEmpty(pathPrefix),"path is null");
+		checkArgument(null != extServe,"extServe is null");
+		this.extServes.put(pathPrefix,extServe);
 		return this;
 	}
+
 }
