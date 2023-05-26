@@ -215,11 +215,10 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 		} catch(Exception e){
 			e.printStackTrace();			
 			ack.writeError(e);
-		} finally {
-			afterSubscribe();
-		}
+		} 
 		// 向ack频道发送返回值消息		
 		responseAck(ack);
+		afterSubscribe();
 		if(isQuit){
 			// 取消频道订阅,中断连接
 			throw new SmqUnsubscribeException(true);

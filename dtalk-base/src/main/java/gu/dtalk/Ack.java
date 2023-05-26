@@ -1,5 +1,8 @@
 package gu.dtalk;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
@@ -12,6 +15,7 @@ import com.google.common.base.Strings;
  * @param <T> 设备命令执行返回结果类型
  */
 public class Ack<T> {
+	private static boolean traceEnable = false;
 	private Integer cmdSn;
 	private int deviceId;
 	private String deviceMac;
@@ -20,6 +24,7 @@ public class Ack<T> {
 	private Status status;
 	private String statusMessage;
 	private String exception;
+	private String trace;
 	/** 设备命令执行状态 */
 	public enum Status{
 		/** 设备命令成功执行完成 */
@@ -184,10 +189,46 @@ public class Ack<T> {
 		return this;
 	}
 	
-	public Ack<T> writeError(Throwable e){
-		return setStatus(Status.ERROR).setStatusMessage(e.getMessage()).setException(e.getClass().getName());
+	/**
+	 * @return trace
+	 */
+	public String getTrace() {
+		return trace;
 	}
-	
+	/**
+	 * @param trace 要设置的 trace
+	 * @return 
+	 */
+	public Ack<T> setTrace(String trace) {
+		this.trace = trace;
+		return this;
+	}
+
+	public Ack<T> writeError(Throwable e){
+		
+		if(traceEnable){
+			StringWriter write = new StringWriter(256);
+			PrintWriter pw = new PrintWriter(write);
+			e.printStackTrace(pw);
+			setTrace(write.toString());
+		}
+		return setStatus(Status.ERROR)
+				.setStatusMessage(e.getMessage())
+				.setException(e.getClass().getName());
+	}
+	/**
+	 * @return traceEnable
+	 */
+	public static boolean isTraceEnable() {
+		return traceEnable;
+	}
+	/**
+	 * 设置当调用 {@link #writeError(Throwable)}方法时是否用异常的堆栈信息填充trace字段
+	 * @param traceEnable 要设置的 traceEnable
+	 */
+	public static void setTraceEnable(boolean traceEnable) {
+		Ack.traceEnable = traceEnable;
+	}
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
