@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -29,6 +30,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
@@ -519,6 +521,7 @@ public class DtalkHttpServer extends NanoWSD {
 			.put(".sql","application/sql")
 			.put(".doc","application/msword")    		
 			.build();
+	private static final Set<String> SUPPORTED_MIME = ImmutableSet.copyOf(MIME_OF_SUFFIX.values());
 	private static class SingletonTimer{
 		private static final Timer instnace = new Timer(true);
 	}
@@ -680,7 +683,7 @@ public class DtalkHttpServer extends NanoWSD {
 	 * @return resp
 	 */
 	private Response wrapResponse(IHTTPSession session,Response resp) {
-		if(null != resp){			
+		if(null != resp){
 			Map<String, String> headers = session.getHeaders();
 			resp.addHeader(HeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
 			// 如果请求头中包含'Origin',则响应头中'Access-Control-Allow-Origin'使用此值否则为'*'
@@ -729,22 +732,40 @@ public class DtalkHttpServer extends NanoWSD {
 	 * @author guyadong
 	 *
 	 */
-	public static class Body{
+	public static final class Body{
 		public final Status status;
 		public final String mimeType;
 		public final byte[] content;
+		/**
+		 * @param status HTTP response status code
+		 * @param mimeType mine type,such as 'image/jpeg','text/html'
+		 * @param content content of HTTP response body 
+		 */
 		public Body(Status status,String mimeType, byte[] content) {
 			checkArgument(!Strings.isNullOrEmpty(mimeType),"mimeType is null");
 			this.status = MoreObjects.firstNonNull(status, Status.OK);
 			this.mimeType = mimeType;
 			this.content = MoreObjects.firstNonNull(content, new byte[]{});
 		}
+		/**
+		 * @param status HTTP response status code
+		 * @param mimeType mine type,such as 'image/jpeg','text/html'
+		 * @param content content of HTTP response body 
+		 */
 		public Body(Status status,String mimeType, String content) {
 			this(status, content,content == null ? null : content.getBytes());
 		}
+		/**
+		 * @param mimeType mine type,such as 'image/jpeg','text/html'
+		 * @param content content of HTTP response body 
+		 */
 		public Body(String mimeType, byte[] content) {
 			this(null, mimeType, content);
 		}
+		/**
+		 * @param mimeType mine type,such as 'image/jpeg','text/html'
+		 * @param content content of HTTP response body 
+		 */
 		public Body(String mimeType, String content) {
 			this(null, mimeType,content);
 		}
@@ -754,6 +775,11 @@ public class DtalkHttpServer extends NanoWSD {
 			return newFixedLengthResponse(
 					checkNotNull(status,"status is null"), 
 					MIME_OF_SUFFIX.get(mimeType), 
+					new ByteArrayInputStream(checkNotNull(content,"content is null")),content.length);
+		} if (SUPPORTED_MIME.contains(mimeType)){
+			return newFixedLengthResponse(
+					checkNotNull(status,"status is null"), 
+					mimeType, 
 					new ByteArrayInputStream(checkNotNull(content,"content is null")),content.length);
 		}else{
 			return newFixedLengthResponse(
@@ -825,7 +851,7 @@ public class DtalkHttpServer extends NanoWSD {
     		case "/index.html":
     		case "/index.htm":
     		{
-    			return newFixedLengthResponse(Status.OK, NanoHTTPD.MIME_HTML, homePageContent);
+    			return newFixedLengthResponse(Status.OK, NanoHTTPD.MIME_HTML, getHomePageContent());
     		}
     		default:
     			Response resp = responseStaticResource(session.getUri());
@@ -1132,11 +1158,17 @@ public class DtalkHttpServer extends NanoWSD {
 	 * @return 当前对象
 	 */
 	public DtalkHttpServer setHomePageContent(String homePageContent) {
-		checkArgument(!Strings.isNullOrEmpty(homePageContent),"homePageContent is null or empty");
-		this.homePageContent = homePageContent
-				.replace("{VERSION}", VERSION)
-				.replace("{MAC}", selfMac);
+		this.homePageContent = checkNotNull(Strings.emptyToNull(homePageContent),"homePageContent is null or empty");
 		return this;
+	}
+	private String getHomePageContent() {
+		if(null != homePageContent){
+			this.homePageContent = homePageContent
+					.replace("{VERSION}", VERSION)
+					.replace("{MAC}", selfMac)
+					.replace("{EXTSERVE}", Joiner.on(",").join(extServes.keySet()));
+		}
+		return homePageContent;
 	}
 	/**
 	 * 返回name指定扩展的http响应实例
@@ -1168,5 +1200,15 @@ public class DtalkHttpServer extends NanoWSD {
 		this.extServes.put(pathPrefix,extServe);
 		return this;
 	}
-
+	/**
+	 * 添加扩展的http响应实例<br>
+	 * 应用层可以通过此方法添加多个扩展实例处理额外的http请求,
+	 * 如果指定路径前缀的实例已经存在则用新实例替换
+	 * @param resTfulServe
+	 * @return 当前对象
+	 */
+	public DtalkHttpServer addExtServe(RESTfulServe resTfulServe) {
+		checkArgument(null != resTfulServe,"resTfulServe is null");
+		return addExtServe(resTfulServe.getPathPrefix(),resTfulServe);
+	}
 }

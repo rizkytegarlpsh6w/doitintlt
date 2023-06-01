@@ -1,12 +1,8 @@
 package gu.dtalk.engine;
 
-import static gu.dtalk.engine.DtalkHttpServer.makeResponse;
-
 import java.io.IOException;
 
-import com.google.common.base.MoreObjects;
-
-import fi.iki.elonen.NanoHTTPD.IHTTPSession;
+import com.google.common.base.Function;
 import fi.iki.elonen.NanoHTTPD.Response;
 import gu.dtalk.engine.DtalkHttpServer.Body;
 import net.gdface.utils.BaseVolatile;
@@ -19,7 +15,7 @@ import net.gdface.utils.ILazyInitVariable;
  * @author guyadong
  *
  */
-public class ImageServ extends RESTfulServe {
+public class ImageServe extends RESTfulServe {
 	private static final ILazyInitVariable<Body> ERROR_IMAGE = new BaseVolatile<Body>(){
 
 		@Override
@@ -27,15 +23,25 @@ public class ImageServ extends RESTfulServe {
 			try {
 				return new Body(Response.Status.NOT_FOUND, 
 					"image/jpeg", 
-					FaceUtilits.getBytesNotEmpty(ImageServ.class.getResourceAsStream("/web/images/404.jpg")));
+					FaceUtilits.getBytesNotEmpty(ImageServe.class.getResourceAsStream("/web/images/404.jpg")));
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		}};
 
-	@Override
-	public Response apply(IHTTPSession input) {
-		return MoreObjects.firstNonNull(super.apply(input), makeResponse(ERROR_IMAGE.get()));
+	public ImageServe() {
+		super(ImageServe.class.getSimpleName());
 	}
 
+	public ImageServe(String pathPrefix) {
+		super(pathPrefix);
+	}
+
+	public ImageServe(String pathPrefix, Function<String, Body> bodyGetter) {
+		super(pathPrefix, bodyGetter);
+	}
+	@Override
+	protected Body nullBodyInstead(){
+		return ERROR_IMAGE.get();
+	}
 }

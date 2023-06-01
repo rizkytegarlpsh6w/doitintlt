@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import gu.dtalk.engine.DeviceUtils;
 import gu.dtalk.engine.DtalkHttpServer;
+import gu.dtalk.engine.ImageServe;
 import net.gdface.utils.NetworkUtil;
 
 import static gu.dtalk.engine.demo.DemoHttpdConfig.*;
@@ -32,6 +33,7 @@ public class DemoHttpd {
 		byte[] devMac = DeviceUtils.DEVINFO_PROVIDER.getMac();
 		System.out.printf("DEVICE MAC address(设备地址): %s\n",NetworkUtil.formatMac(devMac, ":"));
 		try {
+			httpServer.addExtServe(new ImageServe("/PERSON").setBodyGetter(new ImageServDemo()));
 			httpServer.start(DEMO_CONFIG.getTimeout(), false);
 			System.out.printf("HTTP Connect port(连接端口) : port:%d %s %s\n",
 					DEMO_CONFIG.getPort(),
