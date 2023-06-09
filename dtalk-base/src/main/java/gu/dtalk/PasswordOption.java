@@ -27,7 +27,7 @@ public class PasswordOption extends StringOption {
 		return OptionType.PASSWORD;
 	}
 	@Override
-	public List<String> getAvaiable() {
+	public List<String> getAvailable() {
 		return Collections.emptyList();
 	}
 }

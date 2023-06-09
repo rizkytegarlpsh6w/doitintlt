@@ -99,7 +99,7 @@ public class OptionBuilder<T,O extends BaseOption<T>> {
 		return this;
 	}
 	public final OptionBuilder<T, O> available(List<T> available) {
-		option.setAvaiable(available);
+		option.setAvailable(available);
 		return this;
 	}
 	@SuppressWarnings("unchecked")

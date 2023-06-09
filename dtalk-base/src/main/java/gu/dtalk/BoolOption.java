@@ -20,7 +20,7 @@ public class BoolOption extends BaseOption<Boolean> {
 		return OptionType.BOOL;
 	}
 	@Override
-	public List<Boolean> getAvaiable() {
+	public List<Boolean> getAvailable() {
 		return Collections.emptyList();
 	}
 }
