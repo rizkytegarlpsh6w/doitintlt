@@ -187,7 +187,7 @@ function loadMenu(data){
                     }
                     // 当类型是SWITCH时，取option值的值为选中的值
                     if(data[i].type == 'SWITCH'){
-                        data[i].value = options[data[i].value].value;
+                        data[i].value = options[(data[i].value)[0]].value;
                     }
                     // 当类型是MULTICHECK时，取option值的值为选中的值
                     if(data[i].type == 'MULTICHECK'){
