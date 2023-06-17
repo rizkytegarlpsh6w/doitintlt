@@ -160,6 +160,33 @@ function loadMenu(data){
             data[i].value = tranDate(data[i].value)
         }
 
+        
+
+        var options = [];
+        if (data[i].options) {
+            for (var key in data[i].options) {
+                // 给下拉选择框赋值
+                options.push({ key: key, value: data[i].options[key] })
+            }
+        }
+        
+        
+        if (data[i].value) {
+            // 当类型是SWITCH时，取option值的值为选中的值
+            if (data[i].type == 'SWITCH') {
+                try {
+                    data[i].value = options[(data[i].value)[0]].value;
+                } catch (err) {
+                    data[i].value = options[data[i].value].value;
+                }
+            }
+            // 当类型是MULTICHECK时，取option值的值为选中的值
+            if (data[i].type == 'MULTICHECK') {
+                data[i].value = checkName(data[i].value, options)
+            }
+        }
+
+
         if(!data[i].hide){
             if(data[i].childs.length>0){
                 list.push({
@@ -179,22 +206,6 @@ function loadMenu(data){
                 })
             }else{
                 if(data[i].uiName!='quit' && data[i].uiName!='back'){
-                    var options = [];
-                    if(data[i].options){
-                        for(var key in data[i].options){
-                            options.push({key:key,value:data[i].options[key]})
-                        }
-                    }
-                    // 当类型是SWITCH时，取option值的值为选中的值
-                    if(data[i].type == 'SWITCH'){
-                        data[i].value = options[(data[i].value)[0]].value;
-                    }
-                    // 当类型是MULTICHECK时，取option值的值为选中的值
-                    if(data[i].type == 'MULTICHECK'){
-                        data[i].value = checkName(data[i].value,options)
-                    }
-
-
                     list.push({
                         "id" : num,
                         "name" : (data[i].uiName == null ? data[i].name:data[i].uiName),
