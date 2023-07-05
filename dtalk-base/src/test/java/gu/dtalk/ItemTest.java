@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import gu.simplemq.json.BaseJsonEncoder;
-import net.gdface.utils.FaceUtilits;
+import net.gdface.utils.BinaryUtils;
 
 public class ItemTest {
 	private Logger logger = LoggerFactory.getLogger(ItemTest.class);
@@ -44,7 +44,7 @@ public class ItemTest {
 	public void test4MAC(){
 		String macstr = "00:4f:Fe:ea:98:3a";
 		String hex = macstr.replace(":", "");
-		logger.info("mac hex ={}",FaceUtilits.hex2Bytes(hex));
+		logger.info("mac hex ={}",BinaryUtils.hex2Bytes(hex));
 	}
 	@Test
 	public void test4URL(){		
@@ -79,7 +79,7 @@ public class ItemTest {
 			logger.info("DeclaringClass {}",valueSetter.getDeclaringClass().getName());
 			Method valueSetter2 = ImageOption.class.getMethod("setValue", Object.class);
 			logger.info("DeclaringClass {}",valueSetter2.getDeclaringClass().getName());
-			ImageOption img = OptionBuilder.builder(ImageOption.class).name("testimg").value(FaceUtilits.getBytes(ItemTest.class.getResource("/images/dg.png"))).instance();
+			ImageOption img = OptionBuilder.builder(ImageOption.class).name("testimg").value(BinaryUtils.getBytes(ItemTest.class.getResource("/images/dg.png"))).instance();
 			String jsonStr = BaseJsonEncoder.getEncoder().toJsonString(img);
 			ImageOption parsed = BaseJsonEncoder.getEncoder().fromJson(jsonStr, ImageOption.class);
 			logger.info("{}",parsed.toString());

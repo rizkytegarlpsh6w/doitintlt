@@ -40,7 +40,7 @@ import gu.dtalk.Ack;
 import gu.dtalk.MenuItem;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
 import gu.simplemq.json.BaseJsonEncoder;
-import net.gdface.utils.FaceUtilits;
+import net.gdface.utils.BinaryUtils;
 
 import static gu.dtalk.CommonConstant.*;
 import static gu.dtalk.Version.*;
@@ -578,7 +578,7 @@ public class DtalkHttpServer extends NanoWSD {
 	}
     public DtalkHttpServer(int port)  {
         super(port);
-        this.selfMac = FaceUtilits.toHex(DeviceUtils.DEVINFO_PROVIDER.getMac());
+        this.selfMac = BinaryUtils.toHex(DeviceUtils.DEVINFO_PROVIDER.getMac());
 		// 定时检查引擎工作状态，当空闲超时，则中止连接
 		getTimer().schedule(new TimerTask() {
 
@@ -653,7 +653,7 @@ public class DtalkHttpServer extends NanoWSD {
 		}
 
 		try {
-			byte[] content = FaceUtilits.getBytes(res);				
+			byte[] content = BinaryUtils.getBytes(res);				
 			String suffix = uri.substring(uri.lastIndexOf('.'));
 			return makeResponse(Status.OK,suffix, content);
 		} catch (IOException e) {
@@ -915,7 +915,7 @@ public class DtalkHttpServer extends NanoWSD {
 		checkArgument(!Strings.isNullOrEmpty(pwd),"NULL REQUEST PASSWORD");
 		checkArgument(!Strings.isNullOrEmpty(admPwd),"NULL ADMIN PASSWORD");
 		if(isMd5){
-			String pwdmd5 = FaceUtilits.getMD5String(admPwd.getBytes());
+			String pwdmd5 = BinaryUtils.getMD5String(admPwd.getBytes());
 			return pwdmd5.equalsIgnoreCase(pwd);
 		}else{
 			return admPwd.equals(pwd);
@@ -1148,7 +1148,7 @@ public class DtalkHttpServer extends NanoWSD {
 	 * @throws IOException 从homePage中读取内容发生异常
 	 */
 	public DtalkHttpServer setHomePage(URL homePage) throws IOException {
-		String content = new String(FaceUtilits.getBytes(checkNotNull(homePage,"homePage is null")),"UTF-8");
+		String content = new String(BinaryUtils.getBytes(checkNotNull(homePage,"homePage is null")),"UTF-8");
 		return setHomePageContent(content);
 	}
 	/**

@@ -27,7 +27,7 @@ import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
 import gu.simplemq.redis.RedisPublisher;
 import gu.simplemq.redis.RedisSubscriber;
-import net.gdface.utils.FaceUtilits;
+import net.gdface.utils.BinaryUtils;
 import net.gdface.utils.NetworkUtil;
 import static gu.dtalk.CommonConstant.*;
 import static gu.dtalk.CommonUtils.*;
@@ -93,7 +93,7 @@ public abstract class BaseConsole {
 
 		if(Strings.isNullOrEmpty(devmac)){
 			// 使用本地地址做为设备MAC地址
-			devmac = FaceUtilits.toHex(temminalMac);
+			devmac = BinaryUtils.toHex(temminalMac);
 			System.out.println("use local MAC for target DEVICE");
 		}
 		System.out.printf("DEVICE MAC address: %s\n", devmac);
@@ -250,7 +250,7 @@ public abstract class BaseConsole {
 			public boolean apply(String input) {
 				if(isImage(json,renderEngine.getCurrentLevel())){
 					try {
-						json.fluentPut(OPTION_FIELD_VALUE, FaceUtilits.getBytesNotEmpty(new File(input)));
+						json.fluentPut(OPTION_FIELD_VALUE, BinaryUtils.getBytesNotEmpty(new File(input)));
 					} catch (Exception e) {
 						Throwables.throwIfUnchecked(e);
 						throw new RuntimeException(e);

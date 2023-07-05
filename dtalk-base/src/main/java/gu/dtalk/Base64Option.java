@@ -2,7 +2,7 @@ package gu.dtalk;
 
 import com.google.common.base.Throwables;
 
-import net.gdface.utils.FaceUtilits;
+import net.gdface.utils.BinaryUtils;
 
 /**
  * base64格式二进制数据选项
@@ -21,7 +21,7 @@ public class Base64Option extends BaseBinary {
 	@Override
 	public Base64Option asValue(String input) {
 		try {
-			setValue(FaceUtilits.getBytes(input));
+			setValue(BinaryUtils.getBytes(input));
 			return this;
 		} catch (Exception e) {
 			Throwables.throwIfUnchecked(e);
@@ -30,11 +30,11 @@ public class Base64Option extends BaseBinary {
 	}
 	/**
 	 * 从input中读取字节流转为byte[]调用{@link #setValue(Object)}
-	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
+	 * @param <T> 参见 {@link BinaryUtils#getBytes(Object)}
 	 */
 	public <T>Base64Option asValue(T input) {
 		try {
-			setValue(FaceUtilits.getBytes(input));
+			setValue(BinaryUtils.getBytes(input));
 			return this;
 		} catch (Exception e) {
 			Throwables.throwIfUnchecked(e);
@@ -44,7 +44,7 @@ public class Base64Option extends BaseBinary {
 	@Override
 	public Base64Option asDefaultValue(String input) {
 		try {
-			setDefaultValue(FaceUtilits.getBytes(input));
+			setDefaultValue(BinaryUtils.getBytes(input));
 			return this;
 		} catch (Exception e) {
 			Throwables.throwIfUnchecked(e);
@@ -53,11 +53,11 @@ public class Base64Option extends BaseBinary {
 	}
 	/**
 	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(Object)}
-	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
+	 * @param <T> 参见 {@link BinaryUtils#getBytes(Object)}
 	 */
 	public <T>Base64Option asDefaultValue(T input) {
 		try {
-			setDefaultValue(FaceUtilits.getBytes(input));
+			setDefaultValue(BinaryUtils.getBytes(input));
 			return this;
 		} catch (Exception e) {
 			Throwables.throwIfUnchecked(e);

@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.google.common.base.Throwables;
 
-import net.gdface.utils.FaceUtilits;
+import net.gdface.utils.BinaryUtils;
 
 /**
  * 二进制数据选项基类
@@ -25,19 +25,19 @@ public abstract class BaseBinary extends BaseOption<byte[]> {
 			return super.contentOfValue();
 		}
 		if(value.length <=32){
-			return FaceUtilits.toHex(value);
+			return BinaryUtils.toHex(value);
 		}
 		return "BINARY";
 	}
 	/**
 	 * 从input中读取字节流转为byte[]调用{@link #setValue(Object)}
-	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
+	 * @param <T> 参见 {@link BinaryUtils#getBytes(Object)}
 	 * @param input 输入数据
 	 * @return 当前对象
 	 */
 	protected <T>BaseOption<byte[]> asValue(T input) {
 		try {
-			return setValue(FaceUtilits.getBytes(input));
+			return setValue(BinaryUtils.getBytes(input));
 		} catch (Exception e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
@@ -45,13 +45,13 @@ public abstract class BaseBinary extends BaseOption<byte[]> {
 	}
 	/**
 	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(Object)}
-	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
+	 * @param <T> 参见 {@link BinaryUtils#getBytes(Object)}
 	 * @param input 输入数据
 	 * @return 当前对象
 	 */
 	protected <T>BaseOption<byte[]> asDefaultValue(T input) {
 		try {
-			return setDefaultValue(FaceUtilits.getBytes(input));
+			return setDefaultValue(BinaryUtils.getBytes(input));
 		} catch (Exception e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
