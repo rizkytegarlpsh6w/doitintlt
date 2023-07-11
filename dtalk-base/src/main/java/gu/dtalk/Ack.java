@@ -21,6 +21,7 @@ public class Ack<T> {
 	private String deviceMac;
 	private String item;
 	private T value;
+	private String valueType;
 	private Status status;
 	private String statusMessage;
 	private String exception;
@@ -148,6 +149,14 @@ public class Ack<T> {
 	 */
 	public Ack<T> setValue(T value) {
 		this.value = value;
+		return setValueType(value != null ? value.getClass().getSimpleName() : "NULL");
+	}
+	
+	public String getValueType(){
+		return valueType;
+	}
+	public Ack<T> setValueType(String valueClass){
+		this.valueType = valueClass;
 		return this;
 	}
 	/** 
