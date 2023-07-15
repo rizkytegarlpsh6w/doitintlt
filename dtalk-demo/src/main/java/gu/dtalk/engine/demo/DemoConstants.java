@@ -22,9 +22,6 @@ public interface DemoConstants extends CommonCliConstants {
 	public static final String REDIS_TIMEOUT_OPTION_DESC = "redis timeout,default:";
 	public static final String CONNEC_PWD_OPTION_LONG = "pwd";
 	public static final String CONNEC_PWD_OPTION_DESC = "password ,default: ";
-	public static final String TRACE_OPTION = "X";
-	public static final String TRACE_OPTION_LONG = "trace";
-	public static final String TRACE_OPTION_DESC = "show stack trace on error ,default: false";
 	
 	public static final String HTTP_PORT_OPTION_LONG = "port";
 	public static final String HTTP_PORT_OPTION_DESC = "http port number,default:";

@@ -24,7 +24,6 @@ public class DemoConfig extends BaseAppConfig implements DemoConstants {
 	static final DemoConfig DEMO_CONFIG = new DemoConfig();
 	private final Map<PropName, Object> redisParameters = JedisUtils.initParameters(null);
 
-	private boolean trace;
 	public DemoConfig() {
 		options.addOption(Option.builder().longOpt(REDIS_HOST_OPTION_LONG)
 				.desc(REDIS_HOST_OPTION_DESC + DEFAULT_HOST).numberOfArgs(1).build());
@@ -43,9 +42,6 @@ public class DemoConfig extends BaseAppConfig implements DemoConstants {
 
 		options.addOption(Option.builder().longOpt(REDIS_TIMEOUT_OPTION_LONG)
 				.desc(REDIS_TIMEOUT_OPTION_DESC + DEFAULT_TIMEOUT + " ms.").numberOfArgs(1).type(Number.class).build());
-
-		options.addOption(Option.builder(TRACE_OPTION).longOpt(TRACE_OPTION_LONG)
-				.desc(TRACE_OPTION_DESC ).hasArg(false).build());
 
 		options.addOption(Option.builder().longOpt(CONNEC_PWD_OPTION_LONG)
 				.desc(CONNEC_PWD_OPTION_DESC ).numberOfArgs(1).build());
@@ -74,7 +70,6 @@ public class DemoConfig extends BaseAppConfig implements DemoConstants {
 		if(hasProperty(REDIS_TIMEOUT_OPTION_LONG)){
 			redisParameters.put(PropName.timeout, ((Number)getProperty(REDIS_TIMEOUT_OPTION_LONG)).intValue());
 		}
-		this.trace = getProperty(TRACE_OPTION_LONG);
 		
 	}
 	/**
@@ -82,12 +77,6 @@ public class DemoConfig extends BaseAppConfig implements DemoConstants {
 	 */
 	public Map<PropName, Object> getRedisParameters() {
 		return Maps.filterValues(redisParameters, Predicates.notNull());
-	}
-	/**
-	 * @return 发生异常时是否输出详细堆栈信息
-	 */
-	public boolean isTrace() {
-		return trace;
 	}
 	@Override
 	protected String getAppName() {
