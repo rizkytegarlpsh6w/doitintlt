@@ -15,12 +15,12 @@ import gu.dtalk.Ack;
 import gu.dtalk.ConnectReq;
 import gu.simplemq.Channel;
 import gu.simplemq.IMessageAdapter;
+import gu.simplemq.IPublisher;
 import gu.simplemq.IUnregistedListener;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
 import gu.simplemq.json.BaseJsonEncoder;
 import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
-import gu.simplemq.redis.RedisPublisher;
 import gu.simplemq.redis.RedisSubscriber;
 import net.gdface.utils.FaceUtilits;
 import static gu.dtalk.CommonConstant.*;
@@ -67,7 +67,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 			connectedMAC=null;								
 		}
 	};
-	private final RedisPublisher ackPublisher;
+	private final IPublisher ackPublisher;
 	/**
 	 * 当前连接的CLIENT端的请求频道
 	 */

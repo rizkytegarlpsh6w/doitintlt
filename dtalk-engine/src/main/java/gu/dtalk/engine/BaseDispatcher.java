@@ -24,9 +24,9 @@ import gu.dtalk.CommonConstant.ReqCmdType;
 import gu.dtalk.DeviceInstruction;
 import gu.simplemq.Channel;
 import gu.simplemq.IMessageAdapter;
+import gu.simplemq.IPublisher;
 import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
-import gu.simplemq.redis.RedisPublisher;
 
 /**
  * 设备命令分发器,实现{@link IMessageAdapter}接口,将redis操作与业务逻辑隔离<br>
@@ -43,7 +43,7 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 	/** 命令请求类型 */
 	protected final ReqCmdType reqType;
 
-	private final RedisPublisher publisher;
+	private final IPublisher publisher;
 	/**  是否自动注销标志 */
 	private final AtomicBoolean autoUnregisterCmdChannel = new AtomicBoolean(false);
 	/** 设备命令序列号验证器 */
