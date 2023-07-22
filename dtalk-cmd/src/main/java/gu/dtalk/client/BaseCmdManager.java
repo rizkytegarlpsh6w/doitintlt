@@ -8,13 +8,13 @@ import gu.dtalk.Ack;
 import gu.dtalk.DeviceInstruction;
 import gu.dtalk.IAckAdapter;
 import gu.dtalk.exception.AckTimtoutException;
+import gu.simplemq.ISubscriber;
 import gu.simplemq.Channel;
 import gu.simplemq.IPublisher;
 import gu.simplemq.IUnregistedListener;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
 import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
-import gu.simplemq.redis.RedisSubscriber;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -48,7 +48,7 @@ import com.google.common.base.Strings;
  *
  */
 public abstract class BaseCmdManager {
-	protected final RedisSubscriber subscriber;
+	protected final ISubscriber subscriber;
 	protected final IPublisher publisher;
     private Supplier<Integer> cmdSnSupplier;
     private Supplier<String> ackChannelSupplier = Suppliers.ofInstance(null);

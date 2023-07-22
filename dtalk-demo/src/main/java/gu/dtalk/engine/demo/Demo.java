@@ -12,10 +12,10 @@ import gu.dtalk.engine.ItemEngineRedisImpl;
 import gu.dtalk.engine.SampleConnector;
 import gu.dtalk.redis.DefaultCustomRedisConfigProvider;
 import gu.dtalk.redis.RedisConfigType;
+import gu.simplemq.ISubscriber;
 import gu.simplemq.Channel;
 import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
-import gu.simplemq.redis.RedisSubscriber;
 import net.gdface.utils.FaceUtilits;
 import net.gdface.utils.NetworkUtil;
 
@@ -31,7 +31,7 @@ public class Demo {
 	private static final Logger logger = LoggerFactory.getLogger(Demo.class);
 
 	private final SampleConnector connAdapter;
-	private final RedisSubscriber subscriber;
+	private final ISubscriber subscriber;
 	private final byte[] devMac;
 	public Demo(RedisConfigType configType) {
 		JedisPoolLazy pool = JedisPoolLazy.getInstance(configType.readRedisParam(),false);

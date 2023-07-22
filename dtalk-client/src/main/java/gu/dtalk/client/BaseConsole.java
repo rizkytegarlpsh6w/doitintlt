@@ -24,9 +24,9 @@ import gu.dtalk.Ack;
 import gu.dtalk.Ack.Status;
 import gu.simplemq.Channel;
 import gu.simplemq.IPublisher;
+import gu.simplemq.ISubscriber;
 import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
-import gu.simplemq.redis.RedisSubscriber;
 import net.gdface.utils.FaceUtilits;
 import net.gdface.utils.NetworkUtil;
 import static gu.dtalk.CommonConstant.*;
@@ -40,7 +40,7 @@ import static com.google.common.base.Preconditions.*;
  */
 public abstract class BaseConsole {
 	protected static final Logger logger = LoggerFactory.getLogger(BaseConsole.class);
-	final RedisSubscriber subscriber;
+	final ISubscriber subscriber;
 	final IPublisher publisher;
 	/**
 	 * 请求频道名,用于终端向设备端发送菜单命令(item)请求

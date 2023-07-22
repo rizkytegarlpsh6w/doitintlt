@@ -13,6 +13,7 @@ import com.google.common.base.Strings;
 
 import gu.dtalk.Ack;
 import gu.dtalk.ConnectReq;
+import gu.simplemq.ISubscriber;
 import gu.simplemq.Channel;
 import gu.simplemq.IMessageAdapter;
 import gu.simplemq.IPublisher;
@@ -21,7 +22,6 @@ import gu.simplemq.exceptions.SmqUnsubscribeException;
 import gu.simplemq.json.BaseJsonEncoder;
 import gu.simplemq.redis.JedisPoolLazy;
 import gu.simplemq.redis.RedisFactory;
-import gu.simplemq.redis.RedisSubscriber;
 import net.gdface.utils.FaceUtilits;
 import static gu.dtalk.CommonConstant.*;
 import static com.google.common.base.Preconditions.*;
@@ -75,7 +75,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	private long idleTimeLimit = DEFAULT_IDLE_TIME_MILLS;
 	private long timerPeriod = 2000;
 	private ItemAdapter itemAdapter;
-	private final RedisSubscriber subscriber;
+	private final ISubscriber subscriber;
 	private RequestValidator requestValidator;
 	public SampleConnector(JedisPoolLazy pool) {
 		ackPublisher = RedisFactory.getPublisher(pool);
