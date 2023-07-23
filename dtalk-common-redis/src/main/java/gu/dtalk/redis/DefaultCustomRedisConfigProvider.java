@@ -1,11 +1,14 @@
 package gu.dtalk.redis;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import gu.simplemq.redis.JedisPoolLazy.PropName;
@@ -96,7 +99,14 @@ public class DefaultCustomRedisConfigProvider implements RedisConfigProvider {
 		DefaultCustomRedisConfigProvider.redisParameters.clear();
 		DefaultCustomRedisConfigProvider.redisParameters.putAll(redisParameters);
 	}
-
+	/**
+	 * 设置redis的访问地址<br>
+	 * 调用此方法后才能使用{@link RedisConfigType#CUSTOM}实例的方法
+	 * @param redisLocation
+	 */
+	public static void setRedisLocation(URI redisLocation) {
+		initredisParameters(ImmutableMap.of(PropName.uri,checkNotNull((Object)redisLocation,"redisLocation is null")));
+	}
 	/**
 	 * @return redisparameters
 	 */

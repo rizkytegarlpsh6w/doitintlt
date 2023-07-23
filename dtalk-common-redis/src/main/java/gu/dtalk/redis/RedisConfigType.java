@@ -12,10 +12,11 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.net.HostAndPort;
 
-import gu.dtalk.exception.DtalkException;
+import gu.simplemq.IMQConnParameterSupplier;
+import gu.simplemq.MessageQueueType;
+import gu.simplemq.exceptions.SmqNotFoundConnectionException;
 import gu.simplemq.redis.JedisPoolLazy.PropName;
 import gu.simplemq.redis.JedisUtils;
 
@@ -24,7 +25,7 @@ import gu.simplemq.redis.JedisUtils;
  * @author guyadong
  *
  */
-public enum RedisConfigType{
+public enum RedisConfigType  implements IMQConnParameterSupplier{
 	/** 自定义配置 */CUSTOM(new DefaultCustomRedisConfigProvider())
 	/** 局域网配置 */,LAN(new DefaultLocalRedisConfigProvider())
 	/** 公有云配置 */,CLOUD(new DefaultCloudRedisConfigProvider())
@@ -44,7 +45,7 @@ public enum RedisConfigType{
 	/**
 	 * 当前配置是否可连接
 	 */
-	private boolean connectable = false;
+	private volatile boolean connectable = false;
 	private RedisConfigType(){
 		this(null);
 	}
@@ -80,19 +81,42 @@ public enum RedisConfigType{
 		}
 		return instance;
 	}
-	public HostAndPort getHostAndPort(){
-		String host;
-		int port;
-		checkState(null != parameters,"redis parameters not initialized,must call readRedisParam() firstly");
-		if(parameters.get(PropName.uri) != null){
-			URI uri = (URI)parameters.get(PropName.uri);
-			host = uri.getHost();
-			port = uri.getPort();
-		}else{
-			host = (String) parameters.get(PropName.host);
-			port  = (int) parameters.get(PropName.port);	
+	@Override
+	public HostAndPort getHostAndPort(){		
+		return JedisUtils.getHostAndPort(parameters);
+	}
+	private static Map<PropName,Object> asRedisParameters(RedisConfigProvider config){
+		if(config == null){
+			return null;
 		}
-		return HostAndPort.fromParts(host, port);
+		ImmutableMap.Builder<PropName, Object> builder = ImmutableMap.builder();
+		URI uri = config.getURI();
+		if(uri != null){
+			builder.put(PropName.uri, uri);
+		}else{
+			String host = config.getHost();
+			int port =config.getPort();
+			String password = config.getPassword();
+			int database = config.getDatabase();
+			checkArgument(!Strings.isNullOrEmpty(host),"INVALID REDIS HOST");
+
+			builder.put(PropName.host, host);
+			if(port >0){
+				builder.put(PropName.port, port);
+			}
+			if(!Strings.isNullOrEmpty(password)){
+				builder.put(PropName.password, password);
+			}
+			if(database > 0){
+				builder.put(PropName.database, database);
+			}
+		}
+		int timeout = config.getTimeout();
+		if(timeout >0){
+			builder.put(PropName.timeout, timeout);
+		}
+		return builder.build();
+	
 	}
 	/**
 	 * 根据SPI加载的{@link RedisConfigProvider}实例提供的参数创建Redis连接参数<br>
@@ -105,40 +129,20 @@ public enum RedisConfigType{
 			synchronized (this) {
 				if(parameters == null){
 					RedisConfigProvider config = findRedisConfigProvider();		
-					
-					if(config != null){
-						Builder<PropName, Object> builder = ImmutableMap.builder();
-						URI uri = config.getURI();
-						if(uri != null){
-							builder.put(PropName.uri, uri);
-						}else{
-							String host = config.getHost();
-							int port =config.getPort();
-							String password = config.getPassword();
-							int database = config.getDatabase();
-							checkArgument(!Strings.isNullOrEmpty(host),"INVALID REDIS HOST");
-
-							builder.put(PropName.host, host);
-							if(port >0){
-								builder.put(PropName.port, port);
-							}
-							if(!Strings.isNullOrEmpty(password)){
-								builder.put(PropName.password, password);
-							}
-							if(database > 0){
-								builder.put(PropName.database, database);
-							}
-						}
-						int timeout = config.getTimeout();
-						if(timeout >0){
-							builder.put(PropName.timeout, timeout);
-						}
-						parameters = builder.build();
-					}					
+					parameters = asRedisParameters(config);
 				}
 			}
 		}
 		return parameters;
+	}
+	
+	@Override
+	public Map<String, Object> getMQConnParameters(){
+		return JedisUtils.asMqParameters(readRedisParam());
+	}
+	@Override
+	public MessageQueueType getImplType() {
+		return MessageQueueType.REDIS;
 	}
 	/**
 	 * 保存redis参数到当前类型对应的{@link RedisConfigProvider}实例
@@ -191,7 +195,7 @@ public enum RedisConfigType{
 	public synchronized boolean testConnect(){
 		Map<PropName, Object> props = readRedisParam();
 		connectable = false;
-		if(props != null){
+		if(props != null && !props.isEmpty()){
 //			System.out.printf("try to connect %s...\n", this);
 			try{
 				connectable = JedisUtils.testConnect(props);
@@ -214,9 +218,9 @@ public enum RedisConfigType{
 	 * <li>{@link RedisConfigType#LOCALHOST}</li>
 	 * </ul>
 	 * @return {@link #activeConfigType}不为{@code null}时直接返回{@link #activeConfigType}的值
-	 * @throws DtalkException 没有找到有效redis连接
+	 * @throws SmqNotFoundConnectionException 没有找到有效redis连接
 	 */
-	public static RedisConfigType lookupRedisConnect() throws DtalkException{
+	public static RedisConfigType lookupRedisConnect() throws SmqNotFoundConnectionException{
 		if(activeConfigType == null){
 			synchronized(RedisConfigType.class){
 				if(activeConfigType == null){
@@ -248,7 +252,7 @@ public enum RedisConfigType{
 						}
 					} catch (InterruptedException e) {
 					}
-					throw new DtalkException("NOT FOUND VALID REDIS SERVER");
+					throw new SmqNotFoundConnectionException("NOT FOUND VALID REDIS SERVER");
 				}
 			}
 		}
@@ -262,7 +266,7 @@ public enum RedisConfigType{
 	public static RedisConfigType lookupRedisConnectUnchecked() {
 		try {
 			return lookupRedisConnect();
-		} catch (DtalkException e) {
+		} catch (SmqNotFoundConnectionException e) {
 			return null;
 		}
 	}

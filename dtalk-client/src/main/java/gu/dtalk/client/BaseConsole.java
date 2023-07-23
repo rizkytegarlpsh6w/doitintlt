@@ -19,14 +19,16 @@ import gu.dtalk.BaseItem;
 import gu.dtalk.BaseOption;
 import gu.dtalk.ItemType;
 import gu.dtalk.MenuItem;
-import gu.dtalk.redis.RedisConfigType;
 import gu.dtalk.Ack;
 import gu.dtalk.Ack.Status;
 import gu.simplemq.Channel;
+import gu.simplemq.IMQConnParameterSupplier;
+import gu.simplemq.IMessageQueueConfigManager;
+import gu.simplemq.IMessageQueueFactory;
 import gu.simplemq.IPublisher;
 import gu.simplemq.ISubscriber;
-import gu.simplemq.redis.JedisPoolLazy;
-import gu.simplemq.redis.RedisFactory;
+import gu.simplemq.MessageQueueFactorys;
+import gu.simplemq.exceptions.SmqNotFoundConnectionException;
 import net.gdface.utils.FaceUtilits;
 import net.gdface.utils.NetworkUtil;
 import static gu.dtalk.CommonConstant.*;
@@ -70,13 +72,16 @@ public abstract class BaseConsole {
 	/**
 	 * 构造方法
 	 * @param devmac 要连接的设备MAC地址,测试设备程序在本地运行时可为空。
-	 * @param config redis连接配置类型
+	 * @param manager 消息配置管理器类实例
+	 * @throws SmqNotFoundConnectionException 
 	 */
-	public BaseConsole(String devmac, RedisConfigType config) {
-		JedisPoolLazy pool = JedisPoolLazy.getInstance(config.readRedisParam(),false);
-		subscriber = RedisFactory.getSubscriber(pool);
-		publisher = RedisFactory.getPublisher(pool);
-		temminalMac = getSelfMac(config);
+	public BaseConsole(String devmac, IMessageQueueFactory factory) {
+
+		// 创建消息系统连接实例
+		this.temminalMac = getSelfMac(factory.getHostAndPort());
+
+		this.subscriber = checkNotNull(factory,"factory is null").getSubscriber();
+		this.publisher = factory.getPublisher();
 		System.out.printf("TERMINAL MAC address: %s\n", NetworkUtil.formatMac(temminalMac, ":"));
 
 		ackchname = getAckChannel(temminalMac);
@@ -96,14 +101,15 @@ public abstract class BaseConsole {
 			devmac = FaceUtilits.toHex(temminalMac);
 			System.out.println("use local MAC for target DEVICE");
 		}
+		// 删除非字母数字的分隔符
+		devmac = devmac.replaceAll("[^\\w]", "");
 		System.out.printf("DEVICE MAC address: %s\n", devmac);
 
 		connchname = getConnChannel(devmac);
 
 	}
-	protected static byte[] getSelfMac(RedisConfigType type){
+	protected static byte[] getSelfMac(HostAndPort hostAndPort){
 		try {
-			HostAndPort hostAndPort = type.getHostAndPort();
 			String host = hostAndPort.getHost();
 			int port = hostAndPort.getPort();
 			// 使用localhost获取本机MAC地址会返回空数组，所以这里使用一个互联地址来获取
@@ -419,5 +425,30 @@ public abstract class BaseConsole {
 	public BaseConsole setStackTrace(boolean stackTrace) {
 		this.stackTrace = stackTrace;
 		return this;
+	}
+
+	/**
+	 * 根据消息系统配置管理器实例创建targetClass指定的终端实例
+	 * @param targetClass dtalk终端实例
+	 * @param devmac 目标设备MAC地址
+	 * @param manager 消息系统配置管理器实例
+	 * @return targetClass 实例
+	 * @throws SmqNotFoundConnectionException 没有找到有效消息系统连接
+	 */
+	public static <T extends BaseConsole> T 
+	makeConsole(Class<T> targetClass,String devmac,IMessageQueueConfigManager manager) throws SmqNotFoundConnectionException{
+		IMQConnParameterSupplier config = checkNotNull(manager,"manager is null").lookupMessageQueueConnect();
+
+		logger.info("use config={}",config);
+		// 创建消息系统连接实例
+		IMessageQueueFactory factory = MessageQueueFactorys.getFactory(config.getImplType())
+				.init(config.getMQConnParameters())
+				.asDefaultFactory();
+		try {
+			return targetClass.getConstructor(String.class,IMessageQueueFactory.class).newInstance(devmac,factory);
+		} catch (Exception e) {
+			Throwables.throwIfUnchecked(e);
+			throw new RuntimeException(e);
+		}
 	}
 }

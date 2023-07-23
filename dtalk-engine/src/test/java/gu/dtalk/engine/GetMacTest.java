@@ -20,17 +20,18 @@ public class GetMacTest {
 	private static final Logger logger = LoggerFactory.getLogger(GetMacTest.class);
 	@Test
 	public void test1() throws UnknownHostException, IOException {
-		Socket socket = new Socket("www.cnnic.net.cn", 80);
-		InetAddress address = socket.getLocalAddress();
-		Set<NetworkInterface> nics = NetworkUtil.getPhysicalNICs();
-		for(NetworkInterface nic:nics){
-			logger.info("{}",nic);
-			
+		try(Socket socket = new Socket("www.cnnic.net.cn", 80)){
+			InetAddress address = socket.getLocalAddress();
+			Set<NetworkInterface> nics = NetworkUtil.getPhysicalNICs();
+			for(NetworkInterface nic:nics){
+				logger.info("{}",nic);
+
+			}
+			NetworkInterface curaddress = NetworkInterface.getByInetAddress(address);
+			logger.info("current nic:{}",curaddress);
+			logger.info("mac={}",NetworkUtil.formatMac(curaddress.getHardwareAddress(),":"));
+			logger.info("ip={}",NetworkUtil.formatIp(address.getAddress()));
 		}
-		NetworkInterface curaddress = NetworkInterface.getByInetAddress(address);
-		logger.info("current nic:{}",curaddress);
-		logger.info("mac={}",NetworkUtil.formatMac(curaddress.getHardwareAddress(),":"));
-		logger.info("ip={}",NetworkUtil.formatIp(address.getAddress()));
 		
 	}
 	@Test

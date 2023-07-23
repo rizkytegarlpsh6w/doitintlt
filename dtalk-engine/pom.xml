@@ -43,7 +43,7 @@
 		    <groupId>org.nanohttpd</groupId>
 		    <artifactId>nanohttpd-websocket</artifactId>
 		    <version>${nanohttpd.version}</version>
-		</dependency>		
+		</dependency>
 	</dependencies>
 	<build>
 		<!-- 编译时用运行时(runtime)前端配置config.js替换开发模式下的同名文件 -->

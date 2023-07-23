@@ -1,4 +1,4 @@
-package gu.dtalk.client;
+package gu.dtalk.cmd;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

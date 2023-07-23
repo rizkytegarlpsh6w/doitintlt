@@ -1,17 +1,18 @@
 package gu.dtalk.client;
 
+import static gu.dtalk.client.SampleConsoleConfig.CONSOLE_CONFIG;
+
 import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 
 import gu.dtalk.ConnectReq;
-import gu.dtalk.exception.DtalkException;
 import gu.dtalk.redis.DefaultCustomRedisConfigProvider;
-import gu.dtalk.redis.RedisConfigType;
 import gu.simplemq.Channel;
-import gu.simplemq.redis.JedisPoolLazy;
+import gu.simplemq.IMessageQueueFactory;
+import gu.simplemq.MessageQueueConfigManagers;
+import gu.simplemq.MessageQueueType;
+import gu.simplemq.exceptions.SmqNotFoundConnectionException;
 import net.gdface.utils.FaceUtilits;
-
-import static gu.dtalk.client.SampleConsoleConfig.*;
 
 /**
  * 简单字符终端实现
@@ -20,8 +21,8 @@ import static gu.dtalk.client.SampleConsoleConfig.*;
  */
 public class SampleConsole extends BaseConsole {
 
-	public SampleConsole(String devmac, RedisConfigType config) {
-		super(devmac, config);
+	public SampleConsole(String devmac, IMessageQueueFactory factory) throws SmqNotFoundConnectionException {
+		super(devmac, factory);
 	}
 	/**
 	 * 使用密码验证连接合法性<br>
@@ -46,30 +47,33 @@ public class SampleConsole extends BaseConsole {
 			}
 			return false;
 		}
-
 	public static void main(String []args){
 		CONSOLE_CONFIG.parseCommandLine(args);
-		DefaultCustomRedisConfigProvider.initredisParameters(CONSOLE_CONFIG.getRedisParameters());
-		System.out.println("Text terminal for Device Talk is starting(设备交互字符终端启动)");
+		MessageQueueType implType = CONSOLE_CONFIG.getImplType();
+		switch (implType) {
+		case REDIS:
+			DefaultCustomRedisConfigProvider.initredisParameters(CONSOLE_CONFIG.getRedisParameters());
+			break;
+		default:
+			throw new UnsupportedOperationException("UNSUPPORTED Message queue type:" + implType);
+		}
 		String devmac = CONSOLE_CONFIG.getMac();
+		boolean trace = CONSOLE_CONFIG.isTrace();
+		System.out.printf("Text terminal for Redis %s Talk is starting(设备(%s)交互字符终端启动)\n",implType.name(),implType.name());
 		// 否则提示输入命令行参数
 		if(Strings.isNullOrEmpty(devmac)){
 			devmac = inputMac();
 		}
-		RedisConfigType config;
 		try {
-			config = RedisConfigType.lookupRedisConnect();
-		} catch (DtalkException e) {
-			System.out.println(e.getMessage());
-			return;
-		}
-		logger.info("use config={}",config.toString());
-		// 创建redis连接实例
-		JedisPoolLazy.createDefaultInstance( config.readRedisParam() );
-
-		SampleConsole client = new SampleConsole(devmac, config);
-		client.setStackTrace(CONSOLE_CONFIG.isTrace()).start();
-
+			SampleConsole client = 
+					BaseConsole.makeConsole(SampleConsole.class, devmac, MessageQueueConfigManagers.getManager(implType));
+			client.setStackTrace(trace).start();
+		} catch (SmqNotFoundConnectionException e) {
+			if(trace){
+				logger.error(e.getMessage(),e);	
+			}else{
+				System.out.println(e.getMessage());
+			}
+		}	
 	}
-
 }

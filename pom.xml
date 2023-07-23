@@ -18,9 +18,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
-		<common-java.version>1.1.42</common-java.version>
+		<common-java.version>1.1.48</common-java.version>
 		<simplemq.version>1.0.24-SNAPSHOT</simplemq.version>
 		<nanohttpd.version>2.3.1</nanohttpd.version>
+		<jedis.version>2.8.2</jedis.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -161,6 +162,7 @@
 	</build>
 	<modules>
 		<module>dtalk-base</module>
+		<module>dtalk-common-redis</module>
 		<module>dtalk-engine</module>
 		<module>dtalk-demo</module>
 		<module>dtalk-client</module>

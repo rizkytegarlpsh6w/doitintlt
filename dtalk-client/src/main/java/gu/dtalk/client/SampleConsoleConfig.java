@@ -5,12 +5,14 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
 import gu.dtalk.OptionType;
 import gu.simplemq.redis.JedisPoolLazy.PropName;
+import gu.simplemq.MessageQueueType;
 import gu.simplemq.redis.JedisUtils;
 import net.gdface.cli.BaseAppConfig;
 import static redis.clients.jedis.Protocol.*;
@@ -19,6 +21,7 @@ import java.net.URI;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.*;
+
 /**
  * 终端命令行配置参数
  * @author guyadong
@@ -31,6 +34,7 @@ public class SampleConsoleConfig extends BaseAppConfig implements SampleConsoleC
 	private String password;
 	private String mac;
 	private boolean trace;
+	private MessageQueueType implType;
 	public SampleConsoleConfig() {
 		options.addOption(Option.builder().longOpt(REDIS_HOST_OPTION_LONG)
 				.desc(REDIS_HOST_OPTION_DESC + DEFAULT_HOST).numberOfArgs(1).build());
@@ -58,6 +62,9 @@ public class SampleConsoleConfig extends BaseAppConfig implements SampleConsoleC
 
 		options.addOption(Option.builder().longOpt(CONNEC_PWD_OPTION_LONG)
 				.desc(CONNEC_PWD_OPTION_DESC ).numberOfArgs(1).build());
+		
+		options.addOption(Option.builder().longOpt(MQ_TYPE_OPTION_LONG)
+				.desc(MQ_TYPE_OPTION_DESC + Joiner.on(",").join(MessageQueueType.values())).required().numberOfArgs(1).build());
 		
 		defaultValue.setProperty(REDIS_HOST_OPTION_LONG, null);
 		defaultValue.setProperty(REDIS_PORT_OPTION_LONG, redisParameters.get(PropName.port));
@@ -93,7 +100,13 @@ public class SampleConsoleConfig extends BaseAppConfig implements SampleConsoleC
 			this.mac = this.mac.replaceAll("[:-]", "");
 		}
 		this.trace = getProperty(TRACE_OPTION_LONG);
-		
+		try {
+			this.implType = MessageQueueType.valueOf((String)getProperty(MQ_TYPE_OPTION_LONG));
+		} catch (IllegalArgumentException e) {
+			throw new ParseException(e.getMessage());
+		} catch (NullPointerException e) {
+			throw new ParseException("miss option:" + MQ_TYPE_OPTION_LONG);
+		}
 	}
 	/**
 	 * @return redisParameters
@@ -115,6 +128,12 @@ public class SampleConsoleConfig extends BaseAppConfig implements SampleConsoleC
 	 */
 	public boolean isTrace() {
 		return trace;
+	}
+	/**
+	 * @return 返回消息系统类型
+	 */
+	public MessageQueueType getImplType() {
+		return implType;
 	}
 	@Override
 	protected String getAppName() {

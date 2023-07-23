@@ -44,7 +44,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.gitee.l0km</groupId>
-			<artifactId>simplemq-redis</artifactId>
+			<artifactId>simplemq-base</artifactId>
 			<version>${simplemq.version}</version>
 		</dependency>
 		<dependency>

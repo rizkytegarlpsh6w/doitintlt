@@ -1,7 +1,5 @@
 package gu.dtalk;
 
-import redis.clients.jedis.Protocol;
-
 /**
  * dtalk共用常量
  * @author guyadong
@@ -19,8 +17,8 @@ public class CommonConstant {
 
 	public static final int DEFAULT_HTTP_PORT=8181;
 
-	public static final String REDIS_HOST=Protocol.DEFAULT_HOST;
-	public static final int REDIS_PORT = Protocol.DEFAULT_PORT;
+	public static final String REDIS_HOST="localhost";  /* redis.clients.jedis.Protocol.DEFAULT_HOST */
+	public static final int REDIS_PORT = 6379; /* redis.clients.jedis.Protocol.DEFAULT_PORT */
 	public static final String REDIS_PASSWORD = "";
 	/** ISO8601时间格式 */
     public static final String ISO8601_FORMATTER_STR = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";

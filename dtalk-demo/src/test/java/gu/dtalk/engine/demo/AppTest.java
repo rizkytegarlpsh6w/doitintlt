@@ -1,6 +1,4 @@
-package gu.dtalk.engine;
-
-import static org.junit.Assert.*;
+package gu.dtalk.engine.demo;
 
 import org.junit.Test;
 import org.slf4j.Logger;

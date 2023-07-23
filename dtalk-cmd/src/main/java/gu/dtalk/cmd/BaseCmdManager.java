@@ -1,4 +1,4 @@
-package gu.dtalk.client;
+package gu.dtalk.cmd;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -13,9 +13,6 @@ import gu.simplemq.Channel;
 import gu.simplemq.IPublisher;
 import gu.simplemq.IUnregistedListener;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
-import gu.simplemq.redis.JedisPoolLazy;
-import gu.simplemq.redis.RedisFactory;
-
 import static com.google.common.base.Preconditions.*;
 
 import java.util.Collections;
@@ -52,12 +49,10 @@ public abstract class BaseCmdManager {
 	protected final IPublisher publisher;
     private Supplier<Integer> cmdSnSupplier;
     private Supplier<String> ackChannelSupplier = Suppliers.ofInstance(null);
-	public BaseCmdManager(JedisPoolLazy poolLazy) {
-		checkArgument(poolLazy != null,"poolLazy is null");
-        this.publisher = RedisFactory.getPublisher(poolLazy);
-        this.subscriber = RedisFactory.getSubscriber(poolLazy);
+	protected BaseCmdManager(IPublisher publisher,ISubscriber subscriber) {
+        this.publisher = checkNotNull(publisher,"publisher is null");
+        this.subscriber = checkNotNull(subscriber,"subscriber is null");
 	}
-
     /**
      * 执行数据发送<br>
      * @param cmd 设备命令

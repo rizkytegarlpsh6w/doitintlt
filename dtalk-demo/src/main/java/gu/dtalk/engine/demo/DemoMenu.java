@@ -12,13 +12,10 @@ import gu.dtalk.RootMenu;
 import gu.dtalk.StringOption;
 import gu.dtalk.SwitchOption;
 import gu.dtalk.event.ValueListener;
-import gu.dtalk.redis.RedisConfigType;
-import gu.simplemq.redis.JedisPoolLazy.PropName;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 import gu.dtalk.BoolOption;
 import gu.dtalk.CheckOption;
@@ -27,15 +24,17 @@ import gu.dtalk.DateOption;
 import gu.dtalk.IPv4Option;
 
 import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static gu.simplemq.IMessageQueueFactory.*;
 
 public class DemoMenu extends RootMenu{
-	private final Map<PropName, Object> redisparam;
+	private final Map<String, Object> messageQueueParam;
 	
 	public DemoMenu() {
 		this(null);
 	}
-	public DemoMenu(RedisConfigType configType) {
-		redisparam = null != configType ? configType.readRedisParam() : Maps.<PropName, Object>newHashMap();
+	public DemoMenu(Map<String, Object> messageQueueParam) {
+		this.messageQueueParam = firstNonNull(messageQueueParam, Collections.<String, Object>emptyMap());
 	}
 	public DemoMenu init(){
 		byte[] mac = DEVINFO_PROVIDER.getMac();
@@ -55,13 +54,12 @@ public class DemoMenu extends RootMenu{
 				.instance();
 		MenuItem redis = 
 			ItemBuilder.builder(MenuItem.class)
-				.name("redis")
-				.uiName("REDIS 服务器")
+				.name("mq")
+				.uiName("Message Queue 服务器")
 				.addChilds(
-						ItemBuilder.builder(StringOption.class).name("host").uiName("主机名称").instance().setValue((String) redisparam.get(PropName.host)),
-						ItemBuilder.builder(IntOption.class).name("port").uiName("端口号").instance().setValue((Integer) redisparam.get(PropName.port)),
-						ItemBuilder.builder(IntOption.class).name("db").uiName("数据库").instance().setValue(0),
-						ItemBuilder.builder(PasswordOption.class).name("password").uiName("连接密码").instance().setValue((String) redisparam.get(PropName.password)))
+						ItemBuilder.builder(StringOption.class).name("host").uiName("主机名称").instance().setValue((String) messageQueueParam.get(MQ_HOST)),
+						ItemBuilder.builder(IntOption.class).name("port").uiName("端口号").instance().setValue((Integer) messageQueueParam.get(MQ_PORT)),
+						ItemBuilder.builder(PasswordOption.class).name("password").uiName("连接密码").instance().setValue((String) messageQueueParam.get(MQ_PASSWORD)))
 				.instance();
 		MenuItem test = 
 			ItemBuilder.builder(MenuItem.class)

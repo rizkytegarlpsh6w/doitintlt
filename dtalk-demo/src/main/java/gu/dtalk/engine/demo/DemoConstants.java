@@ -28,10 +28,13 @@ public interface DemoConstants extends CommonCliConstants {
 	
 	public static final String HTTP_PORT_OPTION_LONG = "port";
 	public static final String HTTP_PORT_OPTION_DESC = "http port number,default:";
-	public static final String HTTP_TIMEOUT_OPTION_LONG = "timout";
+	public static final String HTTP_TIMEOUT_OPTION_LONG = "timeout";
 	public static final String HTTP_TIMEOUT_OPTION_DESC = "http timeout,default:";
 	public static final String HTTP_NOAUTH_OPTION_LONG = "noauth";
 	public static final String HTTP_NOAUTH_OPTION_DESC = "skip authorization session,default:false";
 	public static final String HTTP_NOCORS_OPTION_LONG = "nocors";
 	public static final String HTTP_NOCORS_OPTION_DESC = "no support Cross-Origin Resource Sharing(CORS),default:false";
+	
+	public static final String MQ_TYPE_OPTION_LONG = "type";
+	public static final String MQ_TYPE_OPTION_DESC = "type of message queue,values:";
 }

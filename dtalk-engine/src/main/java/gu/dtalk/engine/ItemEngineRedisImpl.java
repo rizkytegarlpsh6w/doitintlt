@@ -5,13 +5,11 @@ import gu.dtalk.MenuItem;
 import gu.simplemq.Channel;
 import gu.simplemq.IPublisher;
 import gu.simplemq.json.JSONObjectDecorator;
-import gu.simplemq.redis.JedisPoolLazy;
-import gu.simplemq.redis.RedisFactory;
-
 import static gu.dtalk.CommonConstant.*;
+import static com.google.common.base.Preconditions.*;
 
 /**
- * 消息驱动的菜单引擎redis实现<br>
+ * 消息驱动的菜单引擎实现<br>
  * @author guyadong
  *
  */
@@ -22,10 +20,10 @@ public class ItemEngineRedisImpl extends BaseItemEngine implements ItemAdapter{
 	
 	private DtalkListener listener;
 	private static final ThreadLocal<String> ackChannelName = new  ThreadLocal<String>();
-	public ItemEngineRedisImpl(JedisPoolLazy pool) {
-		publisher = RedisFactory.getPublisher(pool);
-	}
 
+	public ItemEngineRedisImpl(IPublisher publisher) {
+		this.publisher = checkNotNull(publisher,"publisher is null");
+	}
 	@Override
 	public void setAckChannel(String name){
 		ackChannel = new Channel<Ack<Object>>(name,Ack.class);

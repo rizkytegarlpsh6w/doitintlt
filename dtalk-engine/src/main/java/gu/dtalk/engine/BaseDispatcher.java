@@ -25,11 +25,9 @@ import gu.dtalk.DeviceInstruction;
 import gu.simplemq.Channel;
 import gu.simplemq.IMessageAdapter;
 import gu.simplemq.IPublisher;
-import gu.simplemq.redis.JedisPoolLazy;
-import gu.simplemq.redis.RedisFactory;
 
 /**
- * 设备命令分发器,实现{@link IMessageAdapter}接口,将redis操作与业务逻辑隔离<br>
+ * 设备命令分发器,实现{@link IMessageAdapter}接口,将消息队列操作与业务逻辑隔离<br>
  * 从设备命令频道或任务队列得到设备指令{@link DeviceInstruction},并将交给{@link ItemAdapter}执行<br>
  * 收到的设备命令将按收到命令的顺序在线程池中顺序执行
  * @author guyadong
@@ -60,23 +58,15 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 	 * 构造方法<br>
 	 * @param deviceId 当前设备ID,应用项目应确保ID是有效的
 	 * @param reqType 设备命令请求类型
-	 * @param jedisPoolLazy  连接池对象
+	 * @param publisher  消息发布实例
 	 */
-	protected BaseDispatcher(int deviceId, ReqCmdType reqType, JedisPoolLazy jedisPoolLazy) {	
+	protected BaseDispatcher(int deviceId, ReqCmdType reqType, IPublisher publisher) {	
 		checkArgument(reqType == ReqCmdType.MULTI  || reqType == ReqCmdType.TASKQUEUE,
 				"INVALID reqType,required %s or %s",ReqCmdType.MULTI,ReqCmdType.TASKQUEUE);
 		this.deviceId= deviceId;
 		this.reqType = reqType;
-		this.publisher = RedisFactory.getPublisher(checkNotNull(jedisPoolLazy,"jedisPoolLazy is null"));
+		this.publisher = checkNotNull(publisher,"publisher is null");
 		
-	}
-	/**
-	 * 构造方法<br>
-	 * @param deviceId 当前设备ID,应用项目应确保ID是有效的
-	 * @param reqType 设备命令请求类型
-	 */
-	protected BaseDispatcher(int deviceId, ReqCmdType reqType){
-		this(deviceId, reqType, JedisPoolLazy.getDefaultInstance());
 	}
 
 	/**

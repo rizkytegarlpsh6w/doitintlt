@@ -18,7 +18,7 @@ public interface SampleConsoleConstants extends CommonCliConstants {
 	public static final String REDIS_DB_OPTION_DESC = "redis database index,default:0";
 	public static final String REDIS_URI_OPTION_LONG = "uri";
 	public static final String REDIS_URI_OPTION_DESC = "uri for redis,default:null";
-	public static final String REDIS_TIMEOUT_OPTION_LONG = "timout";
+	public static final String REDIS_TIMEOUT_OPTION_LONG = "timeout";
 	public static final String REDIS_TIMEOUT_OPTION_DESC = "redis timeout,default:";
 	public static final String CONNEC_PWD_OPTION_LONG = "pwd";
 	public static final String CONNEC_PWD_OPTION_DESC = "password ,default: ";
@@ -27,4 +27,8 @@ public interface SampleConsoleConstants extends CommonCliConstants {
 	public static final String TRACE_OPTION = "X";
 	public static final String TRACE_OPTION_LONG = "trace";
 	public static final String TRACE_OPTION_DESC = "show stack trace on error ,default: false";
+	
+	public static final String MQ_TYPE_OPTION_LONG = "type'";
+	public static final String MQ_TYPE_OPTION_DESC = "type of message queue,values:";
+
 }

@@ -20,8 +20,6 @@ import gu.simplemq.IPublisher;
 import gu.simplemq.IUnregistedListener;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
 import gu.simplemq.json.BaseJsonEncoder;
-import gu.simplemq.redis.JedisPoolLazy;
-import gu.simplemq.redis.RedisFactory;
 import net.gdface.utils.FaceUtilits;
 import static gu.dtalk.CommonConstant.*;
 import static com.google.common.base.Preconditions.*;
@@ -68,6 +66,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 		}
 	};
 	private final IPublisher ackPublisher;
+	private final ISubscriber subscriber;
 	/**
 	 * 当前连接的CLIENT端的请求频道
 	 */
@@ -75,24 +74,23 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	private long idleTimeLimit = DEFAULT_IDLE_TIME_MILLS;
 	private long timerPeriod = 2000;
 	private ItemAdapter itemAdapter;
-	private final ISubscriber subscriber;
 	private RequestValidator requestValidator;
-	public SampleConnector(JedisPoolLazy pool) {
-		ackPublisher = RedisFactory.getPublisher(pool);
-		subscriber = RedisFactory.getSubscriber(pool);
-		requestValidator = this;
+	public SampleConnector(IPublisher publisher,ISubscriber subscriber) {
+		this.ackPublisher = checkNotNull(publisher,"publisher is null");
+		this.subscriber = checkNotNull(subscriber,"subscriber is null");
+		this.requestValidator = this;
 		// 定时检查itemAdapter工作状态，当itemAdapter 空闲超时，则中止频道
 		getTimer().schedule(new TimerTask() {
 			
 			@Override
 			public void run() {
 				try{
-					Channel<?> c = subscriber.getChannel(requestChannel);
+					Channel<?> c = SampleConnector.this.subscriber.getChannel(requestChannel);
 					if(null != c){
 						ItemAdapter adapter = (ItemAdapter) c.getAdapter();
 						long lasthit = adapter.lastHitTime();
 						if(System.currentTimeMillis() - lasthit > idleTimeLimit){
-							subscriber.unregister(requestChannel);
+							SampleConnector.this.subscriber.unregister(requestChannel);
 							requestChannel = null;
 						}
 					}
