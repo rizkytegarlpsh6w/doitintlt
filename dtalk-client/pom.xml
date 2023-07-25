@@ -71,7 +71,7 @@
 					<shadedArtifactAttached>true</shadedArtifactAttached>
 					<minimizeJar>false</minimizeJar>
 					<!-- 生成依赖包的源码jar包 -->
-					<createSourcesJar>true</createSourcesJar>
+					<createSourcesJar>false</createSourcesJar>
 					<shadedClassifierName>standalone</shadedClassifierName>
 				</configuration>
 				<executions>

@@ -3,8 +3,6 @@ package gu.dtalk.engine.demo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,16 +43,15 @@ public class Demo {
 	private final byte[] devMac;
 	public Demo(IMessageQueueConfigManager manager) throws SmqNotFoundConnectionException {
 		// 创建消息系统连接实例
-		IMQConnParameterSupplier config = checkNotNull(manager,"manager is null").lookupMessageQueueConnect();
+		IMQConnParameterSupplier config = checkNotNull(manager,"manager is null").lookupMessageQueueConnect(null);
 		IMessageQueueFactory factory = MessageQueueFactorys.getFactory(config.getImplType())
 				.init(config.getMQConnParameters())
 				.asDefaultFactory();
 		logger.info("use config={}",config);
 
-		Map<String, Object> mqConnParameters = checkNotNull(factory,"factory is null").getMQConnParameters();
 		subscriber = factory.getSubscriber();	
 		IPublisher publisher = factory.getPublisher();
-		DemoMenu root = new DemoMenu(mqConnParameters).init().register(DemoListener.INSTANCE);
+		DemoMenu root = new DemoMenu(config).init().register(DemoListener.INSTANCE);
 		devMac = DeviceUtils.DEVINFO_PROVIDER.getMac();
 		connAdapter = new SampleConnector(publisher,subscriber)
 				.setSelfMac(FaceUtilits.toHex(devMac))

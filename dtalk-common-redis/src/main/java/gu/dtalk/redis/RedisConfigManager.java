@@ -12,13 +12,13 @@ public class RedisConfigManager implements IMessageQueueConfigManager {
 	}
 
 	@Override
-	public RedisConfigType lookupMessageQueueConnect() throws SmqNotFoundConnectionException{
-		return lookupRedisConnect();
+	public RedisConfigType lookupMessageQueueConnect(Integer timeoutMills) throws SmqNotFoundConnectionException{
+		return lookupConnect(timeoutMills);
 	}
 
 	@Override
-	public RedisConfigType lookupRedisConnectUnchecked() {
-		return lookupRedisConnectUnchecked();
+	public RedisConfigType lookupMessageQueueConnectUnchecked(Integer timeoutMills) {
+		return lookupConnectUnchecked(timeoutMills);
 	}
 	
 	@Override

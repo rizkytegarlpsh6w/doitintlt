@@ -1,4 +1,4 @@
-package gu.dtalk;
+package gu.dtalk.activemq;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

@@ -1,0 +1,61 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.gitee.l0km</groupId>
+		<artifactId>dtalk</artifactId>
+		<version>0.3.5-SNAPSHOT</version>
+	</parent>
+	<artifactId>dtalk-common-activemq</artifactId>
+	<packaging>jar</packaging>
+
+	<name>dtalk-common-activemq</name>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>simplemq-activemq</artifactId>
+			<version>${simplemq.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>common-base2</artifactId>
+			<version>${common-java.version}</version>
+		</dependency>
+		<!-- DefaultLocalActivemqConfigProvider中调用了 JcifsUtil 类需要依赖此包 -->
+		<!-- https://mvnrepository.com/artifact/eu.agno3.jcifs/jcifs-ng -->
+		<dependency>
+		    <groupId>eu.agno3.jcifs</groupId>
+		    <artifactId>jcifs-ng</artifactId>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<!-- 跳过测试 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>

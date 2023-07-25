@@ -12,10 +12,10 @@ import gu.dtalk.RootMenu;
 import gu.dtalk.StringOption;
 import gu.dtalk.SwitchOption;
 import gu.dtalk.event.ValueListener;
+import gu.simplemq.IMQConnParameterSupplier;
 
-import java.util.Collections;
 import java.util.Date;
-import java.util.Map;
+import com.google.common.net.HostAndPort;
 
 import gu.dtalk.BoolOption;
 import gu.dtalk.CheckOption;
@@ -24,17 +24,17 @@ import gu.dtalk.DateOption;
 import gu.dtalk.IPv4Option;
 
 import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.base.Preconditions.*;
 import static gu.simplemq.IMessageQueueFactory.*;
 
 public class DemoMenu extends RootMenu{
-	private final Map<String, Object> messageQueueParam;
+	private final IMQConnParameterSupplier paramSupplier;
 	
 	public DemoMenu() {
 		this(null);
 	}
-	public DemoMenu(Map<String, Object> messageQueueParam) {
-		this.messageQueueParam = firstNonNull(messageQueueParam, Collections.<String, Object>emptyMap());
+	public DemoMenu(IMQConnParameterSupplier config) {
+		this.paramSupplier = checkNotNull(config,"config is null");
 	}
 	public DemoMenu init(){
 		byte[] mac = DEVINFO_PROVIDER.getMac();
@@ -52,15 +52,39 @@ public class DemoMenu extends RootMenu{
 						ItemBuilder.builder(PasswordOption.class).name("password").uiName("连接密码").instance().setValue(DEVINFO_PROVIDER.getPassword()),
 						ItemBuilder.builder(StringOption.class).name("version").uiName("版本号").instance().setReadOnly(true).setValue("unknow"))
 				.instance();
-		MenuItem redis = 
-			ItemBuilder.builder(MenuItem.class)
-				.name("mq")
-				.uiName("Message Queue 服务器")
-				.addChilds(
-						ItemBuilder.builder(StringOption.class).name("host").uiName("主机名称").instance().setValue((String) messageQueueParam.get(MQ_HOST)),
-						ItemBuilder.builder(IntOption.class).name("port").uiName("端口号").instance().setValue((Integer) messageQueueParam.get(MQ_PORT)),
-						ItemBuilder.builder(PasswordOption.class).name("password").uiName("连接密码").instance().setValue((String) messageQueueParam.get(MQ_PASSWORD)))
-				.instance();
+		MenuItem mq;
+		switch (paramSupplier.getImplType()) {
+		case REDIS:
+		{
+			HostAndPort hostAndPort = paramSupplier.getHostAndPort();
+			mq = ItemBuilder.builder(MenuItem.class)
+					.name("mq")
+					.uiName("Message Queue 服务器")
+					.addChilds(
+							ItemBuilder.builder(StringOption.class).name("type").uiName("消息系统类型").instance().setValue(paramSupplier.getImplType().name()),
+							ItemBuilder.builder(StringOption.class).name("host").uiName("主机名称").instance().setValue(hostAndPort.getHost()),
+							ItemBuilder.builder(IntOption.class).name("port").uiName("端口号").instance().setValue(hostAndPort.getPort()),
+							ItemBuilder.builder(PasswordOption.class).name("password").uiName("连接密码").instance().setValue((String) paramSupplier.getMQConnParameters().get(MQ_PASSWORD)))
+					.instance();
+			break;
+		}
+		case ACTIVEMQ:
+		{
+			HostAndPort hostAndPort = paramSupplier.getHostAndPort();
+			mq = ItemBuilder.builder(MenuItem.class)
+					.name("mq")
+					.uiName("Message Queue 服务器")
+					.addChilds(
+							ItemBuilder.builder(StringOption.class).name("type").uiName("消息系统类型").instance().setValue(paramSupplier.getImplType().name()),
+							ItemBuilder.builder(StringOption.class).name("host").uiName("主机名称").instance().setValue(hostAndPort.getHost()),
+							ItemBuilder.builder(IntOption.class).name("port").uiName("端口号").instance().setValue(hostAndPort.getPort()))
+					.instance();
+			break;
+		}
+		default:
+			throw new IllegalArgumentException("UNSUPPORTED message queue " + paramSupplier.getImplType());
+		}
+			
 		MenuItem test = 
 			ItemBuilder.builder(MenuItem.class)
 				.name("test")
@@ -92,7 +116,7 @@ public class DemoMenu extends RootMenu{
 						OptionType.IMAGE.builder().name("image").uiName("图像测试").instance()							
 						)
 				.instance();
-		addChilds(device,redis,test);
+		addChilds(device,mq,test);
 		
 		return this;
 	}

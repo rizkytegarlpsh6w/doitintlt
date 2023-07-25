@@ -437,7 +437,7 @@ public abstract class BaseConsole {
 	 */
 	public static <T extends BaseConsole> T 
 	makeConsole(Class<T> targetClass,String devmac,IMessageQueueConfigManager manager) throws SmqNotFoundConnectionException{
-		IMQConnParameterSupplier config = checkNotNull(manager,"manager is null").lookupMessageQueueConnect();
+		IMQConnParameterSupplier config = checkNotNull(manager,"manager is null").lookupMessageQueueConnect(null);
 
 		logger.info("use config={}",config);
 		// 创建消息系统连接实例

@@ -10,8 +10,9 @@ import net.gdface.utils.JcifsUtil;
  *
  */
 public class DefaultLocalRedisConfigProvider implements RedisConfigProvider {
-
 	private static String landtalkhost = "landtalkhost";
+	
+	private volatile String host;
 	/**
 	 * 返回局域网redis主机名
 	 * @return landtalkhost
@@ -30,11 +31,19 @@ public class DefaultLocalRedisConfigProvider implements RedisConfigProvider {
 
 	@Override
 	public String getHost() {
-		try {
-			return JcifsUtil.hostAddressOf(landtalkhost);
-		} catch (UnknownHostException e) {
+		if(host == null){
+			synchronized (DefaultLocalRedisConfigProvider.class) {
+				if(host == null){
+						// 如果是主机名则解析为IP地址 
+						try {
+							host = JcifsUtil.hostAddressOf(landtalkhost);
+						} catch (UnknownHostException e) {
+							host = landtalkhost;
+						}		
+				}
+			}
 		}
-		return landtalkhost;
+		return host;
 	}
 
 	@Override
@@ -90,7 +99,7 @@ public class DefaultLocalRedisConfigProvider implements RedisConfigProvider {
 
 	@Override
 	public final RedisConfigType type() {
-		return RedisConfigType.LOCALHOST;
+		return RedisConfigType.LAN;
 	}
 
 }

@@ -163,6 +163,7 @@
 	<modules>
 		<module>dtalk-base</module>
 		<module>dtalk-common-redis</module>
+		<module>dtalk-common-activemq</module>
 		<module>dtalk-engine</module>
 		<module>dtalk-demo</module>
 		<module>dtalk-client</module>

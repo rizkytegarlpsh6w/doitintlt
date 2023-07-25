@@ -25,7 +25,7 @@ import gu.simplemq.redis.JedisUtils;
  * @author guyadong
  *
  */
-public enum RedisConfigType  implements IMQConnParameterSupplier{
+public enum RedisConfigType implements IMQConnParameterSupplier{
 	/** 自定义配置 */CUSTOM(new DefaultCustomRedisConfigProvider())
 	/** 局域网配置 */,LAN(new DefaultLocalRedisConfigProvider())
 	/** 公有云配置 */,CLOUD(new DefaultCloudRedisConfigProvider())
@@ -57,7 +57,7 @@ public enum RedisConfigType  implements IMQConnParameterSupplier{
 	 * 没找到则用默认{@link #defImpl}实例代替
 	 * @return
 	 */
-	private RedisConfigProvider findRedisConfigProvider(){
+	private RedisConfigProvider findConfigProvider(){
 		// double checking
 		if(instance == null){
 			synchronized (this) {
@@ -120,7 +120,7 @@ public enum RedisConfigType  implements IMQConnParameterSupplier{
 	}
 	/**
 	 * 根据SPI加载的{@link RedisConfigProvider}实例提供的参数创建Redis连接参数<br>
-	 * 如果{@link #findRedisConfigProvider()}返回{@code null}则返回{@code null}
+	 * 如果{@link #findConfigProvider()}返回{@code null}则返回{@code null}
 	 * @return Redis连接参数
 	 */
 	public Map<PropName, Object> readRedisParam(){
@@ -128,7 +128,7 @@ public enum RedisConfigType  implements IMQConnParameterSupplier{
 		if(parameters == null){
 			synchronized (this) {
 				if(parameters == null){
-					RedisConfigProvider config = findRedisConfigProvider();		
+					RedisConfigProvider config = findConfigProvider();		
 					parameters = asRedisParameters(config);
 				}
 			}
@@ -141,7 +141,7 @@ public enum RedisConfigType  implements IMQConnParameterSupplier{
 		return JedisUtils.asMqParameters(readRedisParam());
 	}
 	@Override
-	public MessageQueueType getImplType() {
+	public final MessageQueueType getImplType() {
 		return MessageQueueType.REDIS;
 	}
 	/**
@@ -149,7 +149,7 @@ public enum RedisConfigType  implements IMQConnParameterSupplier{
 	 * @param param redis参数
 	 */
 	public synchronized void saveRedisParam(Map<PropName, Object> param){
-		RedisConfigProvider config = findRedisConfigProvider();
+		RedisConfigProvider config = findConfigProvider();
 		Object host = param.get(PropName.host);
 		if(host instanceof String){
 			config.setHost((String) host);
@@ -181,23 +181,29 @@ public enum RedisConfigType  implements IMQConnParameterSupplier{
 	private static volatile RedisConfigType activeConfigType = null;
 	/**
 	 * 复位{@link #activeConfigType}为{@code null}<br>
-	 * 为避免{@link #lookupRedisConnect()}方法被多次执行，
+	 * 为避免{@link #lookupConnect(Long)}方法被多次执行，
 	 * 当{@link #activeConfigType}不为{@code null}时直接返回{@link #activeConfigType}的值，
-	 * 如果希望再次执行{@link #lookupRedisConnect()}方法，可先调用此方法设置{@link #activeConfigType}为{@code null}
+	 * 如果希望再次执行{@link #lookupConnect(Long)}方法，可先调用此方法设置{@link #activeConfigType}为{@code null}
 	 */
 	public static void resetActiveConfigType(){
 		activeConfigType = null;
 	}
 	/**
 	 * 测试redis连接
+	 * @param timeoutMills 连接超时(毫秒),为{@code null}或小于等于0使用默认值
 	 * @return 连接成功返回{@code true},否则返回{@code false}
 	 */
-	public synchronized boolean testConnect(){
+	public synchronized boolean testConnect(Integer timeoutMills){
 		Map<PropName, Object> props = readRedisParam();
 		connectable = false;
 		if(props != null && !props.isEmpty()){
 //			System.out.printf("try to connect %s...\n", this);
 			try{
+				if(timeoutMills != null && timeoutMills > 0){
+					props = ImmutableMap.<PropName, Object>builder()
+							.putAll(props).put(PropName.timeout, timeoutMills)
+							.build();
+				}
 				connectable = JedisUtils.testConnect(props);
 			}catch (Exception e) {
 			}
@@ -217,10 +223,11 @@ public enum RedisConfigType  implements IMQConnParameterSupplier{
 	 * <li>{@link RedisConfigType#CLOUD}</li>
 	 * <li>{@link RedisConfigType#LOCALHOST}</li>
 	 * </ul>
+	 * @param timeoutMills 连接超时(毫秒),为{@code null}或小于等于0使用默认值
 	 * @return {@link #activeConfigType}不为{@code null}时直接返回{@link #activeConfigType}的值
 	 * @throws SmqNotFoundConnectionException 没有找到有效redis连接
 	 */
-	public static RedisConfigType lookupRedisConnect() throws SmqNotFoundConnectionException{
+	public static RedisConfigType lookupConnect(final Integer timeoutMills) throws SmqNotFoundConnectionException{
 		if(activeConfigType == null){
 			synchronized(RedisConfigType.class){
 				if(activeConfigType == null){
@@ -232,7 +239,7 @@ public enum RedisConfigType  implements IMQConnParameterSupplier{
 
 							@Override
 							public void run() {
-								type.testConnect();
+								type.testConnect(timeoutMills);
 							}
 
 						};
@@ -260,12 +267,13 @@ public enum RedisConfigType  implements IMQConnParameterSupplier{
 	}
 
 	/**
-	 * 与{@link #lookupRedisConnect()}功能相似,不同的时当没有找到有效redis连接时,不抛出异常,返回{@code null}
+	 * 与{@link #lookupConnect(Long)}功能相似,不同的时当没有找到有效redis连接时,不抛出异常,返回{@code null}
+	 * @param timeoutMills 连接超时(毫秒),为{@code null}或小于等于0使用默认值
 	 * @return 返回第一个能建立有效连接的配置,否则返回{@code null}
 	 */
-	public static RedisConfigType lookupRedisConnectUnchecked() {
+	public static RedisConfigType lookupConnectUnchecked(Integer timeoutMills) {
 		try {
-			return lookupRedisConnect();
+			return lookupConnect(timeoutMills);
 		} catch (SmqNotFoundConnectionException e) {
 			return null;
 		}
@@ -273,6 +281,7 @@ public enum RedisConfigType  implements IMQConnParameterSupplier{
 	@Override
 	public	String toString(){
 		StringBuffer buffer = new StringBuffer();
+		buffer.append(getClass().getSimpleName()).append(":");
 		buffer.append(name());
 		Map<PropName, Object> param = readRedisParam();
 		if(param==null){
