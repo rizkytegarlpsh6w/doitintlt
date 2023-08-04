@@ -131,7 +131,7 @@ public class CheckOption<E> extends BaseOption<Set<Integer>> {
 	}
 
 	@Override
-	public List<Set<Integer>> getAvaiable() {
+	public List<Set<Integer>> getAvailable() {
 		return Collections.emptyList();
 	}
 }

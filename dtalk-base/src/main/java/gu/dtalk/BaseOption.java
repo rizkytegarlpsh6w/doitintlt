@@ -338,7 +338,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	/**
 	 * @return 返回所有可用的值
 	 */
-	public List<T> getAvaiable() {
+	public List<T> getAvailable() {
 		return Lists.newArrayList(available);
 	}
 
@@ -347,7 +347,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	 * @param available 要设置的 availableValues
 	 * @return 当前对象
 	 */
-	public BaseOption<T> setAvaiable(List<T> available) {
+	public BaseOption<T> setAvailable(List<T> available) {
 		this.available.clear();
 		this.available.addAll(MoreObjects.firstNonNull(available, Collections.<T>emptyList()));
 		return this;

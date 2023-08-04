@@ -59,7 +59,7 @@ public abstract class BaseBinary extends BaseOption<byte[]> {
 	}
 
 	@Override
-	public List<byte[]> getAvaiable() {
+	public List<byte[]> getAvailable() {
 		return Collections.emptyList();
 	}
 }

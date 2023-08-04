@@ -38,7 +38,7 @@ public class DateOption extends BaseOption<Date> {
      * @return 当前对象
      */
     public DateOption setFieldRequire(int fieldRequire){
-    	switch (this.fieldRequire) {
+    	switch (fieldRequire) {
 		case 1:
 		case 2:	
 			this.fieldRequire=fieldRequire;
