@@ -21,7 +21,7 @@ public class CommonConstant {
 	public static final int REDIS_PORT = 6379; /* redis.clients.jedis.Protocol.DEFAULT_PORT */
 	public static final String REDIS_PASSWORD = "";
 	/** ISO8601时间格式 */
-    public static final String ISO8601_FORMATTER_STR = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    public static final String ISO8601_FORMATTER_STR = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
     /** 用于日期时间戳格式转换格式 */
     public static final String TIMESTAMP_FORMATTER_STR = "yyyy-MM-dd HH:mm:ss";
     /** 用于时间戳格式转换格式 */

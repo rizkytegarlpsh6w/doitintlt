@@ -160,6 +160,33 @@ function loadMenu(data){
             data[i].value = tranDate(data[i].value)
         }
 
+        
+
+        var options = [];
+        if (data[i].options) {
+            for (var key in data[i].options) {
+                // 给下拉选择框赋值
+                options.push({ key: key, value: data[i].options[key] })
+            }
+        }
+        
+        
+        if (data[i].value) {
+            // 当类型是SWITCH时，取option值的值为选中的值
+            if (data[i].type == 'SWITCH') {
+                try {
+                    data[i].value = options[(data[i].value)[0]].value;
+                } catch (err) {
+                    data[i].value = options[data[i].value].value;
+                }
+            }
+            // 当类型是MULTICHECK时，取option值的值为选中的值
+            if (data[i].type == 'MULTICHECK') {
+                data[i].value = checkName(data[i].value, options)
+            }
+        }
+
+
         if(!data[i].hide){
             if(data[i].childs.length>0){
                 list.push({
@@ -176,25 +203,10 @@ function loadMenu(data){
                     "regex" : data[i].regex,
                     "state":"closed",
                     "isShow" : false,
+                    "precision": data[i].type == "FLOAT" ? data[i].precision : '',
                 })
             }else{
                 if(data[i].uiName!='quit' && data[i].uiName!='back'){
-                    var options = [];
-                    if(data[i].options){
-                        for(var key in data[i].options){
-                            options.push({key:key,value:data[i].options[key]})
-                        }
-                    }
-                    // 当类型是SWITCH时，取option值的值为选中的值
-                    if(data[i].type == 'SWITCH'){
-                        data[i].value = options[data[i].value].value;
-                    }
-                    // 当类型是MULTICHECK时，取option值的值为选中的值
-                    if(data[i].type == 'MULTICHECK'){
-                        data[i].value = checkName(data[i].value,options)
-                    }
-
-
                     list.push({
                         "id" : num,
                         "name" : (data[i].uiName == null ? data[i].name:data[i].uiName),
@@ -207,6 +219,7 @@ function loadMenu(data){
                         "readOnly" : data[i].readOnly,
                         "regex" : data[i].regex,
                         "isShow" : false,
+                        "precision": data[i].type == "FLOAT" ? data[i].precision : '',
                         "options" : options,
                     })
                 }
@@ -250,6 +263,18 @@ function editBtn(id){
             $('#dateBox').datetimebox({
                 showSeconds: true,
             });
+        }
+
+
+        //FLOAT
+        if (data.type == 'FLOAT') {
+            var html = '<form class="editForm" id="f_' + data.id + '">' +
+                '<input type="text" placeholder="请输入" value="' + data.value + '">' +
+                '<button type="button" onclick="keep(' + id + ')" class="keep">保存</button>' +
+                '<button type="button" onclick="cancel(' + id + ')">取消</button>' +
+                '</form>'
+            // 找到修改按钮的父级标签，然后将标签加入
+            $("#i_" + id).parent().append(html);
         }
 
 
@@ -389,6 +414,33 @@ function keep(id){
                 return false;
             }
         }
+        
+
+        if(data.type == 'FLOAT'){
+            // 判断浮点数
+            let reg = /(^[\-0-9][0-9]*(.[0-9]+)?)$/;
+            if (!reg.test(data.value)) {
+                $.messager.alert('温馨提示', '请输入数字', 'info');
+                data.value = '';
+                return;
+            } else {
+                var xNum = String(data.value).indexOf(".") + 1;
+                var prec = data.precision;
+                //判断输入的值，有小数后有多少位
+                if (xNum > 0) {
+                    var num = data.value.toString().split('.')[1].length;
+                    if (num > prec) {
+                        $.messager.alert('温馨提示', '该数据不应超过' + data.precision + '位的小数', 'info')
+                        data.value = Number(data.value).toFixed(prec + 1).slice(0, -1)
+                        return;
+                    } else {
+                        data.value = Number(data.value).toFixed(prec + 1).slice(0, -1)
+                    }
+                } else {
+                    data.value = Number(data.value).toFixed(prec + 1).slice(0, -1)
+                }
+            }
+        }
 
 
         $.ajax({
@@ -446,26 +498,27 @@ function previewImage(file,id) {
     let img = event.target.files[0];
     var url = null;
     $(file).siblings('span').text(img.name);
-    if(img.size/1024/1024<=1){
-        if(img.type.split('/')[1] == "jpeg"||"png"||"jpg"){
-            if(window.createObjectURL != undefined) { // basic
-                url = window.createObjectURL(img);
-            } else if(window.URL != undefined) { // mozilla(firefox)
-                url = window.URL.createObjectURL(img);
-            } else if(window.webkitURL != undefined) { // webkit or chrome
-                url = window.webkitURL.createObjectURL(img);
-            }
-            reader.readAsDataURL(img)
-            reader.onload=function(e){
-                var blob = reader.result;
-                data.value = blob.substring(blob.indexOf(",") + 1);
-            }
-        }else{
-            $.messager.alert('温馨提示','请上传图片格式的文件','info');
+    if (img.type.split('/')[1] == "jpeg" || "png" || "jpg") {
+        if (window.createObjectURL != undefined) { // basic
+            url = window.createObjectURL(img);
+        } else if (window.URL != undefined) { // mozilla(firefox)
+            url = window.URL.createObjectURL(img);
+        } else if (window.webkitURL != undefined) { // webkit or chrome
+            url = window.webkitURL.createObjectURL(img);
         }
-    }else{
-        $.messager.alert('温馨提示','图片大于1M，请选择小于1M的图片','info');
+        reader.readAsDataURL(img)
+        reader.onload = function (e) {
+            var blob = reader.result;
+            data.value = blob.substring(blob.indexOf(",") + 1);
+        }
+    } else {
+        $.messager.alert('温馨提示', '请上传图片格式的文件', 'info');
     }
+    // if(img.size/1024/1024<=1){
+        
+    // }else{
+    //     $.messager.alert('温馨提示','图片大于1M，请选择小于1M的图片','info');
+    // }
 }
 
 
@@ -530,8 +583,8 @@ function execute(id) {
                         withCredentials: true
                     },
                     crossDomain: true,
-                    success: function (success) {
-                        var result = JSON.parse(success.value);       //获取设备端返回的数据
+                    success: function (success) {//获取设备端返回的数据
+                        var result = JSON.parse(success.value); 
                         if (result.success) {
                             $.messager.alert('温馨提示', '执行成功：' + result.msg, 'info');
                         } else {
@@ -539,10 +592,8 @@ function execute(id) {
                         }
                     },
                     error:function(error) {
-                        var result = JSON.parse(JSON.parse(error.responseText).statusMessage);
-                        if (!result.success){
-                            $.messager.alert('温馨提示', '操作失败:' + result.msg, 'error');
-                        }
+                        var result = JSON.parse(error.responseText);
+                        $.messager.alert('温馨提示', '操作失败:' + result.statusMessage, 'error');
                     }
                 })
             }
