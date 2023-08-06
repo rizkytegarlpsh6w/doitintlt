@@ -7,7 +7,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.MoreObjects;
 
-import net.gdface.utils.FaceUtilits;
+import net.gdface.utils.BinaryUtils;
 
 public class CommonUtils {
 
@@ -20,7 +20,7 @@ public class CommonUtils {
 		return mac + ACK_SUFFIX;
 	}
 	public static String getAckChannel(byte[] mac){
-		return getAckChannel(FaceUtilits.toHex(mac));
+		return getAckChannel(BinaryUtils.toHex(mac));
 	}
 	/**
 	 * 生成连接频道名
@@ -31,7 +31,7 @@ public class CommonUtils {
 		return mac + CONNECT_SUFFIX;
 	}
 	public static String getConnChannel(byte[] mac){
-		return getConnChannel(FaceUtilits.toHex(mac));
+		return getConnChannel(BinaryUtils.toHex(mac));
 	}
 	private static boolean hasField(Object resp,String name){
 		return resp instanceof JSONObject &&  ((JSONObject) resp).containsKey(name);

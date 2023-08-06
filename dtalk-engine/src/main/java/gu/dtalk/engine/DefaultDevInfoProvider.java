@@ -5,7 +5,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import gu.dtalk.DeviceInfoProvider;
-import net.gdface.utils.FaceUtilits;
+import net.gdface.utils.BinaryUtils;
 import net.gdface.utils.NetworkUtil;
 
 public class DefaultDevInfoProvider implements DeviceInfoProvider {
@@ -31,7 +31,7 @@ public class DefaultDevInfoProvider implements DeviceInfoProvider {
 	@Override
 	public String getPassword() {
 		// 返回mac地址后4位做默认密码
-		return FaceUtilits.toHex(mac).substring(8);
+		return BinaryUtils.toHex(mac).substring(8);
 	}
 
 	@Override

@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import com.google.common.base.Function;
 
 import gu.dtalk.engine.DtalkHttpServer.Body;
-import net.gdface.utils.FaceUtilits;
+import net.gdface.utils.BinaryUtils;
 
 /**
  * ImageServ 示例代码
@@ -33,7 +33,7 @@ public class ImageServDemo implements Function<String, Body> {
 				Integer id = Integer.valueOf(m.group(1));
 				URL resource = ImageServDemo.class.getResource("/images/person/p" + id + ".jpg");
 				if(resource != null){
-					return new Body("image/jpeg", FaceUtilits.getBytes(resource));
+					return new Body("image/jpeg", BinaryUtils.getBytes(resource));
 				}
 			}
 		} catch (Exception e) {

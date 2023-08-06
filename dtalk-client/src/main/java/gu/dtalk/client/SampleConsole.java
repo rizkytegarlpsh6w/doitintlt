@@ -12,7 +12,7 @@ import gu.simplemq.IMessageQueueFactory;
 import gu.simplemq.MessageQueueConfigManagers;
 import gu.simplemq.MessageQueueType;
 import gu.simplemq.exceptions.SmqNotFoundConnectionException;
-import net.gdface.utils.FaceUtilits;
+import net.gdface.utils.BinaryUtils;
 
 /**
  * 简单字符终端实现
@@ -34,11 +34,11 @@ public class SampleConsole extends BaseConsole {
 	protected boolean authorize() {
 			System.out.println("Input password  of Device,default password is last 4 character of device MAC address(lowercase):");
 			ConnectReq req = new ConnectReq();
-			req.mac = FaceUtilits.toHex(temminalMac);
+			req.mac = BinaryUtils.toHex(temminalMac);
 			Channel<ConnectReq> conch = new Channel<>(connchname, ConnectReq.class);
 			String pwd = null;
 			while ((reqChannel == null) && !(pwd=scanLine(Predicates.<String>alwaysTrue())).isEmpty()) {
-				req.pwd = FaceUtilits.getMD5String(pwd.getBytes());
+				req.pwd = BinaryUtils.getMD5String(pwd.getBytes());
 				syncPublish(conch,req);
 			}
 			if(reqChannel != null){

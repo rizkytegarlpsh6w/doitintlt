@@ -20,7 +20,7 @@ import gu.simplemq.IPublisher;
 import gu.simplemq.IUnregistedListener;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
 import gu.simplemq.json.BaseJsonEncoder;
-import net.gdface.utils.FaceUtilits;
+import net.gdface.utils.BinaryUtils;
 import static gu.dtalk.CommonConstant.*;
 import static com.google.common.base.Preconditions.*;
 import static gu.dtalk.CommonUtils.*;
@@ -115,7 +115,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 		checkArgument(!Strings.isNullOrEmpty(req.mac),"NULL REQUEST MAC ADDRESS");
 		checkArgument(!Strings.isNullOrEmpty(req.pwd),"NULL REQUEST PASSWORD");
 		checkArgument(!Strings.isNullOrEmpty(admPwd),"NULL ADMIN PASSWORD");
-		String pwdmd5 = FaceUtilits.getMD5String(admPwd.getBytes());
+		String pwdmd5 = BinaryUtils.getMD5String(admPwd.getBytes());
 
 		checkState(pwdmd5.equalsIgnoreCase(req.pwd),"INVALID REQUEST PASSWORD");
 		return req.mac;
@@ -142,7 +142,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 			if(requestChannel == null){
 				// 生成请求频道名
 				requestChannel = String.format("%s_dtalk_%d", 
-						FaceUtilits.toHex(DeviceUtils.DEVINFO_PROVIDER.getMac()),
+						BinaryUtils.toHex(DeviceUtils.DEVINFO_PROVIDER.getMac()),
 						System.currentTimeMillis()&0xffff);
 			}
 			// 请求频道名作为响应消息返回值

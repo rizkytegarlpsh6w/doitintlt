@@ -5,7 +5,7 @@ import com.google.common.base.Throwables;
 
 import net.gdface.image.ImageErrorException;
 import net.gdface.image.BaseLazyImage;
-import net.gdface.utils.FaceUtilits;
+import net.gdface.utils.BinaryUtils;
 import net.gdface.utils.Judge;
 
 /**
@@ -92,7 +92,7 @@ public class ImageOption extends BaseBinary {
 	@Override
 	public ImageOption asValue(String input) {
 		try {
-			setValue(FaceUtilits.getBytes(input));
+			setValue(BinaryUtils.getBytes(input));
 			return this;
 		} catch (Exception e) {
 			Throwables.throwIfUnchecked(e);
@@ -101,7 +101,7 @@ public class ImageOption extends BaseBinary {
 	}
 	/**
 	 * 从input中读取字节流转为byte[]调用{@link #setValue(byte[])}
-	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
+	 * @param <T> 参见 {@link BinaryUtils#getBytes(Object)}
 	 */
 	public <T>ImageOption asValue(T input) {
 		super.asDefaultValue(input);
@@ -116,7 +116,7 @@ public class ImageOption extends BaseBinary {
 	@Override
 	public ImageOption asDefaultValue(String input) {
 		try {
-			setDefaultValue(FaceUtilits.getBytes(input));
+			setDefaultValue(BinaryUtils.getBytes(input));
 			return this;
 		} catch (Exception e) {
 			Throwables.throwIfUnchecked(e);
@@ -125,7 +125,7 @@ public class ImageOption extends BaseBinary {
 	}
 	/**
 	 * 从input中读取字节流转为byte[]调用{@link #setValue(byte[])}
-	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
+	 * @param <T> 参见 {@link BinaryUtils#getBytes(Object)}
 	 * @param input 图像数据
 	 * @return 当前对象
 	 */
@@ -135,7 +135,7 @@ public class ImageOption extends BaseBinary {
 	}
 	/**
 	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(Object)}
-	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
+	 * @param <T> 参见 {@link BinaryUtils#getBytes(Object)}
 	 * @param input 输入图像
 	 * @return 当前对象
 	 */
@@ -146,7 +146,7 @@ public class ImageOption extends BaseBinary {
 	}
 	/**
 	 * 从input中读取字节流转为byte[]调用{@link #setDefaultValue(Object)}
-	 * @param <T> 参见 {@link FaceUtilits#getBytes(Object)}
+	 * @param <T> 参见 {@link BinaryUtils#getBytes(Object)}
 	 * @param input 输入图像
 	 * @return 当前对象
 	 */

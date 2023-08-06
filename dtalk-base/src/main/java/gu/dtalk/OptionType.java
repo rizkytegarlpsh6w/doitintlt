@@ -22,7 +22,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
 
 import gu.simplemq.json.BaseJsonEncoder;
-import net.gdface.utils.FaceUtilits;
+import net.gdface.utils.BinaryUtils;
 
 import static gu.dtalk.CommonConstant.*;
 import static com.google.common.base.Preconditions.*;
@@ -152,7 +152,7 @@ public enum OptionType {
 					checkArgument(strValidator.apply(input),
 							"INVALID FORMAT '%s' FOR %s", input,OptionType.this.name());
 					String hex = input.replace(":", "");
-					return FaceUtilits.hex2Bytes(hex);
+					return BinaryUtils.hex2Bytes(hex);
 				}};
 		case IP:
 			// 解析字符串为ipv4类型,允许输入格式为127.0.0.1格式的ip地址

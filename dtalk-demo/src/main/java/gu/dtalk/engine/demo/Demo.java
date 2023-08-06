@@ -23,7 +23,7 @@ import gu.simplemq.IMQConnParameterSupplier;
 import gu.simplemq.IMessageQueueConfigManager;
 import gu.simplemq.IMessageQueueFactory;
 import gu.simplemq.IPublisher;
-import net.gdface.utils.FaceUtilits;
+import net.gdface.utils.BinaryUtils;
 import net.gdface.utils.NetworkUtil;
 
 import static gu.dtalk.CommonUtils.*;
@@ -54,7 +54,7 @@ public class Demo {
 		DemoMenu root = new DemoMenu(config).init().register(DemoListener.INSTANCE);
 		devMac = DeviceUtils.DEVINFO_PROVIDER.getMac();
 		connAdapter = new SampleConnector(publisher,subscriber)
-				.setSelfMac(FaceUtilits.toHex(devMac))
+				.setSelfMac(BinaryUtils.toHex(devMac))
 				.setItemAdapter((ItemAdapter) new ItemEngineRedisImpl(publisher).setRoot(root));
 	}
 	/**
