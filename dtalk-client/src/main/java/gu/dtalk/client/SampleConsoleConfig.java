@@ -33,9 +33,9 @@ public class SampleConsoleConfig extends BaseAppConfig implements SampleConsoleC
 
 	private String password;
 	private String mac;
-	private boolean trace;
 	private MessageQueueType implType;
 	public SampleConsoleConfig() {
+		super(true);
 		options.addOption(Option.builder().longOpt(REDIS_HOST_OPTION_LONG)
 				.desc(REDIS_HOST_OPTION_DESC + DEFAULT_HOST).numberOfArgs(1).build());
 
@@ -56,9 +56,6 @@ public class SampleConsoleConfig extends BaseAppConfig implements SampleConsoleC
 
 		options.addOption(Option.builder().longOpt(DEVICE_MAC_OPTION_LONG)
 				.desc(DEVICE_MAC_OPTION_DESC ).numberOfArgs(1).build());
-
-		options.addOption(Option.builder(TRACE_OPTION).longOpt(TRACE_OPTION_LONG)
-				.desc(TRACE_OPTION_DESC ).hasArg(false).build());
 
 		options.addOption(Option.builder().longOpt(CONNEC_PWD_OPTION_LONG)
 				.desc(CONNEC_PWD_OPTION_DESC ).numberOfArgs(1).build());
@@ -99,7 +96,6 @@ public class SampleConsoleConfig extends BaseAppConfig implements SampleConsoleC
 			checkArgument(OptionType.MAC.strValidator.apply(this.mac),"INVALID MAC address %s",this.mac);
 			this.mac = this.mac.replaceAll("[:-]", "");
 		}
-		this.trace = getProperty(TRACE_OPTION_LONG);
 		try {
 			this.implType = MessageQueueType.valueOf((String)getProperty(MQ_TYPE_OPTION_LONG));
 		} catch (IllegalArgumentException e) {
@@ -123,12 +119,7 @@ public class SampleConsoleConfig extends BaseAppConfig implements SampleConsoleC
 	public String getMac() {
 		return mac;
 	}
-	/**
-	 * @return 发生异常时是否输出详细堆栈信息
-	 */
-	public boolean isTrace() {
-		return trace;
-	}
+
 	/**
 	 * @return 返回消息系统类型
 	 */

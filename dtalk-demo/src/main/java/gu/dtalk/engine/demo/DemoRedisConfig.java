@@ -5,30 +5,34 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 
-import gu.simplemq.redis.JedisPoolLazy.PropName;
 import gu.simplemq.MessageQueueType;
+import gu.simplemq.redis.JedisPoolLazy.PropName;
+import gu.dtalk.redis.DefaultCustomRedisConfigProvider;
 import gu.simplemq.redis.JedisUtils;
 import net.gdface.cli.BaseAppConfig;
+
 import static redis.clients.jedis.Protocol.*;
+import static gu.dtalk.engine.demo.Demo.run;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 /**
- * 终端命令行配置参数
+ * 终端(REDIS)命令行配置参数
  * @author guyadong
  *
  */
-public class DemoConfig extends BaseAppConfig implements DemoConstants {
-	static final DemoConfig DEMO_CONFIG = new DemoConfig();
+public class DemoRedisConfig extends BaseAppConfig implements DemoConstants {
+	@SuppressWarnings("serial")
+	private static final HashMap<String, Object> CONSTANTS = 
+		new HashMap<String, Object>(){{put(IMPL_TYPE, MessageQueueType.REDIS);}};
 	private final Map<PropName, Object> redisParameters = JedisUtils.initParameters(null);
 
-	private boolean trace;
-	private MessageQueueType implType;
-	public DemoConfig() {
+	DemoRedisConfig() {
+		super(true);
 		options.addOption(Option.builder().longOpt(REDIS_HOST_OPTION_LONG)
 				.desc(REDIS_HOST_OPTION_DESC + DEFAULT_HOST).numberOfArgs(1).build());
 
@@ -49,12 +53,6 @@ public class DemoConfig extends BaseAppConfig implements DemoConstants {
 
 		options.addOption(Option.builder(TRACE_OPTION).longOpt(TRACE_OPTION_LONG)
 				.desc(TRACE_OPTION_DESC ).hasArg(false).build());
-
-		options.addOption(Option.builder().longOpt(CONNEC_PWD_OPTION_LONG)
-				.desc(CONNEC_PWD_OPTION_DESC ).numberOfArgs(1).build());
-		
-		options.addOption(Option.builder().longOpt(MQ_TYPE_OPTION_LONG)
-				.desc(MQ_TYPE_OPTION_DESC + Joiner.on(",").join(MessageQueueType.values())).required().numberOfArgs(1).build());
 		
 		defaultValue.setProperty(REDIS_HOST_OPTION_LONG, null);
 		defaultValue.setProperty(REDIS_PORT_OPTION_LONG, redisParameters.get(PropName.port));
@@ -62,8 +60,7 @@ public class DemoConfig extends BaseAppConfig implements DemoConstants {
 		defaultValue.setProperty(REDIS_DB_OPTION_LONG, redisParameters.get(PropName.database));
 		defaultValue.setProperty(REDIS_URI_OPTION_LONG, null);
 		defaultValue.setProperty(REDIS_TIMEOUT_OPTION_LONG, redisParameters.get(PropName.timeout));
-		defaultValue.setProperty(CONNEC_PWD_OPTION_LONG, "");
-
+		
 	}
 	@Override
 	public void loadConfig(Options options, CommandLine cmd) throws ParseException {
@@ -80,14 +77,6 @@ public class DemoConfig extends BaseAppConfig implements DemoConstants {
 		if(hasProperty(REDIS_TIMEOUT_OPTION_LONG)){
 			redisParameters.put(PropName.timeout, ((Number)getProperty(REDIS_TIMEOUT_OPTION_LONG)).intValue());
 		}
-		this.trace = getProperty(TRACE_OPTION_LONG);
-		try {
-			this.implType = MessageQueueType.valueOf((String)getProperty(MQ_TYPE_OPTION_LONG));
-		} catch (IllegalArgumentException e) {
-			throw new ParseException(e.getMessage());
-		} catch (NullPointerException e) {
-			throw new ParseException("miss option:" + MQ_TYPE_OPTION_LONG);
-		}
 	}
 	/**
 	 * @return redisParameters
@@ -95,18 +84,7 @@ public class DemoConfig extends BaseAppConfig implements DemoConstants {
 	public Map<PropName, Object> getRedisParameters() {
 		return Maps.filterValues(redisParameters, Predicates.notNull());
 	}
-	/**
-	 * @return 发生异常时是否输出详细堆栈信息
-	 */
-	public boolean isTrace() {
-		return trace;
-	}
-	/**
-	 * @return 返回消息系统类型
-	 */
-	public MessageQueueType getImplType() {
-		return implType;
-	}
+	
 	@Override
 	protected String getAppName() {
 		return Demo.class.getSimpleName();
@@ -114,5 +92,16 @@ public class DemoConfig extends BaseAppConfig implements DemoConstants {
 	@Override
 	protected String getHeader() {
 		return "Device talk Demo starting(设备模拟器)";
+	}
+	@Override
+	protected void doAfterParse() {
+		DefaultCustomRedisConfigProvider.initredisParameters(getRedisParameters());
+	}
+	@Override
+	protected Map<String, Object> doGetConstants() {
+		return CONSTANTS;
+	}
+	public static void main(String []args){
+		run(new DemoRedisConfig(), args);
 	}
 }

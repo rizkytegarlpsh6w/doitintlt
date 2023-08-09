@@ -12,7 +12,6 @@ import gu.dtalk.engine.ItemEngineRedisImpl;
 import gu.dtalk.engine.SampleConnector;
 import gu.dtalk.engine.demo.DemoListener;
 import gu.dtalk.engine.demo.DemoMenu;
-import gu.dtalk.redis.DefaultCustomRedisConfigProvider;
 import gu.simplemq.ISubscriber;
 import gu.simplemq.MessageQueueConfigManagers;
 import gu.simplemq.MessageQueueFactorys;
@@ -23,11 +22,11 @@ import gu.simplemq.IMQConnParameterSupplier;
 import gu.simplemq.IMessageQueueConfigManager;
 import gu.simplemq.IMessageQueueFactory;
 import gu.simplemq.IPublisher;
+import net.gdface.cli.BaseAppConfig;
 import net.gdface.utils.BinaryUtils;
 import net.gdface.utils.NetworkUtil;
 
 import static gu.dtalk.CommonUtils.*;
-import static gu.dtalk.engine.demo.DemoConfig.DEMO_CONFIG;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -35,7 +34,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @author guyadong
  *
  */
-public class Demo {
+public class Demo implements DemoConstants {
 	protected static final Logger logger = LoggerFactory.getLogger(Demo.class);
 
 	private final SampleConnector connAdapter;
@@ -44,6 +43,7 @@ public class Demo {
 	public Demo(IMessageQueueConfigManager manager) throws SmqNotFoundConnectionException {
 		// 创建消息系统连接实例
 		IMQConnParameterSupplier config = checkNotNull(manager,"manager is null").lookupMessageQueueConnect(null);
+		System.out.printf("Device talk %s Demo starting(设备%s模拟器启动)",manager.getImplType(),manager.getImplType());
 		IMessageQueueFactory factory = MessageQueueFactorys.getFactory(config.getImplType())
 				.init(config.getMQConnParameters())
 				.asDefaultFactory();
@@ -81,23 +81,13 @@ public class Demo {
 	
 		}
 	}
-	public static void main(String []args){		
+	static void run(BaseAppConfig config,String []args){		
 		try{
-			DEMO_CONFIG.parseCommandLine(args);
-			MessageQueueType implType = DEMO_CONFIG.getImplType();
-			switch (implType) {
-			case REDIS:
-				DefaultCustomRedisConfigProvider.initredisParameters(DEMO_CONFIG.getRedisParameters());
-				break;
-			default:
-				throw new UnsupportedOperationException("UNSUPPORTED Message queue type:" + implType);
-			}
-	
-			System.out.printf("Device talk %s Demo starting(设备%s模拟器启动)",implType,implType);
-			new Demo(MessageQueueConfigManagers.getManager(implType)).start();
+			config.parseCommandLine(args);
+			new Demo(MessageQueueConfigManagers.getManager((MessageQueueType)config.getConstant(IMPL_TYPE))).start();
 			waitquit();
 		}catch (Exception e) {
-			if(DEMO_CONFIG.isTrace()){
+			if(config.isTrace()){
 				e.printStackTrace();
 			}else{
 				System.out.println(e.getMessage());
