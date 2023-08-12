@@ -8,6 +8,8 @@ import net.gdface.cli.CommonCliConstants;
  *
  */
 public interface SampleConsoleConstants extends CommonCliConstants {
+	public static final String IMPL_TYPE = "IMPL_TYPE";
+
 	public static final String REDIS_HOST_OPTION_LONG = "host";
 	public static final String REDIS_HOST_OPTION_DESC = "redis host name,default: ";
 	public static final String REDIS_PORT_OPTION_LONG = "port";
@@ -20,15 +22,22 @@ public interface SampleConsoleConstants extends CommonCliConstants {
 	public static final String REDIS_URI_OPTION_DESC = "uri for redis,default:null";
 	public static final String REDIS_TIMEOUT_OPTION_LONG = "timeout";
 	public static final String REDIS_TIMEOUT_OPTION_DESC = "redis timeout,default:";
-	public static final String CONNEC_PWD_OPTION_LONG = "pwd";
-	public static final String CONNEC_PWD_OPTION_DESC = "password ,default: ";
+	
+	public static final String AMQ_HOST_OPTION_LONG = "host";
+	public static final String AMQ_HOST_OPTION_DESC = "activemq host name,default: ";
+	public static final String AMQ_PORT_OPTION_LONG = "port";
+	public static final String AMQ_PORT_OPTION_DESC = "activemq port number,default: ";
+	public static final String AMQ_PWD_OPTION_LONG = "auth";
+	public static final String AMQ_PWD_OPTION_DESC = "activemq password,default:empty";
+	public static final String AMQ_URI_OPTION_LONG = "uri";
+	public static final String AMQ_URI_OPTION_DESC = "uri for redis,default:null";
+	public static final String AMQ_TIMEOUT_OPTION_LONG = "timout";
+	public static final String AMQ_TIMEOUT_OPTION_DESC = "redis timeout,default:";
+
 	public static final String DEVICE_MAC_OPTION_LONG = "mac";
 	public static final String DEVICE_MAC_OPTION_DESC = "MAC addres(hex)for target device,such as d0:17:c2:d0:3f:bf,default: self mac address";
 	public static final String TRACE_OPTION = "X";
 	public static final String TRACE_OPTION_LONG = "trace";
 	public static final String TRACE_OPTION_DESC = "show stack trace on error ,default: false";
 	
-	public static final String MQ_TYPE_OPTION_LONG = "type'";
-	public static final String MQ_TYPE_OPTION_DESC = "type of message queue,values:";
-
 }

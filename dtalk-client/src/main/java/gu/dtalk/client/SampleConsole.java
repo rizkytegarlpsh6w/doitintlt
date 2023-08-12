@@ -1,17 +1,15 @@
 package gu.dtalk.client;
 
-import static gu.dtalk.client.SampleConsoleConfig.CONSOLE_CONFIG;
-
 import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 
 import gu.dtalk.ConnectReq;
-import gu.dtalk.redis.DefaultCustomRedisConfigProvider;
 import gu.simplemq.Channel;
 import gu.simplemq.IMessageQueueFactory;
 import gu.simplemq.MessageQueueConfigManagers;
 import gu.simplemq.MessageQueueType;
 import gu.simplemq.exceptions.SmqNotFoundConnectionException;
+import net.gdface.cli.BaseAppConfig;
 import net.gdface.utils.BinaryUtils;
 
 /**
@@ -19,7 +17,7 @@ import net.gdface.utils.BinaryUtils;
  * @author guyadong
  *
  */
-public class SampleConsole extends BaseConsole {
+public class SampleConsole extends BaseConsole implements SampleConsoleConstants {
 
 	public SampleConsole(String devmac, IMessageQueueFactory factory) throws SmqNotFoundConnectionException {
 		super(devmac, factory);
@@ -47,19 +45,12 @@ public class SampleConsole extends BaseConsole {
 			}
 			return false;
 		}
-	public static void main(String []args){
-		CONSOLE_CONFIG.parseCommandLine(args);
-		MessageQueueType implType = CONSOLE_CONFIG.getImplType();
-		switch (implType) {
-		case REDIS:
-			DefaultCustomRedisConfigProvider.initredisParameters(CONSOLE_CONFIG.getRedisParameters());
-			break;
-		default:
-			throw new UnsupportedOperationException("UNSUPPORTED Message queue type:" + implType);
-		}
-		String devmac = CONSOLE_CONFIG.getMac();
-		boolean trace = CONSOLE_CONFIG.isTrace();
-		System.out.printf("Text terminal for Redis %s Talk is starting(设备(%s)交互字符终端启动)\n",implType.name(),implType.name());
+	static void run(BaseAppConfig config,String []args){
+		config.parseCommandLine(args);
+		MessageQueueType implType =(MessageQueueType)config.getConstant(IMPL_TYPE);
+		String devmac = config.valueOf("mac");
+		boolean trace = config.isTrace();
+		System.out.printf("Text terminal for Redis %s Talk is starting(设备(%s)交互字符终端启动)\n",implType,implType);
 		// 否则提示输入命令行参数
 		if(Strings.isNullOrEmpty(devmac)){
 			devmac = inputMac();
