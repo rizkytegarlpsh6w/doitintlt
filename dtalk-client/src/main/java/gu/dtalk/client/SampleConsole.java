@@ -12,6 +12,8 @@ import gu.simplemq.exceptions.SmqNotFoundConnectionException;
 import net.gdface.cli.BaseAppConfig;
 import net.gdface.utils.BinaryUtils;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * 简单字符终端实现
  * @author guyadong
@@ -47,7 +49,7 @@ public class SampleConsole extends BaseConsole implements SampleConsoleConstants
 		}
 	static void run(BaseAppConfig config,String []args){
 		config.parseCommandLine(args);
-		MessageQueueType implType =(MessageQueueType)config.getConstant(IMPL_TYPE);
+		MessageQueueType implType =checkNotNull( (MessageQueueType)config.getConstant(IMPL_TYPE),"NOT DEFINED %s",IMPL_TYPE);
 		String devmac = config.valueOf("mac");
 		boolean trace = config.isTrace();
 		System.out.printf("Text terminal for Redis %s Talk is starting(设备(%s)交互字符终端启动)\n",implType,implType);

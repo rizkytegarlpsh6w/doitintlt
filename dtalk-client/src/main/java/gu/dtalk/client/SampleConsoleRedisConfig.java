@@ -21,8 +21,8 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.*;
 import static gu.dtalk.client.SampleConsole.run;
+import static net.gdface.utils.ConditionChecks.checkTrue;
 
 /**
  * 终端命令行配置参数
@@ -87,7 +87,8 @@ public class SampleConsoleRedisConfig extends BaseAppConfig implements SampleCon
 		this.mac = (String) getProperty(DEVICE_MAC_OPTION_LONG);
 		if(!Strings.isNullOrEmpty(this.mac)){
 			// 检查输入的mac地址字符串是否符合格式要求
-			checkArgument(OptionType.MAC.strValidator.apply(this.mac),"INVALID MAC address %s",this.mac);
+			checkTrue(OptionType.MAC.strValidator.apply(this.mac),
+					ParseException.class,"INVALID MAC address %s",this.mac);
 			this.mac = this.mac.replaceAll("[:-]", "");
 		}
 	}
