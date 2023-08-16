@@ -51,9 +51,7 @@ public class DemoRedisConfig extends BaseAppConfig implements DemoConstants {
 		options.addOption(Option.builder().longOpt(REDIS_TIMEOUT_OPTION_LONG)
 				.desc(REDIS_TIMEOUT_OPTION_DESC + DEFAULT_TIMEOUT + " ms.").numberOfArgs(1).type(Number.class).build());
 
-		options.addOption(Option.builder(TRACE_OPTION).longOpt(TRACE_OPTION_LONG)
-				.desc(TRACE_OPTION_DESC ).hasArg(false).build());
-		
+
 		defaultValue.setProperty(REDIS_HOST_OPTION_LONG, null);
 		defaultValue.setProperty(REDIS_PORT_OPTION_LONG, redisParameters.get(PropName.port));
 		defaultValue.setProperty(REDIS_PWD_OPTION_LONG, null);

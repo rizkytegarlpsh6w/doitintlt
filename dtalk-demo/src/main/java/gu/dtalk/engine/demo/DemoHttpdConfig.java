@@ -30,9 +30,6 @@ public class DemoHttpdConfig extends BaseAppConfig implements DemoConstants {
 		options.addOption(Option.builder().longOpt(HTTP_TIMEOUT_OPTION_LONG)
 				.desc(HTTP_TIMEOUT_OPTION_DESC + timeout + " ms.").numberOfArgs(1).type(Number.class).build());
 
-		options.addOption(Option.builder(TRACE_OPTION).longOpt(TRACE_OPTION_LONG)
-				.desc(TRACE_OPTION_DESC ).hasArg(false).build());
-
 		options.addOption(Option.builder().longOpt(HTTP_NOAUTH_OPTION_LONG)
 				.desc(HTTP_NOAUTH_OPTION_DESC ).hasArg(false).build());
 		

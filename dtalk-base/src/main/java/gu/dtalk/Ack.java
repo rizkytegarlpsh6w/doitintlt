@@ -6,6 +6,8 @@ import java.io.StringWriter;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
+import net.gdface.utils.TypeUtils;
+
 /**
  * 设备命令响应对象<br>
  * 此类对象将做为设备命令响应经redis服务器发送到命令发送端,
@@ -21,6 +23,7 @@ public class Ack<T> {
 	private String deviceMac;
 	private String item;
 	private T value;
+	private String valueType;
 	private Status status;
 	private String statusMessage;
 	private String exception;
@@ -148,6 +151,22 @@ public class Ack<T> {
 	 */
 	public Ack<T> setValue(T value) {
 		this.value = value;
+		return setValueType(value != null ? TypeUtils.getTypeName(value.getClass(), false) : null);
+	}
+	
+	/**
+	 * @return 返回设备命令执行结果对象(value字段)的类型,如果 value为{@code null}则返回{@code null}
+	 */
+	public String getValueType(){
+		return valueType;
+	}
+	/**
+	 * 设置设备命令执行结果对象(value字段)的类型
+	 * @param valueClass 要设置的valueClass
+	 * @return 当前对象
+	 */
+	public Ack<T> setValueType(String valueClass){
+		this.valueType = valueClass;
 		return this;
 	}
 	/** 
