@@ -36,10 +36,10 @@ public class SampleConsoleActivemqConfig extends BaseAppConfig implements Sample
 	private SampleConsoleActivemqConfig() {
 		super(true);
 		options.addOption(Option.builder().longOpt(AMQ_HOST_OPTION_LONG)
-				.desc(AMQ_HOST_OPTION_DESC + DEFAULT_HOST).numberOfArgs(1).build());
+				.desc(AMQ_HOST_OPTION_DESC + DEFAULT_AMQ_HOST).numberOfArgs(1).build());
 
 		options.addOption(Option.builder().longOpt(AMQ_PORT_OPTION_LONG)
-				.desc(AMQ_PORT_OPTION_DESC + DEFAULT_PORT).numberOfArgs(1).type(Number.class).build());
+				.desc(AMQ_PORT_OPTION_DESC + DEFAULT_AMQ_PORT).numberOfArgs(1).type(Number.class).build());
 
 		options.addOption(Option.builder().longOpt(AMQ_PWD_OPTION_LONG)
 				.desc(AMQ_PWD_OPTION_DESC).numberOfArgs(1).build());
@@ -53,10 +53,10 @@ public class SampleConsoleActivemqConfig extends BaseAppConfig implements Sample
 		options.addOption(Option.builder().longOpt(DEVICE_MAC_OPTION_LONG)
 				.desc(DEVICE_MAC_OPTION_DESC ).numberOfArgs(1).build());
 
-		defaultValue.setProperty(AMQ_HOST_OPTION_LONG, activemqProperties.get(ACON_HOST));
-		defaultValue.setProperty(AMQ_PORT_OPTION_LONG, activemqProperties.get(ACON_PORT));
+		defaultValue.setProperty(AMQ_HOST_OPTION_LONG, activemqProperties.get(MQ_HOST));
+		defaultValue.setProperty(AMQ_PORT_OPTION_LONG, activemqProperties.get(MQ_PORT));
 		defaultValue.setProperty(AMQ_PWD_OPTION_LONG, activemqProperties.get(ACON_PASSWORD));
-		defaultValue.setProperty(AMQ_URI_OPTION_LONG, activemqProperties.get(ACON_URI));
+		defaultValue.setProperty(AMQ_URI_OPTION_LONG, activemqProperties.get(MQ_URI));
 		defaultValue.setProperty(AMQ_TIMEOUT_OPTION_LONG, activemqProperties.get(ACON_sendTimeout));
 		defaultValue.setProperty(DEVICE_MAC_OPTION_LONG, "");
 
@@ -65,17 +65,17 @@ public class SampleConsoleActivemqConfig extends BaseAppConfig implements Sample
 	public void loadConfig(Options options, CommandLine cmd) throws ParseException {
 		super.loadConfig(options, cmd);
 		
-		if(hasProperty(ACON_HOST)){
-			activemqProperties.setProperty(ACON_HOST, (String) getProperty(AMQ_HOST_OPTION_LONG));
+		if(hasProperty(MQ_HOST)){
+			activemqProperties.setProperty(MQ_HOST, (String) getProperty(AMQ_HOST_OPTION_LONG));
 		}
 		if(hasProperty(AMQ_PORT_OPTION_LONG)){
-			activemqProperties.setProperty(ACON_PORT, (String) getProperty(AMQ_PORT_OPTION_LONG));
+			activemqProperties.setProperty(MQ_PORT, (String) getProperty(AMQ_PORT_OPTION_LONG));
 		}
 		if(hasProperty(ACON_PASSWORD)){
 			activemqProperties.setProperty(ACON_PASSWORD, (String) getProperty(AMQ_PWD_OPTION_LONG));
 		}
 		if(hasProperty(AMQ_URI_OPTION_LONG)){
-			activemqProperties.setProperty(ACON_URI, (String) getProperty(AMQ_URI_OPTION_LONG));
+			activemqProperties.setProperty(MQ_URI, (String) getProperty(AMQ_URI_OPTION_LONG));
 		}
 		if(hasProperty(AMQ_TIMEOUT_OPTION_LONG)){
 			activemqProperties.setProperty(ACON_sendTimeout, (String) getProperty(AMQ_TIMEOUT_OPTION_LONG));
