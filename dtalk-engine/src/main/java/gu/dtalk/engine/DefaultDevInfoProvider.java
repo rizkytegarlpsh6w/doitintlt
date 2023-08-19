@@ -1,8 +1,6 @@
 package gu.dtalk.engine;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
 
 import gu.dtalk.DeviceInfoProvider;
 import net.gdface.utils.BinaryUtils;
@@ -14,9 +12,9 @@ public class DefaultDevInfoProvider implements DeviceInfoProvider {
 	private byte[] mac={0,0,0,0,0,0};
 	private byte[] ip = {127,0,0,1};
 	public DefaultDevInfoProvider() {
-		this("www.baidu.com", 80);
+		this("www.google.com:80","www.baidu.com:80","www.qq.com:80","www.aliyun.com:80");
 	}
-	protected DefaultDevInfoProvider(String host,int port) {		
+	protected DefaultDevInfoProvider(String host,int port) {
 		try {
 			// 使用localhost获取本机MAC地址会返回空数组，所以这里使用一个互联地址来获取
 			if(host == null || "127.0.0.1".equals(host) || "localhost".equalsIgnoreCase(host)){
@@ -24,8 +22,16 @@ public class DefaultDevInfoProvider implements DeviceInfoProvider {
 				port = 80;
 			}
 			mac = NetworkUtil.getCurrentMac(host, port);
-			ip  = getLocalIp(host, port);
-		} catch (IOException e) {			
+			ip  = NetworkUtil.getLocalIp(host, port).getAddress();
+		} catch (IOException e) {
+		}
+	}
+	protected DefaultDevInfoProvider(String ...hostAndPorts){
+		try {
+			mac = NetworkUtil.getCurrentMac(hostAndPorts);
+			ip  = NetworkUtil.getLocalIp(hostAndPorts).getAddress();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 	@Override
@@ -56,24 +62,5 @@ public class DefaultDevInfoProvider implements DeviceInfoProvider {
 	@Override
 	public String getIpAsString() {
 		return NetworkUtil.formatIp(getIp());
-	}
-	/**
-	 * 获取访问指定host的本地IP地址
-	 * @param host 主机名
-	 * @param port 端口号
-	 * @return IP地址(4 bytes)
-	 * @throws IOException IO异常
-	 */
-	public static byte[] getLocalIp(String host,int port) throws IOException {
-		Socket socket = null;
-		try {
-			socket = new Socket(host,port);
-			InetAddress address = socket.getLocalAddress();
-			return address.getAddress();
-		} finally{
-			if(socket != null){
-				socket.close();
-			}
-		}
 	}
 }

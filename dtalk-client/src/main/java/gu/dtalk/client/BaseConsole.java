@@ -2,6 +2,7 @@ package gu.dtalk.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ import static com.google.common.base.Preconditions.*;
  */
 public abstract class BaseConsole {
 	protected static final Logger logger = LoggerFactory.getLogger(BaseConsole.class);
+	private IMessageQueueFactory factory;
 	final ISubscriber subscriber;
 	final IPublisher publisher;
 	/**
@@ -76,11 +78,11 @@ public abstract class BaseConsole {
 	 * @throws SmqNotFoundConnectionException 
 	 */
 	public BaseConsole(String devmac, IMessageQueueFactory factory) {
-
+		this.factory = checkNotNull(factory,"factory is null");
 		// 创建消息系统连接实例
 		this.temminalMac = getSelfMac(factory.getHostAndPort());
 
-		this.subscriber = checkNotNull(factory,"factory is null").getSubscriber();
+		this.subscriber = factory.getSubscriber();
 		this.publisher = factory.getPublisher();
 		System.out.printf("TERMINAL MAC address: %s\n", NetworkUtil.formatMac(temminalMac, ":"));
 
@@ -89,8 +91,12 @@ public abstract class BaseConsole {
 
 			@Override
 			public boolean apply(String input) {
-				reqChannel = input;
-				ackChannel.setAdapter(renderEngine);
+				synchronized (ackChannel) {
+					reqChannel = input;
+					ackChannel.setAdapter(renderEngine);
+					// NOTE_ACK 通知等待的线程，连接成功
+					ackChannel.notifyAll();
+				}
 				return false;
 			}
 		});		
@@ -113,8 +119,8 @@ public abstract class BaseConsole {
 			String host = hostAndPort.getHost();
 			int port = hostAndPort.getPort();
 			// 使用localhost获取本机MAC地址会返回空数组，所以这里使用一个互联地址来获取
-			if(host.equals("127.0.0.1") || host.equalsIgnoreCase("localhost")){
-				return NetworkUtil.getCurrentMac("www.cnnic.net.cn", 80);
+			if(InetAddress.getByName(host).isLoopbackAddress()){
+				return NetworkUtil.getCurrentMac("www.baidu.com:80");
 			}
 			return NetworkUtil.getCurrentMac(host, port);
 		} catch (IOException e) {
@@ -179,7 +185,7 @@ public abstract class BaseConsole {
 
 	}
 	private void waitResp(long timestamp){
-		int waitCount = 30;
+		int waitCount = 100;
 		TextMessageAdapter<?> adapter = (TextMessageAdapter<?>) ackChannel.getAdapter();
 		while(adapter.getLastResp() < timestamp && waitCount > 0){
 			try {
@@ -219,14 +225,14 @@ public abstract class BaseConsole {
 	}
 	protected <T>boolean syncPublish(Channel<T>channel,T json){
 		try{
+			//checkState(publisher.consumerCountOf(channel.name) != 0,"target device DISCONNECT");
 			long timestamp = System.currentTimeMillis();
-			long rc = publisher.publish(channel, json);
+			publisher.publish(channel, json);
 			// 没有接收端则抛出异常
-			checkState(rc != 0,"target device DISCONNECT");
 			waitResp(timestamp);
 			return true;
 		}catch(Exception e){
-			System.out.println(e.getMessage());
+			showError(e);
 			System.exit(0);
 		}
 		return false;
@@ -369,29 +375,14 @@ public abstract class BaseConsole {
 		}
 		return "";
 	}
-	protected void waitTextRenderEngine(){
-		int waitCount = 30;
-		TextMessageAdapter<?> adapter = (TextMessageAdapter<?>) ackChannel.getAdapter();
-		while( !(adapter instanceof RenderEngine) && waitCount > 0){
-			try {
-				Thread.sleep(100);
-				waitCount --;
-			} catch (InterruptedException e) {
-				System.exit(-1);
-			}
-		}
-		if(waitCount ==0 ){
-			System.out.println("TIMEOUT for response");
-			System.exit(-1);
-		}
-	}
 	/**
 	 * 启动终端
 	 */
 	public void start(){
 		try{
 			Channel<String> testch = new Channel<String>(connchname, String.class);
-			long rc = publisher.publish(testch, "\"hello,dtalk\"");
+			publisher.publish(testch, "\"hello,dtalk\"");
+			int rc = publisher.getConsumerAdvisor().consumerCountOf(testch.name);
 			// 目标设备没有上线
 			checkState(rc != 0,"TARGET DEVICE NOT online");
 			if(rc>1){
@@ -400,16 +391,33 @@ public abstract class BaseConsole {
 			}		
 			connect();
 			if(authorize()){
-				waitTextRenderEngine();
+				if(ackChannel.getAdapter() != renderEngine ){
+					synchronized (ackChannel) {
+						// 等待响应,参见 NOTE_ACK
+						ackChannel.wait(5*1000);
+					}
+				}
 				cmdInteractive();
 			}
+		}catch (InterruptedException e) {
+			System.out.println("TIMEOUT for response");
+			System.exit(-1);
 		}catch (Exception e) {
-			if(stackTrace){
-				logger.error(e.getMessage(),e);	
-			}else{
-				System.out.println(e.getMessage());
-			}
+			showError(e);
 			return ;
+		}finally{
+			try {
+				factory.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	protected void showError(Throwable e){
+		if(stackTrace){
+			logger.error(e.getMessage(),e);	
+		}else{
+			System.out.println(e.getMessage());
 		}
 	}
 	/**

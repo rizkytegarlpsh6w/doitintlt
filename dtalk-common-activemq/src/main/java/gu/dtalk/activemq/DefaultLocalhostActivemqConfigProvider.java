@@ -2,7 +2,8 @@ package gu.dtalk.activemq;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
-import gu.simplemq.activemq.ActivemqProperties;
+import gu.simplemq.activemq.PropertiesHelper;
+import gu.simplemq.utils.MQProperties;
 
 /**
  * 本机(LOCALHOST)配置默认实现(仅用于测试)
@@ -10,7 +11,7 @@ import gu.simplemq.activemq.ActivemqProperties;
  *
  */
 public class DefaultLocalhostActivemqConfigProvider extends BaseActivemqConfigProvider {
-	public static final ActivemqProperties INIT_PROPERTIES = new ActivemqProperties();
+	public static final MQProperties INIT_PROPERTIES = PropertiesHelper.AHELPER.makeMQProperties(null);
 
 	static{
 		INIT_PROPERTIES.setProperty(ACON_BROKER_URL, ActiveMQConnectionFactory.DEFAULT_BROKER_BIND_URL);
@@ -18,7 +19,7 @@ public class DefaultLocalhostActivemqConfigProvider extends BaseActivemqConfigPr
 	public DefaultLocalhostActivemqConfigProvider() {
 	}
 	@Override
-	protected ActivemqProperties selfProp() {
+	protected MQProperties selfProp() {
 		return INIT_PROPERTIES;
 	}
 	@Override

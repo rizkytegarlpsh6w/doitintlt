@@ -1,4 +1,2 @@
 @echo off
-pushd %~dp0
-call target\shell\%~nx0 %*
-popd
+call %~dp0target\shell\%~nx0 %*

@@ -18,8 +18,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
-		<common-java.version>1.2.7</common-java.version>
-		<simplemq.version>2.0.1-SNAPSHOT</simplemq.version>
+		<common-java.version>1.2.8</common-java.version>
+		<simplemq.version>2.1.0</simplemq.version>
 		<nanohttpd.version>2.3.1</nanohttpd.version>
 	</properties>
 	<dependencyManagement>
@@ -132,6 +132,23 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-shade-plugin</artifactId>
 					<version>3.1.0</version>
+					<configuration>
+						<shadedArtifactAttached>true</shadedArtifactAttached>
+						<minimizeJar>false</minimizeJar>
+						<!-- 生成依赖包的源码jar包 -->
+						<createSourcesJar>false</createSourcesJar>
+						<shadedClassifierName>standalone</shadedClassifierName>
+						<filters>
+							<filter>
+								<artifact>*:*</artifact>
+								<excludes>
+									<exclude>META-INF/*.SF</exclude>
+									<exclude>META-INF/*.DSA</exclude>
+									<exclude>META-INF/*.RSA</exclude>
+								</excludes>
+							</filter>
+						</filters>					
+					</configuration>
 					<executions>
 						<execution>
 							<phase>package</phase>

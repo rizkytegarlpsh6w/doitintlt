@@ -13,9 +13,9 @@ import com.google.common.net.HostAndPort;
 import gu.simplemq.IMQConnParameterSupplier;
 import gu.simplemq.MessageQueueType;
 import gu.simplemq.activemq.ActivemqConstants;
-import gu.simplemq.activemq.ActivemqProperties;
-import gu.simplemq.activemq.ActivemqUtils;
+import gu.simplemq.activemq.PropertiesHelper;
 import gu.simplemq.exceptions.SmqNotFoundConnectionException;
+import gu.simplemq.utils.MQProperties;
 
 /**
  * ActiveMQ 连接配置参数
@@ -38,7 +38,7 @@ public enum ActivemqConfigType  implements IMQConnParameterSupplier,ActivemqCons
 	/**
 	 * ActiveMQ 连接配置参数
 	 */
-	private volatile ActivemqProperties parameters;
+	private volatile MQProperties parameters;
 	/**
 	 * 当前配置是否可连接
 	 */
@@ -69,7 +69,7 @@ public enum ActivemqConfigType  implements IMQConnParameterSupplier,ActivemqCons
 						}
 					});
 					instance = find.isPresent() ? find.get() : this.defImpl;
-					ActivemqProperties props = instance.getProperties();
+					MQProperties props = instance.getProperties();
 					String location = props.getLocationAsString();
 					// 如果实例提供的参数中不包含最起始的连接地址参数则视为无效
 					if(location == null){
@@ -89,7 +89,7 @@ public enum ActivemqConfigType  implements IMQConnParameterSupplier,ActivemqCons
 	 * 如果{@link #findConfigProvider()}返回{@code null}则返回{@code null}
 	 * @return ActiveMQ 连接参数
 	 */
-	private ActivemqProperties readParam(){
+	private MQProperties readParam(){
 		// double checking
 		if(parameters == null){
 			synchronized (this) {
@@ -104,13 +104,11 @@ public enum ActivemqConfigType  implements IMQConnParameterSupplier,ActivemqCons
 		return parameters;
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Map<String, Object> getMQConnParameters(){
-		ActivemqProperties props = readParam();
-		if(props == null){
-			return null;
-		}
-		return props.asMqParameters();
+		MQProperties props = readParam();
+		return (Map)props;
 	}
 	@Override
 	public final MessageQueueType getImplType() {
@@ -151,7 +149,7 @@ public enum ActivemqConfigType  implements IMQConnParameterSupplier,ActivemqCons
 				if(timeoutMills != null && timeoutMills > 0){
 					props.setProperty(ACON_connectResponseTimeout, timeoutMills.toString());
 				}
-				connectable = ActivemqUtils.testConnect(props);
+				connectable = PropertiesHelper.AHELPER.testConnect(props);
 			}catch (Exception e) {
 			}
 //			if(connectable){
@@ -234,7 +232,7 @@ public enum ActivemqConfigType  implements IMQConnParameterSupplier,ActivemqCons
 		if(param==null){
 			buffer.append("(UNDEFINED)");
 		}else{
-			buffer.append("(").append(ActivemqUtils.getLocationlURI(param).toString()).append(")");
+			buffer.append("(").append(PropertiesHelper.AHELPER.getLocationlURI(param).toString()).append(")");
 		}
 		return buffer.toString();
 	}

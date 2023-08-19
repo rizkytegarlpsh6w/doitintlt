@@ -3,7 +3,8 @@ package gu.dtalk.activemq;
 import java.util.Properties;
 
 import gu.simplemq.activemq.ActivemqConstants;
-import gu.simplemq.activemq.ActivemqProperties;
+import gu.simplemq.activemq.PropertiesHelper;
+import gu.simplemq.utils.MQProperties;
 
 public abstract class BaseActivemqConfigProvider implements ActivemqConfigProvider,ActivemqConstants {
 	public BaseActivemqConfigProvider() {
@@ -13,13 +14,11 @@ public abstract class BaseActivemqConfigProvider implements ActivemqConfigProvid
 	 * 返回当前对象的ActiveMQ连接配置对象(引用)
 	 * @return {@link Properties}实例
 	 */
-	protected abstract ActivemqProperties selfProp();
+	protected abstract MQProperties selfProp();
 	
 	@Override
-	public final ActivemqProperties getProperties(){
-		ActivemqProperties p = new ActivemqProperties();
-		p.putAll(selfProp());
-		return p;
+	public final MQProperties getProperties(){
+		return PropertiesHelper.AHELPER.makeMQProperties(null).init(selfProp());
 	}
 	@Override
 	public final void setProperties(Properties properties) {

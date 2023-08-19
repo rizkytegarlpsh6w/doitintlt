@@ -101,7 +101,7 @@ public class TaskManager extends BaseCmdManager {
     @Override
     protected long doSendCmd(DeviceInstruction cmd){
     	Channel<DeviceInstruction> channel = checkNotNull(taskQueueSupplier,"taskQueueSupplier is uninitialized").get();
-    	int numSub = producer.getConsumerCount(checkNotNull(channel,"taskQueue from taskQueueSupplier is null ").name);
+    	int numSub = producer.getAdvisor().consumerCountOf(checkNotNull(channel,"taskQueue from taskQueueSupplier is null ").name);
     	if(numSub >0){
     		producer.produce(channel, cmd);
     		return 1;
