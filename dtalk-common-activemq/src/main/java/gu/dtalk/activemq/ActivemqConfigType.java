@@ -70,7 +70,7 @@ public enum ActivemqConfigType  implements IMQConnParameterSupplier,ActivemqCons
 					});
 					instance = find.isPresent() ? find.get() : this.defImpl;
 					ActivemqProperties props = instance.getProperties();
-					String location = props.getLocationAsString(null);
+					String location = props.getLocationAsString();
 					// 如果实例提供的参数中不包含最起始的连接地址参数则视为无效
 					if(location == null){
 						instance = null;

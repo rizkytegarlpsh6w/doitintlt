@@ -3,8 +3,6 @@ package gu.dtalk.activemq;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -23,8 +21,8 @@ import static com.google.common.base.Preconditions.*;
  */
 public class DefaultLocalActivemqConfigProvider extends BaseActivemqConfigProvider{
 	private static final String REG_IPV4 = "^((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))$";
-	public static final ActivemqProperties INIT_PROPERTIES = new ActivemqProperties();
-	public DefaultLocalActivemqConfigProvider(){		
+	public static final ActivemqProperties INIT_PROPERTIES = ActivemqUtils.initParameters(null).initURI(makeLantalkURL("landtalkhost"));
+	public DefaultLocalActivemqConfigProvider(){
 	}
 	
 	@Override
@@ -34,22 +32,14 @@ public class DefaultLocalActivemqConfigProvider extends BaseActivemqConfigProvid
 	@Override
 	protected ActivemqProperties selfProp() {
 		ActivemqProperties props = INIT_PROPERTIES;
-		AtomicReference<String> key = new AtomicReference<>();
-		URI uri = ActivemqUtils.getLocation(props, key);
+		URI uri = ActivemqUtils.getLocation(props);
 		if(!uri.getHost().matches(REG_IPV4)){
 			// 如果host不是IP地址格式，则替换主机名为对应的IP地址
 			String host = IP_CACHE.getUnchecked(uri.getHost());
-			try {				
-				URI u2 = changeHost(uri,host);
-				props.setProperty(key.get(), u2.toString());
-			} catch (URISyntaxException e) {
-				throw new RuntimeException(e);
-			}
+			URI u2 = changeHost(uri,host);
+			props.initURI(u2);
 		}
 		return props;
-	}
-	static{
-		INIT_PROPERTIES.setProperty(ACON_BROKER_URL, makeLantalkURL("landtalkhost"));
 	}
 
 	private static final LoadingCache<String, String> IP_CACHE = CacheBuilder.newBuilder().build(new CacheLoader<String, String>(){
@@ -63,9 +53,13 @@ public class DefaultLocalActivemqConfigProvider extends BaseActivemqConfigProvid
 			}	
 		}});
 
-	private static URI changeHost(URI uri,String host) throws URISyntaxException{
+	private static URI changeHost(URI uri,String host){
 		// 替换主机名
-		return new URI(uri.getScheme(),uri.getUserInfo(),host,uri.getPort(),uri.getPath(),uri.getQuery(),uri.getFragment());
+		try {
+			return new URI(uri.getScheme(),uri.getUserInfo(),host,uri.getPort(),uri.getPath(),uri.getQuery(),uri.getFragment());
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	private static String makeLantalkURL(String landtalkhost){
 		try {
