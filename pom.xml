@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>com.gitee.l0km</groupId>
 	<artifactId>dtalk</artifactId>
-	<version>0.4.1-SNAPSHOT</version>
+	<version>0.4.1</version>
 	<packaging>pom</packaging>
 
 	<name>dtalk</name>
@@ -19,7 +19,7 @@
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<common-java.version>1.2.8</common-java.version>
-		<simplemq.version>2.1.0</simplemq.version>
+		<simplemq.version>2.1.1</simplemq.version>
 		<nanohttpd.version>2.3.1</nanohttpd.version>
 	</properties>
 	<dependencyManagement>
