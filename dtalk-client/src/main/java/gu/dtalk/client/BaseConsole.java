@@ -380,15 +380,6 @@ public abstract class BaseConsole {
 	 */
 	public void start(){
 		try{
-			Channel<String> testch = new Channel<String>(connchname, String.class);
-			publisher.publish(testch, "\"hello,dtalk\"");
-			int rc = publisher.getConsumerAdvisor().consumerCountOf(testch.name);
-			// 目标设备没有上线
-			checkState(rc != 0,"TARGET DEVICE NOT online");
-			if(rc>1){
-				// 有两个设备侦听同一个连接频道
-				System.out.println("WARN:DUPLICATED TARGET DEVICE WITH same MAC address");
-			}		
 			connect();
 			if(authorize()){
 				if(ackChannel.getAdapter() != renderEngine ){
