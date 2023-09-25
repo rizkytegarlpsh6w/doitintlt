@@ -58,12 +58,5 @@
 				<directory>${project.basedir}/src/main/resources-rt</directory>
 			</resource>
 		</resources>
-		<plugins>
-			<!-- 跳过测试 -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-			</plugin>
-		</plugins>
 	</build>
 </project>

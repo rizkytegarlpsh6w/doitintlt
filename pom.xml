@@ -21,6 +21,8 @@
 		<common-java.version>1.2.8</common-java.version>
 		<simplemq.version>2.2.0</simplemq.version>
 		<nanohttpd.version>2.3.1</nanohttpd.version>
+		<!-- surefire 插件 跳过测试 -->
+		<skipTests>true</skipTests>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -99,15 +101,6 @@
 								</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-				<!-- 跳过测试 -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.18.1</version>
-					<configuration>
-						<skipTests>true</skipTests>
 					</configuration>
 				</plugin>
 				<plugin>
