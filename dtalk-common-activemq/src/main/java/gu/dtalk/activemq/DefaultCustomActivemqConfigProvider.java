@@ -1,7 +1,7 @@
 package gu.dtalk.activemq;
 
-import gu.simplemq.activemq.PropertiesHelper;
 import gu.simplemq.utils.MQProperties;
+import static gu.dtalk.activemq.ActivemqContext.HELPER;
 
 /**
  * 自定义配置默认实现
@@ -9,8 +9,10 @@ import gu.simplemq.utils.MQProperties;
  *
  */
 public class DefaultCustomActivemqConfigProvider extends BaseActivemqConfigProvider {
-	public static final MQProperties INIT_PROPERTIES = PropertiesHelper.AHELPER.makeMQProperties(null);
-
+	public static final MQProperties INIT_PROPERTIES ;
+	static{
+		INIT_PROPERTIES = HELPER.makeMQProperties(null);
+	}
 	public DefaultCustomActivemqConfigProvider() {
 	}
 	@Override

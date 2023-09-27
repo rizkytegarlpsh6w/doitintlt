@@ -2,11 +2,11 @@ package gu.dtalk.activemq;
 
 import java.util.Properties;
 
-import gu.simplemq.activemq.ActivemqConstants;
-import gu.simplemq.activemq.PropertiesHelper;
 import gu.simplemq.utils.MQProperties;
+import static gu.dtalk.activemq.ActivemqContext.HELPER;
 
-public abstract class BaseActivemqConfigProvider implements ActivemqConfigProvider,ActivemqConstants {
+public abstract class BaseActivemqConfigProvider implements ActivemqConfigProvider {
+
 	public BaseActivemqConfigProvider() {
 	}
 	
@@ -18,7 +18,7 @@ public abstract class BaseActivemqConfigProvider implements ActivemqConfigProvid
 	
 	@Override
 	public final MQProperties getProperties(){
-		return PropertiesHelper.AHELPER.makeMQProperties(null).init(selfProp());
+		return HELPER.makeMQProperties(null).init(selfProp());
 	}
 	@Override
 	public final void setProperties(Properties properties) {

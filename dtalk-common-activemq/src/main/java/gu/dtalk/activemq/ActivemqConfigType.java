@@ -12,8 +12,6 @@ import com.google.common.net.HostAndPort;
 
 import gu.simplemq.IMQConnParameterSupplier;
 import gu.simplemq.MessageQueueType;
-import gu.simplemq.activemq.ActivemqConstants;
-import gu.simplemq.activemq.PropertiesHelper;
 import gu.simplemq.exceptions.SmqNotFoundConnectionException;
 import gu.simplemq.utils.MQProperties;
 
@@ -22,7 +20,7 @@ import gu.simplemq.utils.MQProperties;
  * @author guyadong
  *
  */
-public enum ActivemqConfigType  implements IMQConnParameterSupplier,ActivemqConstants{
+public enum ActivemqConfigType  implements IMQConnParameterSupplier{
 	/** 自定义配置 */CUSTOM(new DefaultCustomActivemqConfigProvider())
 	/** 局域网配置 */,LAN(new DefaultLocalActivemqConfigProvider())
 	/** 公有云配置 */,CLOUD(new DefaultCloudActivemqConfigProvider())
@@ -146,10 +144,7 @@ public enum ActivemqConfigType  implements IMQConnParameterSupplier,ActivemqCons
 		if(props != null && !props.stringPropertyNames().isEmpty()){
 //			System.out.printf("try to connect %s...\n", this);
 			try{
-				if(timeoutMills != null && timeoutMills > 0){
-					props.setProperty(ACON_connectResponseTimeout, timeoutMills.toString());
-				}
-				connectable = PropertiesHelper.AHELPER.testConnect(props);
+				connectable = ActivemqContext.HELPER.testConnect(props,timeoutMills);
 			}catch (Exception e) {
 			}
 //			if(connectable){
@@ -232,7 +227,7 @@ public enum ActivemqConfigType  implements IMQConnParameterSupplier,ActivemqCons
 		if(param==null){
 			buffer.append("(UNDEFINED)");
 		}else{
-			buffer.append("(").append(PropertiesHelper.AHELPER.getLocationlURI(param).toString()).append(")");
+			buffer.append("(").append(ActivemqContext.HELPER.getLocationlURI(param).toString()).append(")");
 		}
 		return buffer.toString();
 	}

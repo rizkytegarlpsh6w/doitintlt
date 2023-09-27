@@ -11,8 +11,6 @@ import com.google.common.net.HostAndPort;
 import gu.dtalk.OptionType;
 import gu.dtalk.activemq.DefaultCustomActivemqConfigProvider;
 import gu.simplemq.MessageQueueType;
-import gu.simplemq.activemq.ActivemqConstants;
-import gu.simplemq.activemq.PropertiesHelper;
 import gu.simplemq.mqtt.MqttConstants;
 import gu.simplemq.utils.MQProperties;
 import gu.simplemq.utils.URISupport;
@@ -28,26 +26,28 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static gu.dtalk.client.SampleConsole.run;
 import static net.gdface.utils.ConditionChecks.checkTrue;
+import static gu.dtalk.activemq.ActivemqContext.HELPER;
+import static gu.dtalk.activemq.ActivemqContext.CONSTP_ROVIDER;
 
 /**
  * 终端命令行配置参数
  * @author guyadong
  *
  */
-public class SampleConsoleActivemqConfig extends BaseAppConfig implements SampleConsoleConstants,ActivemqConstants,MqttConstants {
+public class SampleConsoleActivemqConfig extends BaseAppConfig implements SampleConsoleConstants,MqttConstants {
 	@SuppressWarnings("serial")
 	private static final HashMap<String, Object> CONSTANTS = 
 		new HashMap<String, Object>(){{put(IMPL_TYPE, MessageQueueType.ACTIVEMQ);}};
-	private final MQProperties activemqProperties = PropertiesHelper.AHELPER.initParameters(null);
+	private final MQProperties activemqProperties = HELPER.initParameters(null);
 
 	private String mac;
 	private SampleConsoleActivemqConfig() {
 		super(true);
 		options.addOption(Option.builder().longOpt(AMQ_HOST_OPTION_LONG)
-				.desc(AMQ_HOST_OPTION_DESC + DEFAULT_AMQ_HOST).numberOfArgs(1).build());
+				.desc(AMQ_HOST_OPTION_DESC + CONSTP_ROVIDER.getDefaultHost()).numberOfArgs(1).build());
 
 		options.addOption(Option.builder().longOpt(AMQ_PORT_OPTION_LONG)
-				.desc(AMQ_PORT_OPTION_DESC + DEFAULT_AMQ_PORT).numberOfArgs(1).type(Number.class).build());
+				.desc(AMQ_PORT_OPTION_DESC + CONSTP_ROVIDER.getDefaultPort()).numberOfArgs(1).type(Number.class).build());
 
 		options.addOption(Option.builder().longOpt(AMQ_PWD_OPTION_LONG)
 				.desc(AMQ_PWD_OPTION_DESC).numberOfArgs(1).build());
@@ -67,7 +67,7 @@ public class SampleConsoleActivemqConfig extends BaseAppConfig implements Sample
 		defaultValue.setProperty(AMQ_PORT_OPTION_LONG, activemqProperties.get(MQ_PORT));
 		defaultValue.setProperty(AMQ_PWD_OPTION_LONG, activemqProperties.get(MQ_PASSWORD));
 		defaultValue.setProperty(AMQ_URI_OPTION_LONG, activemqProperties.get(MQ_URI));
-		defaultValue.setProperty(AMQ_TIMEOUT_OPTION_LONG, activemqProperties.get(ACON_sendTimeout));
+		defaultValue.setProperty(AMQ_TIMEOUT_OPTION_LONG, activemqProperties.get(MQ_TIMEOUT));
 		defaultValue.setProperty(DEVICE_MAC_OPTION_LONG, "");
 
 	}
@@ -88,7 +88,7 @@ public class SampleConsoleActivemqConfig extends BaseAppConfig implements Sample
 			activemqProperties.setProperty(MQ_URI, (String) getProperty(AMQ_URI_OPTION_LONG));
 		}
 		if(hasProperty(AMQ_TIMEOUT_OPTION_LONG)){
-			activemqProperties.setProperty(ACON_sendTimeout, (String) getProperty(AMQ_TIMEOUT_OPTION_LONG));
+			activemqProperties.setProperty(MQ_TIMEOUT, (String) getProperty(AMQ_TIMEOUT_OPTION_LONG));
 		}
 		this.mac = (String) getProperty(DEVICE_MAC_OPTION_LONG);
 		if(!Strings.isNullOrEmpty(this.mac)){
@@ -112,7 +112,7 @@ public class SampleConsoleActivemqConfig extends BaseAppConfig implements Sample
 					// 尝试解析为端口号(整数)
 					int port = Integer.parseInt(value);
 					checkArgument(port > 0,"INVALID option %s:%s,as port ,>0 required", MQTT_OPTION_LONG, port);
-					activemqProperties.setProperty(MQ_PUBSUB_URI, String.format("mqtt://%s:%d",DEFAULT_AMQ_HOST, port));
+					activemqProperties.setProperty(MQ_PUBSUB_URI, String.format("mqtt://%s:%d",CONSTP_ROVIDER.getDefaultHost(), port));
 				} catch (NumberFormatException e) {
 					HostAndPort hostAndPort;
 					try {

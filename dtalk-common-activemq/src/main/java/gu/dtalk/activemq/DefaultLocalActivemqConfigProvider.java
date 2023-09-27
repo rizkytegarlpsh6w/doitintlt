@@ -3,16 +3,16 @@ package gu.dtalk.activemq;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
-import org.apache.activemq.ActiveMQConnectionFactory;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import gu.simplemq.activemq.PropertiesHelper;
 import gu.simplemq.utils.MQProperties;
 import net.gdface.utils.JcifsUtil;
 
 import static com.google.common.base.Preconditions.*;
+import static gu.dtalk.activemq.ActivemqContext.HELPER;
+import static gu.dtalk.activemq.ActivemqContext.CONSTP_ROVIDER;
 
 /**
  * 局域网配置
@@ -21,7 +21,10 @@ import static com.google.common.base.Preconditions.*;
  */
 public class DefaultLocalActivemqConfigProvider extends BaseActivemqConfigProvider{
 	private static final String REG_IPV4 = "^((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))$";
-	public static final MQProperties INIT_PROPERTIES = PropertiesHelper.AHELPER.initParameters(null).initURI(makeLantalkURL("landtalkhost"));
+	public static final MQProperties INIT_PROPERTIES;
+	static{
+		INIT_PROPERTIES = HELPER.initParameters(null).initURI(makeLantalkURL("landtalkhost"));
+	}
 	public DefaultLocalActivemqConfigProvider(){
 	}
 	
@@ -32,7 +35,7 @@ public class DefaultLocalActivemqConfigProvider extends BaseActivemqConfigProvid
 	@Override
 	protected MQProperties selfProp() {
 		MQProperties props = INIT_PROPERTIES;
-		URI uri = PropertiesHelper.AHELPER.getLocation(props);
+		URI uri = HELPER.getLocation(props);
 		if(!uri.getHost().matches(REG_IPV4)){
 			// 如果host不是IP地址格式，则替换主机名为对应的IP地址
 			String host = IP_CACHE.getUnchecked(uri.getHost());
@@ -63,7 +66,8 @@ public class DefaultLocalActivemqConfigProvider extends BaseActivemqConfigProvid
 	}
 	private static String makeLantalkURL(String landtalkhost){
 		try {
-			URI uri = new URI(ActiveMQConnectionFactory.DEFAULT_BROKER_BIND_URL);
+			String defaultLocation = CONSTP_ROVIDER.getDefaultMQLocation();
+			URI uri = new URI(defaultLocation);
 			return changeHost(uri,landtalkhost).toString();
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
@@ -74,7 +78,7 @@ public class DefaultLocalActivemqConfigProvider extends BaseActivemqConfigProvid
 	 * @param landtalkhost 要设置的 landtalkhost
 	 */
 	public static void initLandtalkhost(String landtalkhost) {
-		INIT_PROPERTIES.initURI(makeLantalkURL(checkNotNull(landtalkhost,"lantalkhost is null")));
+		INIT_PROPERTIES.initURI(makeLantalkURL(checkNotNull(landtalkhost,"landtalkhost is null")));
 	}
 
 }

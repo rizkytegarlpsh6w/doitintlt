@@ -1,20 +1,32 @@
 package gu.dtalk.activemq;
 
-import gu.simplemq.activemq.PropertiesHelper;
+import gu.simplemq.Constant;
+import gu.simplemq.MessageQueueType;
 import gu.simplemq.utils.MQProperties;
+
+import static gu.dtalk.activemq.ActivemqContext.HELPER;
+import static gu.dtalk.activemq.ActivemqContext.CONTEXT;;
 
 /**
  * 公有云配置
  * @author guyadong
  *
  */
-public class DefaultCloudActivemqConfigProvider extends BaseActivemqConfigProvider{
-	public static final MQProperties INIT_PROPERTIES = PropertiesHelper.AHELPER.makeMQProperties(null);
+public class DefaultCloudActivemqConfigProvider extends BaseActivemqConfigProvider implements Constant{
 
-	/** 默认的公有云activemq连接 */
-	public static final String DEFAULT_CLOUD_ACTIVEMQ_URI = "tcp://dtalk.facelib.net:26416";	
+	public static final MQProperties INIT_PROPERTIES;
+
+	/** 默认的公有云activemq连接(openwire) */
+	public static final String DEFAULT_CLOUD_ACTIVEMQ_URI = "tcp://dtalk.facelib.net:26417";	
+	/** 默认的公有云activemq连接(stomp) */
+	public static final String DEFAULT_CLOUD_STOMP_URI = "stomp://dtalk.facelib.net:26418";
 	static{
-		INIT_PROPERTIES.setProperty(ACON_BROKER_URL, DEFAULT_CLOUD_ACTIVEMQ_URI);
+		INIT_PROPERTIES = HELPER.makeMQProperties(null);
+		if(MessageQueueType.ACTIVEMQ.name().equals(CONTEXT.getClientImplType())){
+			INIT_PROPERTIES.setProperty(MQ_URI, DEFAULT_CLOUD_ACTIVEMQ_URI);			
+		}else{
+			INIT_PROPERTIES.setProperty(MQ_URI, DEFAULT_CLOUD_STOMP_URI);
+		}
 	}
 	@Override
 	protected MQProperties selfProp() {

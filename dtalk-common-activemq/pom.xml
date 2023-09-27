@@ -32,7 +32,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>simplemq-activemq</artifactId>
+			<artifactId>simplemq-stomp</artifactId>
 			<version>${simplemq.version}</version>
 		</dependency>
 		<dependency>

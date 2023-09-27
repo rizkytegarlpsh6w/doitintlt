@@ -35,7 +35,7 @@ public interface DemoConstants extends CommonCliConstants {
 	public static final String AMQ_URI_OPTION_LONG = "uri";
 	public static final String AMQ_URI_OPTION_DESC = "uri for redis,default:null";
 	public static final String AMQ_TIMEOUT_OPTION_LONG = "timout";
-	public static final String AMQ_TIMEOUT_OPTION_DESC = "network timeout (millisecond),default:";
+	public static final String AMQ_TIMEOUT_OPTION_DESC = "network timeout (millisecond)";
 
 	public static final String MQTT_OPTION_LONG = "mqtt";
 	public static final String MQTT_OPTION_DESC = "use MQTT protocol for publish/subscribe service, "
