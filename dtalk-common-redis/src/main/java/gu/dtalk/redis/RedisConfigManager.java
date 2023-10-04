@@ -4,7 +4,8 @@ import gu.simplemq.IMessageQueueConfigManager;
 import gu.simplemq.MessageQueueType;
 import gu.simplemq.exceptions.SmqNotFoundConnectionException;
 
-import static gu.dtalk.redis.RedisConfigType.*;
+import static gu.dtalk.redis.RedisConfigType.lookupConnect;
+import static gu.dtalk.redis.RedisConfigType.lookupConnectUnchecked;
 
 public class RedisConfigManager implements IMessageQueueConfigManager {
 

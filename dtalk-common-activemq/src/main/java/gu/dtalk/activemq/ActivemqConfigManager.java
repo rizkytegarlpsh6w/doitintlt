@@ -1,6 +1,7 @@
 package gu.dtalk.activemq;
 
-import static gu.dtalk.activemq.ActivemqConfigType.*;
+import static gu.dtalk.activemq.ActivemqConfigType.lookupConnect;
+import static gu.dtalk.activemq.ActivemqConfigType.lookupConnectUnchecked;
 
 import gu.simplemq.IMessageQueueConfigManager;
 import gu.simplemq.MessageQueueType;
@@ -12,7 +13,8 @@ public class ActivemqConfigManager implements IMessageQueueConfigManager {
 	}
 
 	@Override
-	public ActivemqConfigType lookupMessageQueueConnect(Integer timeoutMills) throws SmqNotFoundConnectionException{
+	public ActivemqConfigType lookupMessageQueueConnect(Integer timeoutMills) 
+			throws SmqNotFoundConnectionException{
 		return lookupConnect(timeoutMills);
 	}
 
