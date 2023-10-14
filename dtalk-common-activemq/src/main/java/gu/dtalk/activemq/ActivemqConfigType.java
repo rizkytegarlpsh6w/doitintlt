@@ -11,9 +11,9 @@ import com.google.common.collect.Iterators;
 import com.google.common.net.HostAndPort;
 
 import gu.simplemq.IMQConnParameterSupplier;
+import gu.simplemq.MQProperties;
 import gu.simplemq.MessageQueueType;
 import gu.simplemq.exceptions.SmqNotFoundConnectionException;
-import gu.simplemq.utils.MQProperties;
 
 /**
  * ActiveMQ 连接配置参数

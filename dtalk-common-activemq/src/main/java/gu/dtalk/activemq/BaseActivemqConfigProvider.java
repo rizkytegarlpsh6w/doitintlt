@@ -2,7 +2,8 @@ package gu.dtalk.activemq;
 
 import java.util.Properties;
 
-import gu.simplemq.utils.MQProperties;
+import gu.simplemq.MQProperties;
+
 import static gu.dtalk.activemq.ActivemqContext.HELPER;
 
 public abstract class BaseActivemqConfigProvider implements ActivemqConfigProvider {

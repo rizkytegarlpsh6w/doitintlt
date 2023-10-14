@@ -1,10 +1,10 @@
 package gu.dtalk.activemq;
 
+import gu.simplemq.IMQContext;
 import gu.simplemq.MQConstProvider;
+import gu.simplemq.MQContextLoader;
+import gu.simplemq.MQPropertiesHelper;
 import gu.simplemq.MessageQueueType;
-import gu.simplemq.utils.IMQContext;
-import gu.simplemq.utils.MQContextLoader;
-import gu.simplemq.utils.MQPropertiesHelper;
 
 public class ActivemqContext {
 

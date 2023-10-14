@@ -10,8 +10,8 @@ import com.google.common.net.HostAndPort;
 
 import gu.dtalk.activemq.DefaultCustomActivemqConfigProvider;
 import gu.simplemq.Constant;
+import gu.simplemq.MQProperties;
 import gu.simplemq.MessageQueueType;
-import gu.simplemq.utils.MQProperties;
 import gu.simplemq.utils.URISupport;
 import net.gdface.cli.BaseAppConfig;
 

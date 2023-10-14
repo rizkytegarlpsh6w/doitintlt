@@ -1,7 +1,8 @@
 package gu.dtalk.activemq;
 
-import gu.simplemq.utils.MQProperties;
 import static gu.dtalk.activemq.ActivemqContext.HELPER;
+
+import gu.simplemq.MQProperties;
 
 /**
  * 自定义配置默认实现

@@ -7,7 +7,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import gu.simplemq.utils.MQProperties;
+import gu.simplemq.MQProperties;
 import net.gdface.utils.JcifsUtil;
 
 import static com.google.common.base.Preconditions.*;

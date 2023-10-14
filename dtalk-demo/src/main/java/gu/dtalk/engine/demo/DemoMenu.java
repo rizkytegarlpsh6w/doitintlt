@@ -12,6 +12,7 @@ import gu.dtalk.RootMenu;
 import gu.dtalk.StringOption;
 import gu.dtalk.SwitchOption;
 import gu.dtalk.event.ValueListener;
+import gu.simplemq.Constant;
 import gu.simplemq.IMQConnParameterSupplier;
 
 import java.util.Date;
@@ -25,9 +26,8 @@ import gu.dtalk.IPv4Option;
 
 import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
 import static com.google.common.base.Preconditions.*;
-import static gu.simplemq.IMessageQueueFactory.*;
 
-public class DemoMenu extends RootMenu{
+public class DemoMenu extends RootMenu implements Constant{
 	private final IMQConnParameterSupplier paramSupplier;
 	
 	public DemoMenu() {

@@ -1,7 +1,8 @@
 package gu.dtalk.activemq;
 
 import gu.simplemq.Constant;
-import gu.simplemq.utils.MQProperties;
+import gu.simplemq.MQProperties;
+
 import static gu.dtalk.activemq.ActivemqContext.HELPER;
 import static gu.dtalk.activemq.ActivemqContext.CONSTP_ROVIDER;
 

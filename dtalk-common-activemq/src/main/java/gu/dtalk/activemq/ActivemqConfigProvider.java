@@ -2,7 +2,7 @@ package gu.dtalk.activemq;
 
 import java.util.Properties;
 
-import gu.simplemq.utils.MQProperties;
+import gu.simplemq.MQProperties;
 
 /**
  * ActiveMQ 服务器参数SPI(Service Provider Interface)读写接口

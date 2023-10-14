@@ -10,9 +10,9 @@ import com.google.common.net.HostAndPort;
 
 import gu.dtalk.OptionType;
 import gu.dtalk.activemq.DefaultCustomActivemqConfigProvider;
+import gu.simplemq.Constant;
+import gu.simplemq.MQProperties;
 import gu.simplemq.MessageQueueType;
-import gu.simplemq.mqtt.MqttConstants;
-import gu.simplemq.utils.MQProperties;
 import gu.simplemq.utils.URISupport;
 import net.gdface.cli.BaseAppConfig;
 import static redis.clients.jedis.Protocol.*;
@@ -34,7 +34,7 @@ import static gu.dtalk.activemq.ActivemqContext.CONSTP_ROVIDER;
  * @author guyadong
  *
  */
-public class SampleConsoleActivemqConfig extends BaseAppConfig implements SampleConsoleConstants,MqttConstants {
+public class SampleConsoleActivemqConfig extends BaseAppConfig implements SampleConsoleConstants,Constant {
 	@SuppressWarnings("serial")
 	private static final HashMap<String, Object> CONSTANTS = 
 		new HashMap<String, Object>(){{put(IMPL_TYPE, MessageQueueType.ACTIVEMQ);}};
