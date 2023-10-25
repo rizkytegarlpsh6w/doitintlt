@@ -15,4 +15,12 @@ public class CmdExecutionException extends DtalkException {
 		super(cause);
 	}
 
+	public CmdExecutionException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public CmdExecutionException(String message) {
+		super(message);
+	}
+
 }
