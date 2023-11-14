@@ -13,15 +13,13 @@ import com.google.common.base.Strings;
 
 import gu.dtalk.Ack;
 import gu.dtalk.ConnectReq;
+import gu.simplemq.ISubscriber;
 import gu.simplemq.Channel;
 import gu.simplemq.IMessageAdapter;
+import gu.simplemq.IPublisher;
 import gu.simplemq.IUnregistedListener;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
 import gu.simplemq.json.BaseJsonEncoder;
-import gu.simplemq.redis.JedisPoolLazy;
-import gu.simplemq.redis.RedisFactory;
-import gu.simplemq.redis.RedisPublisher;
-import gu.simplemq.redis.RedisSubscriber;
 import net.gdface.utils.BinaryUtils;
 import static gu.dtalk.CommonConstant.*;
 import static com.google.common.base.Preconditions.*;
@@ -67,7 +65,8 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 			connectedMAC=null;								
 		}
 	};
-	private final RedisPublisher ackPublisher;
+	private final IPublisher ackPublisher;
+	private final ISubscriber subscriber;
 	/**
 	 * 当前连接的CLIENT端的请求频道
 	 */
@@ -75,24 +74,23 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	private long idleTimeLimit = DEFAULT_IDLE_TIME_MILLS;
 	private long timerPeriod = 2000;
 	private ItemAdapter itemAdapter;
-	private final RedisSubscriber subscriber;
 	private RequestValidator requestValidator;
-	public SampleConnector(JedisPoolLazy pool) {
-		ackPublisher = RedisFactory.getPublisher(pool);
-		subscriber = RedisFactory.getSubscriber(pool);
-		requestValidator = this;
+	public SampleConnector(IPublisher publisher,ISubscriber subscriber) {
+		this.ackPublisher = checkNotNull(publisher,"publisher is null");
+		this.subscriber = checkNotNull(subscriber,"subscriber is null");
+		this.requestValidator = this;
 		// 定时检查itemAdapter工作状态，当itemAdapter 空闲超时，则中止频道
 		getTimer().schedule(new TimerTask() {
 			
 			@Override
 			public void run() {
 				try{
-					Channel<?> c = subscriber.getChannel(requestChannel);
+					Channel<?> c = SampleConnector.this.subscriber.getChannel(requestChannel);
 					if(null != c){
 						ItemAdapter adapter = (ItemAdapter) c.getAdapter();
 						long lasthit = adapter.lastHitTime();
-						if(System.currentTimeMillis() - lasthit > idleTimeLimit){
-							subscriber.unregister(requestChannel);
+						if((lasthit != 0) && (System.currentTimeMillis() - lasthit > idleTimeLimit)){
+							SampleConnector.this.subscriber.unregister(requestChannel);
 							requestChannel = null;
 						}
 					}
@@ -163,7 +161,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 							c.addUnregistedListener(unregistedListener);
 							System.out.printf("Connect created(建立连接)for client:%s\n",connectedMAC);
 							System.out.printf("request channel %s \n"
-									                 + "ack channel       %s:\n", c.name,ac);							
+									                 + "ack channel       %s \n", c.name,ac);							
 						} catch (Exception e) {
 							logger.error(e.getMessage());
 						}
@@ -173,6 +171,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 			}
 		}catch(JSONException e){
 			// 忽略无法解析成ConnectReq请求对象的数据
+			logger.info("REJECT REQUEST {}",connstr);
 		}catch(Exception e){
 			ack.setStatus(Ack.Status.ERROR).setStatusMessage(e.getMessage());
 		}

@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.gitee.l0km</groupId>
 		<artifactId>dtalk</artifactId>
-		<version>0.3.11-SNAPSHOT</version>
+		<version>0.4.14-SNAPSHOT</version>
 	</parent>
 	<artifactId>dtalk-engine</artifactId>
 	<packaging>jar</packaging>
@@ -43,7 +43,7 @@
 		    <groupId>org.nanohttpd</groupId>
 		    <artifactId>nanohttpd-websocket</artifactId>
 		    <version>${nanohttpd.version}</version>
-		</dependency>		
+		</dependency>
 	</dependencies>
 	<build>
 		<!-- 编译时用运行时(runtime)前端配置config.js替换开发模式下的同名文件 -->
@@ -58,12 +58,5 @@
 				<directory>${project.basedir}/src/main/resources-rt</directory>
 			</resource>
 		</resources>
-		<plugins>
-			<!-- 跳过测试 -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-			</plugin>
-		</plugins>
 	</build>
 </project>

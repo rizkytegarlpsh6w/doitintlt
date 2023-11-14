@@ -39,6 +39,8 @@ dtalk在代码结构上分为两大块，用运行于前端设备的`dtalk-engin
 
 	├─dtalk-base   dtalk共用模块
 	├─dtalk-client dtalk字符终端实现
+	├─dtalk-cmd    dtalk设备命令模块
+	├─dtalk-common-redis    dtalk redis实现公用模块
 	├─dtalk-demo   dtalk设备端模拟器
 	├─dtalk-engine 命令菜单引擎实现
 	└─manual       系统开发文档

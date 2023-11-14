@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>com.gitee.l0km</groupId>
 	<artifactId>dtalk</artifactId>
-	<version>0.3.11-SNAPSHOT</version>
+	<version>0.4.14-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>dtalk</name>
@@ -18,9 +18,11 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
-		<common-java.version>1.2.7</common-java.version>
-		<simplemq.version>1.0.25</simplemq.version>
+		<common-java.version>1.2.8</common-java.version>
+		<simplemq.version>2.2.7</simplemq.version>
 		<nanohttpd.version>2.3.1</nanohttpd.version>
+		<!-- surefire 插件 跳过测试 -->
+		<skipTests>true</skipTests>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -101,15 +103,6 @@
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
-				<!-- 跳过测试 -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.18.1</version>
-					<configuration>
-						<skipTests>true</skipTests>
-					</configuration>
-				</plugin>
 				<plugin>
 					<artifactId>maven-source-plugin</artifactId>
 					<version>3.0.1</version>
@@ -132,6 +125,23 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-shade-plugin</artifactId>
 					<version>3.1.0</version>
+					<configuration>
+						<shadedArtifactAttached>true</shadedArtifactAttached>
+						<minimizeJar>false</minimizeJar>
+						<!-- 生成依赖包的源码jar包 -->
+						<createSourcesJar>false</createSourcesJar>
+						<shadedClassifierName>standalone</shadedClassifierName>
+						<filters>
+							<filter>
+								<artifact>*:*</artifact>
+								<excludes>
+									<exclude>META-INF/*.SF</exclude>
+									<exclude>META-INF/*.DSA</exclude>
+									<exclude>META-INF/*.RSA</exclude>
+								</excludes>
+							</filter>
+						</filters>					
+					</configuration>
 					<executions>
 						<execution>
 							<phase>package</phase>
@@ -161,6 +171,8 @@
 	</build>
 	<modules>
 		<module>dtalk-base</module>
+		<module>dtalk-common-redis</module>
+		<module>dtalk-common-activemq</module>
 		<module>dtalk-engine</module>
 		<module>dtalk-demo</module>
 		<module>dtalk-client</module>

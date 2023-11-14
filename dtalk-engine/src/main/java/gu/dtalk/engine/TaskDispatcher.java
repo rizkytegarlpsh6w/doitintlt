@@ -3,9 +3,11 @@ package gu.dtalk.engine;
 import gu.dtalk.CommonConstant.ReqCmdType;
 import gu.dtalk.DeviceInstruction;
 import gu.simplemq.Channel;
+import gu.simplemq.IConsumer;
 import gu.simplemq.IMessageAdapter;
-import gu.simplemq.redis.JedisPoolLazy;
-import gu.simplemq.redis.RedisFactory;
+import gu.simplemq.IPublisher;
+import static com.google.common.base.Preconditions.*;
+
 /**
  * 设备任务分发器,实现{@link IMessageAdapter}接口<br>
  * 从任务队列得到设备指令{@link DeviceInstruction},并将交给{@link ItemAdapter}执行<br>
@@ -15,22 +17,21 @@ import gu.simplemq.redis.RedisFactory;
  */
 public class TaskDispatcher extends BaseDispatcher {
 
-	public TaskDispatcher(int deviceId, JedisPoolLazy jedisPoolLazy) {
-		super(deviceId, ReqCmdType.TASKQUEUE, jedisPoolLazy);
-	}
+	private final IConsumer consumer;
 
-	public TaskDispatcher(int deviceId) {
-		this(deviceId, JedisPoolLazy.getDefaultInstance());
+	public TaskDispatcher(int deviceId, IPublisher publisher, IConsumer consumer) {
+		super(deviceId, ReqCmdType.TASKQUEUE, publisher);
+		this.consumer = checkNotNull(consumer,"consumer is null");
 	}
 
 	@Override
 	protected void doRegister(Channel<DeviceInstruction> channel) {
-		RedisFactory.getConsumer().register(channel);
+		consumer.register(channel);
 	}
 
 	@Override
 	protected void doUnregister(String channel) {
-		RedisFactory.getConsumer().unregister(channel);
+		consumer.unregister(channel);
 	}
 
 

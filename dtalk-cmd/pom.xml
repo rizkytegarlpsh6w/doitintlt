@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.gitee.l0km</groupId>
 		<artifactId>dtalk</artifactId>
-		<version>0.3.11-SNAPSHOT</version>
+		<version>0.4.14-SNAPSHOT</version>
 	</parent>
 	<artifactId>dtalk-cmd</artifactId>
 	<packaging>jar</packaging>
@@ -28,22 +28,8 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>common-base2</artifactId>
-			<version>${common-java.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>dtalk-base</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
-	<build>
-		<plugins>
-			<!-- 跳过测试 -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
 </project>

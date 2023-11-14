@@ -8,8 +8,9 @@ import gu.dtalk.CommonConstant.ReqCmdType;
 import gu.dtalk.DeviceInstruction;
 import gu.simplemq.Channel;
 import gu.simplemq.IMessageAdapter;
-import gu.simplemq.redis.JedisPoolLazy;
-import gu.simplemq.redis.RedisFactory;
+import gu.simplemq.IPublisher;
+import gu.simplemq.ISubscriber;
+import static com.google.common.base.Preconditions.*;
 /**
  * 多目标设备命令分发器,实现{@link IMessageAdapter}接口<br>
  * 从设备命令频道得到设备指令{@link DeviceInstruction},并将交给{@link ItemAdapter}执行<br>
@@ -21,6 +22,7 @@ import gu.simplemq.redis.RedisFactory;
 public class CmdDispatcher extends BaseDispatcher {
 	/** 设备所属的组可能是可以变化的,所以这里需要用{@code Supplier} 接口来动态获取当前设备的设备组 */
 	private Supplier<Integer> groupIdSupplier;
+	private final ISubscriber subscriber;
 	/** 判断target列表是否包括当前设备 */
 	private boolean selfIncluded(boolean group,List<Integer> target){
 		if(group){
@@ -40,22 +42,19 @@ public class CmdDispatcher extends BaseDispatcher {
 				&& null != deviceInstruction.getTarget() 
 				&& selfIncluded(deviceInstruction.isGroup(),deviceInstruction.getTarget());
 	}
-	public CmdDispatcher(int deviceId, JedisPoolLazy jedisPoolLazy) {
-		super(deviceId, ReqCmdType.MULTI, jedisPoolLazy);
-	}
-
-	public CmdDispatcher(int deviceId) {
-		this(deviceId, JedisPoolLazy.getDefaultInstance());
+	public CmdDispatcher(int deviceId, IPublisher publisher, ISubscriber subscriber) {
+		super(deviceId, ReqCmdType.MULTI, publisher);
+		this.subscriber = checkNotNull(subscriber,"subscriber is null");
 	}
 
 	@Override
 	protected void doRegister(Channel<DeviceInstruction> channel) {
-		RedisFactory.getSubscriber().register(channel);
+		subscriber.register(channel);
 	}
 
 	@Override
 	protected void doUnregister(String channel) {
-		RedisFactory.getSubscriber().unregister(channel);
+		subscriber.unregister(channel);
 	}
 
 	public Supplier<Integer> getGroupIdSupplier() {

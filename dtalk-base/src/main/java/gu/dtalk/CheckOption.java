@@ -2,7 +2,6 @@ package gu.dtalk;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -112,11 +111,7 @@ public class CheckOption<E> extends BaseOption<Set<Integer>> {
 			String desc = entry.getValue();			
 			stream.printf("\t<%d>%s -- %s\n", index++,entry.getKey().toString(), desc.isEmpty() ? "NO DESC" : desc);
 		}
-		try {
-			return new String(bytestream.toByteArray(),"utf-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+		return bytestream.toString();
 	}
 
 	public Map<E, String> getOptions() {

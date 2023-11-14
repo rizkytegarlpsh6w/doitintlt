@@ -10,42 +10,57 @@ import gu.dtalk.engine.DeviceUtils;
 import gu.dtalk.engine.ItemAdapter;
 import gu.dtalk.engine.ItemEngineRedisImpl;
 import gu.dtalk.engine.SampleConnector;
-import gu.dtalk.redis.DefaultCustomRedisConfigProvider;
-import gu.dtalk.redis.RedisConfigType;
+import gu.dtalk.engine.demo.DemoListener;
+import gu.dtalk.engine.demo.DemoMenu;
+import gu.simplemq.ISubscriber;
+import gu.simplemq.MessageQueueConfigManagers;
+import gu.simplemq.MessageQueueFactorys;
+import gu.simplemq.MessageQueueType;
+import gu.simplemq.exceptions.SmqNotFoundConnectionException;
 import gu.simplemq.Channel;
-import gu.simplemq.redis.JedisPoolLazy;
-import gu.simplemq.redis.RedisFactory;
-import gu.simplemq.redis.RedisSubscriber;
+import gu.simplemq.IMQConnParameterSupplier;
+import gu.simplemq.IMessageQueueConfigManager;
+import gu.simplemq.IMessageQueueFactory;
+import gu.simplemq.IPublisher;
+import net.gdface.cli.BaseAppConfig;
 import net.gdface.utils.BinaryUtils;
 import net.gdface.utils.NetworkUtil;
 
 import static gu.dtalk.CommonUtils.*;
-import static gu.dtalk.engine.demo.DemoConfig.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * dtalk引擎演示
+ * dtalk引擎演示基类
  * @author guyadong
  *
  */
-public class Demo {
-	private static final Logger logger = LoggerFactory.getLogger(Demo.class);
+public class Demo implements DemoConstants {
+	protected static final Logger logger = LoggerFactory.getLogger(Demo.class);
 
 	private final SampleConnector connAdapter;
-	private final RedisSubscriber subscriber;
+	private final ISubscriber subscriber;
 	private final byte[] devMac;
-	public Demo(RedisConfigType configType) {
-		JedisPoolLazy pool = JedisPoolLazy.getInstance(configType.readRedisParam(),false);
-		subscriber = RedisFactory.getSubscriber(pool);
-		DemoMenu root = new DemoMenu(configType).init().register(DemoListener.INSTANCE);
+	public Demo(IMessageQueueConfigManager manager) throws SmqNotFoundConnectionException {
+		// 创建消息系统连接实例
+		IMQConnParameterSupplier config = checkNotNull(manager,"manager is null").lookupMessageQueueConnect(null);
+		System.out.printf("Device talk %s Demo starting(设备%s模拟器启动)",manager.getImplType(),manager.getImplType());
+		IMessageQueueFactory factory = MessageQueueFactorys.getFactory(config.getImplType())
+				.init(config.getMQConnParameters())
+				.asDefaultFactory();
+		logger.info("use config={}",config);
+
+		subscriber = factory.getSubscriber();	
+		IPublisher publisher = factory.getPublisher();
+		DemoMenu root = new DemoMenu(config).init().register(DemoListener.INSTANCE);
 		devMac = DeviceUtils.DEVINFO_PROVIDER.getMac();
-		connAdapter = new SampleConnector(pool)
+		connAdapter = new SampleConnector(publisher,subscriber)
 				.setSelfMac(BinaryUtils.toHex(devMac))
-				.setItemAdapter((ItemAdapter) new ItemEngineRedisImpl(pool).setRoot(root));
+				.setItemAdapter((ItemAdapter) new ItemEngineRedisImpl(publisher).setRoot(root));
 	}
 	/**
 	 * 启动连接
 	 */
-	private void start(){
+	protected void start(){
 		System.out.printf("DEVICE MAC address(设备地址): %s\n",NetworkUtil.formatMac(devMac, ":"));
 		String connchname = getConnChannel(devMac);
 		Channel<String> connch = new Channel<>(connchname, String.class)
@@ -53,7 +68,7 @@ public class Demo {
 		subscriber.register(connch);
 		System.out.printf("Connect channel registered(连接频道注册) : %s \n",connchname);
 	}
-	private static void waitquit(){
+	protected static void waitquit(){
 		System.out.println("PRESS 'quit' OR 'CTRL-C' to exit");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); 
 		try{
@@ -61,27 +76,19 @@ public class Demo {
 			}
 			System.exit(0);
 		} catch (IOException e) {
-
+	
 		}finally {
-
+	
 		}
 	}
-	public static void main(String []args){		
+	static void run(BaseAppConfig config,String []args){		
 		try{
-			DEMO_CONFIG.parseCommandLine(args);
-			DefaultCustomRedisConfigProvider.initredisParameters(DEMO_CONFIG.getRedisParameters());
-
-			System.out.println("Device talk Demo starting(设备模拟器启动)");
-			RedisConfigType config = RedisConfigType.lookupRedisConnect();
-			logger.info("use config={}",config.toString());
-			// 创建redis连接实例
-			JedisPoolLazy.createDefaultInstance( config.readRedisParam() );
-			
-			new Demo(config).start();
+			config.parseCommandLine(args);
+			new Demo(MessageQueueConfigManagers.getManager((MessageQueueType)config.getConstant(IMPL_TYPE))).start();
 			waitquit();
 		}catch (Exception e) {
-			if(DEMO_CONFIG.isTrace()){
-				e.printStackTrace();	
+			if(config.isTrace()){
+				e.printStackTrace();
 			}else{
 				System.out.println(e.getMessage());
 			}

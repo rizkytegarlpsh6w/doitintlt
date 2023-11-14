@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.gitee.l0km</groupId>
 		<artifactId>dtalk</artifactId>
-		<version>0.3.11-SNAPSHOT</version>
+		<version>0.4.14-SNAPSHOT</version>
 	</parent>
 	<artifactId>dtalk-base</artifactId>
 	<packaging>jar</packaging>
@@ -44,7 +44,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.gitee.l0km</groupId>
-			<artifactId>simplemq</artifactId>
+			<artifactId>simplemq-base</artifactId>
 			<version>${simplemq.version}</version>
 		</dependency>
 		<dependency>
@@ -66,11 +66,6 @@
 			</resource>
 		</resources>
 		<plugins>
-			<!-- 跳过测试 -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>templating-maven-plugin</artifactId>
