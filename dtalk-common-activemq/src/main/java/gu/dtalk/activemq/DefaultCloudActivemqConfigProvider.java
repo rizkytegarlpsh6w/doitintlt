@@ -15,13 +15,14 @@ import static gu.dtalk.activemq.ActivemqContext.CONTEXT;;
 public class DefaultCloudActivemqConfigProvider extends BaseActivemqConfigProvider implements Constant{
 
 	public static final MQProperties INIT_PROPERTIES;
-
+	/** 云端的 ACTIVEMQ 连接用户名和密码 */
+	private static final String userinfo = "faceloguser:86a1b907d54bf7010394bf316e183e67@";
 	/** 默认的公有云activemq连接(openwire) */
-	public static final String DEFAULT_CLOUD_ACTIVEMQ_URI = "tcp://dtalk.facelib.net:26417";	
+	public static final String DEFAULT_CLOUD_ACTIVEMQ_URI = "tcp://" + userinfo + "dtalk.facelib.net:26417";	
 	/** 默认的公有云activemq连接(stomp) */
-	public static final String DEFAULT_CLOUD_STOMP_URI = "stomp://dtalk.facelib.net:26418";
+	public static final String DEFAULT_CLOUD_STOMP_URI = "stomp://" + userinfo + "dtalk.facelib.net:26417";
 	/** 默认的公有云activemq连接(stomp) */
-	public static final String DEFAULT_CLOUD_AMQP_URI = "amqp://dtalk.facelib.net:26418";
+	public static final String DEFAULT_CLOUD_AMQP_URI = "amqp://" + userinfo + "dtalk.facelib.net:26417";
 	static{
 		INIT_PROPERTIES = HELPER.makeMQProperties(null);
 		if(MessageQueueType.ACTIVEMQ.name().equals(CONTEXT.getClientImplType())){
