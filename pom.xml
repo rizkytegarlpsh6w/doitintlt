@@ -12,6 +12,7 @@
 	<packaging>pom</packaging>
 
 	<name>dtalk</name>
+	<description>dtalk aggregator</description>
 	<url>https://gitee.com/l0km</url>
 
 	<properties>

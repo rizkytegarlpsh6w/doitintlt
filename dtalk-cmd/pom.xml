@@ -8,7 +8,8 @@
 	<artifactId>dtalk-cmd</artifactId>
 	<packaging>jar</packaging>
 
-	<name>dtalk-cmd</name>
+	<name>dtalk cmd/task manager</name>
+	<description>implement cmd/task manager</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>

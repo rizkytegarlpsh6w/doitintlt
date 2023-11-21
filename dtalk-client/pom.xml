@@ -8,7 +8,8 @@
 	<artifactId>dtalk-client</artifactId>
 	<packaging>jar</packaging>
 
-	<name>dtalk-client</name>
+	<name>dtalk client (text console)</name>
+	<description>implement text console for control dtalk device </description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>

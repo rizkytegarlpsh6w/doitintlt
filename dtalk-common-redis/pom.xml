@@ -8,7 +8,8 @@
 	<artifactId>dtalk-common-redis</artifactId>
 	<packaging>jar</packaging>
 
-	<name>dtalk-common-redis</name>
+	<name>dtalk common for redis</name>
+	<description>common module for redis</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>

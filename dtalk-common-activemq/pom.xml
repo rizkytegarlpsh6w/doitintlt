@@ -8,7 +8,8 @@
 	<artifactId>dtalk-common-activemq</artifactId>
 	<packaging>jar</packaging>
 
-	<name>dtalk-common-activemq</name>
+	<name>dtalk common for activemq</name>
+	<description>common module for activemq</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>

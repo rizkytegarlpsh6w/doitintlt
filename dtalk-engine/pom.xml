@@ -8,7 +8,8 @@
 	<artifactId>dtalk-engine</artifactId>
 	<packaging>jar</packaging>
 
-	<name>dtalk-engine</name>
+	<name>dtalk menu engine</name>
+	<description>implement menu engine for response request</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
