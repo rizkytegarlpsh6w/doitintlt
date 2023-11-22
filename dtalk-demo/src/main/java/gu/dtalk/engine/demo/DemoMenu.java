@@ -25,7 +25,6 @@ import gu.dtalk.DateOption;
 import gu.dtalk.IPv4Option;
 
 import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
-import static com.google.common.base.Preconditions.*;
 
 public class DemoMenu extends RootMenu implements Constant{
 	private final IMQConnParameterSupplier paramSupplier;
@@ -34,7 +33,7 @@ public class DemoMenu extends RootMenu implements Constant{
 		this(null);
 	}
 	public DemoMenu(IMQConnParameterSupplier config) {
-		this.paramSupplier = checkNotNull(config,"config is null");
+		this.paramSupplier = config;
 	}
 	public DemoMenu init(){
 		byte[] mac = DEVINFO_PROVIDER.getMac();
@@ -52,39 +51,40 @@ public class DemoMenu extends RootMenu implements Constant{
 						ItemBuilder.builder(PasswordOption.class).name("password").uiName("连接密码").instance().setValue(DEVINFO_PROVIDER.getPassword()),
 						ItemBuilder.builder(StringOption.class).name("version").uiName("版本号").instance().setReadOnly(true).setValue("unknow"))
 				.instance();
-		MenuItem mq;
-		switch (paramSupplier.getImplType()) {
-		case REDIS:
-		{
-			HostAndPort hostAndPort = paramSupplier.getHostAndPort();
-			mq = ItemBuilder.builder(MenuItem.class)
-					.name("mq")
-					.uiName("Message Queue 服务器")
-					.addChilds(
-							ItemBuilder.builder(StringOption.class).name("type").uiName("消息系统类型").instance().setValue(paramSupplier.getImplType().name()),
-							ItemBuilder.builder(StringOption.class).name("host").uiName("主机名称").instance().setValue(hostAndPort.getHost()),
-							ItemBuilder.builder(IntOption.class).name("port").uiName("端口号").instance().setValue(hostAndPort.getPort()),
-							ItemBuilder.builder(PasswordOption.class).name("password").uiName("连接密码").instance().setValue((String) paramSupplier.getMQConnParameters().get(MQ_PASSWORD)))
-					.instance();
-			break;
+		MenuItem mq = null;
+		if(paramSupplier != null){
+			switch (paramSupplier.getImplType()) {
+			case REDIS:
+			{
+				HostAndPort hostAndPort = paramSupplier.getHostAndPort();
+				mq = ItemBuilder.builder(MenuItem.class)
+						.name("mq")
+						.uiName("Message Queue 服务器")
+						.addChilds(
+								ItemBuilder.builder(StringOption.class).name("type").uiName("消息系统类型").instance().setValue(paramSupplier.getImplType().name()),
+								ItemBuilder.builder(StringOption.class).name("host").uiName("主机名称").instance().setValue(hostAndPort.getHost()),
+								ItemBuilder.builder(IntOption.class).name("port").uiName("端口号").instance().setValue(hostAndPort.getPort()),
+								ItemBuilder.builder(PasswordOption.class).name("password").uiName("连接密码").instance().setValue((String) paramSupplier.getMQConnParameters().get(MQ_PASSWORD)))
+						.instance();
+				break;
+			}
+			case ACTIVEMQ:
+			{
+				HostAndPort hostAndPort = paramSupplier.getHostAndPort();
+				mq = ItemBuilder.builder(MenuItem.class)
+						.name("mq")
+						.uiName("Message Queue 服务器")
+						.addChilds(
+								ItemBuilder.builder(StringOption.class).name("type").uiName("消息系统类型").instance().setValue(paramSupplier.getImplType().name()),
+								ItemBuilder.builder(StringOption.class).name("host").uiName("主机名称").instance().setValue(hostAndPort.getHost()),
+								ItemBuilder.builder(IntOption.class).name("port").uiName("端口号").instance().setValue(hostAndPort.getPort()))
+						.instance();
+				break;
+			}
+			default:
+				throw new IllegalArgumentException("UNSUPPORTED message queue " + paramSupplier.getImplType());
+			}
 		}
-		case ACTIVEMQ:
-		{
-			HostAndPort hostAndPort = paramSupplier.getHostAndPort();
-			mq = ItemBuilder.builder(MenuItem.class)
-					.name("mq")
-					.uiName("Message Queue 服务器")
-					.addChilds(
-							ItemBuilder.builder(StringOption.class).name("type").uiName("消息系统类型").instance().setValue(paramSupplier.getImplType().name()),
-							ItemBuilder.builder(StringOption.class).name("host").uiName("主机名称").instance().setValue(hostAndPort.getHost()),
-							ItemBuilder.builder(IntOption.class).name("port").uiName("端口号").instance().setValue(hostAndPort.getPort()))
-					.instance();
-			break;
-		}
-		default:
-			throw new IllegalArgumentException("UNSUPPORTED message queue " + paramSupplier.getImplType());
-		}
-			
 		MenuItem test = 
 			ItemBuilder.builder(MenuItem.class)
 				.name("test")
@@ -116,7 +116,11 @@ public class DemoMenu extends RootMenu implements Constant{
 						OptionType.IMAGE.builder().name("image").uiName("图像测试").instance()							
 						)
 				.instance();
-		addChilds(device,mq,test);
+		
+		if(mq!=null){
+			addChilds(mq);
+		}
+		addChilds(device,test);
 		
 		return this;
 	}

@@ -853,6 +853,12 @@ public class DtalkHttpServer extends NanoWSD {
     		{
     			return newFixedLengthResponse(Status.OK, NanoHTTPD.MIME_HTML, getHomePageContent());
     		}
+    		// 返回当前设备MAC地址
+    		case "/mac":
+				return wrapResponse(session,newFixedLengthResponse(
+						Status.OK, 
+						NanoHTTPD.MIME_PLAINTEXT, 
+						selfMac));
     		default:
     			Response resp = responseStaticResource(session.getUri());
     			if(null != resp){
