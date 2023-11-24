@@ -1,3 +1,20 @@
+loadMac()
+// 加载mac地址
+function loadMac() {
+    $.ajax({
+        type: "get",
+        url: req_prefix + '/mac',
+        xhrFields: {
+            withCredentials: true
+        },
+        crossDomain: true,
+        success: function (status) {
+            $('.mac').text(status)
+        },
+    })
+}
+
+
 // 登录
 $('.onSubmit').click(function(){
     var _this = $(this)
@@ -138,6 +155,7 @@ var num = 0;    //赋值给id
 function loadMenu(data){
     var list = [];
     for(var i=0; i<data.length; i++){
+        console.log(data)
         num++;
         if(data[i].type == 'IP'){
             //转换IP地址
