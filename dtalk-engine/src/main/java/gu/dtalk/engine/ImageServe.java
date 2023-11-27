@@ -2,8 +2,9 @@ package gu.dtalk.engine;
 
 import java.io.IOException;
 
+import org.nanohttpd.protocols.http.response.Status;
+
 import com.google.common.base.Function;
-import fi.iki.elonen.NanoHTTPD.Response;
 import gu.dtalk.engine.DtalkHttpServer.Body;
 import net.gdface.utils.BaseVolatile;
 import net.gdface.utils.BinaryUtils;
@@ -21,7 +22,7 @@ public class ImageServe extends RESTfulServe {
 		@Override
 		protected Body doGet() {
 			try {
-				return new Body(Response.Status.NOT_FOUND, 
+				return new Body(Status.NOT_FOUND, 
 					"image/jpeg", 
 					BinaryUtils.getBytesNotEmpty(ImageServe.class.getResourceAsStream("/web/images/404.jpg")));
 			} catch (IOException e) {

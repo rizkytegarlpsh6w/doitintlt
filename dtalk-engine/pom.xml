@@ -35,13 +35,13 @@
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.nanohttpd/nanohttpd -->
 		<dependency>
-		    <groupId>org.nanohttpd</groupId>
+		    <groupId>com.gitee.l0km</groupId>
 		    <artifactId>nanohttpd</artifactId>
 		    <version>${nanohttpd.version}</version>
 		</dependency>		
 		<!-- https://mvnrepository.com/artifact/org.nanohttpd/nanohttpd -->
 		<dependency>
-		    <groupId>org.nanohttpd</groupId>
+		    <groupId>com.gitee.l0km</groupId>
 		    <artifactId>nanohttpd-websocket</artifactId>
 		    <version>${nanohttpd.version}</version>
 		</dependency>

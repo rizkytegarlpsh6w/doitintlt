@@ -1,9 +1,5 @@
 package gu.dtalk.engine;
 
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.Response;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
-import fi.iki.elonen.NanoWSD.WebSocket;
 import gu.dtalk.Ack;
 import gu.dtalk.MenuItem;
 import gu.simplemq.json.BaseJsonEncoder;
@@ -11,6 +7,10 @@ import static gu.dtalk.engine.DtalkHttpServer.APPICATION_JSON;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.nanohttpd.protocols.http.response.Response;
+import org.nanohttpd.protocols.http.response.Status;
+import org.nanohttpd.protocols.websockets.WebSocket;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -32,7 +32,7 @@ public class ItemEngineHttpImpl extends BaseItemEngine{
 	@Override
 	protected void responseMenu(MenuItem object) {
 		String json=BaseJsonEncoder.getEncoder().toJsonString(object);
-		response.set(NanoHTTPD.newFixedLengthResponse(
+		response.set(Response.newFixedLengthResponse(
     			Status.OK, 
     			APPICATION_JSON, 
     			json));
@@ -45,7 +45,7 @@ public class ItemEngineHttpImpl extends BaseItemEngine{
 	@Override
 	protected void responseAck(Ack<Object> ack) {
 		String json=BaseJsonEncoder.getEncoder().toJsonString(ack);
-		response.set(NanoHTTPD.newFixedLengthResponse(
+		response.set(Response.newFixedLengthResponse(
     			Ack.Status.OK.equals(ack.getStatus()) ? Status.OK: Status.INTERNAL_ERROR, 
     			APPICATION_JSON, 
     			json));

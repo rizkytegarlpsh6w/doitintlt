@@ -5,6 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static gu.dtalk.CommonConstant.DEFAULT_IDLE_TIME_MILLS;
 import static gu.dtalk.engine.DeviceUtils.DEVINFO_PROVIDER;
+import static org.nanohttpd.protocols.http.response.Response.newFixedLengthResponse;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -18,6 +20,16 @@ import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.nanohttpd.protocols.http.IHTTPSession;
+import org.nanohttpd.protocols.http.NanoHTTPD;
+import org.nanohttpd.protocols.http.request.Method;
+import org.nanohttpd.protocols.http.response.Response;
+import org.nanohttpd.protocols.http.response.Status;
+import org.nanohttpd.protocols.websockets.CloseCode;
+import org.nanohttpd.protocols.websockets.NanoWSD;
+import org.nanohttpd.protocols.websockets.WebSocket;
+import org.nanohttpd.protocols.websockets.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +44,6 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
-import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
-import fi.iki.elonen.NanoWSD;
 import gu.dtalk.Ack;
 import gu.dtalk.MenuItem;
 import gu.simplemq.exceptions.SmqUnsubscribeException;
@@ -823,6 +831,7 @@ public class DtalkHttpServer extends NanoWSD {
 			}, 0, timeout*3/4);
 		}
 	}
+	@SuppressWarnings("deprecation")
 	@Override
     public Response serve(IHTTPSession session) {
     	if (isWebsocketRequested(session) && ! isAuthorizationSession(session)) {
@@ -834,7 +843,7 @@ public class DtalkHttpServer extends NanoWSD {
 		return super.serve(session);    	
     }
     @Override
-    public Response serveHttp(IHTTPSession session) {
+    public Response handleWebSocket(IHTTPSession session) {
     	if(isPreflightRequest(session)){
     		return responseCORS(session);
     	}
@@ -901,15 +910,6 @@ public class DtalkHttpServer extends NanoWSD {
     	return wrapResponse(session,responseAck(ack));
     }
 
-	@Override
-	protected boolean useGzipWhenAccepted(Response r) {
-		// 判断是否为websocket握手响应，如果是则调用父类方法返回false,否则按正常的http响应对待，使用 NanoHTTPD的useGzipWhenAccepted方法逻辑判断
-		if (null != r.getHeader(NanoWSD.HEADER_WEBSOCKET_ACCEPT)){
-			return super.useGzipWhenAccepted(r);
-		}
-		// 对文本响应执行Gzip压缩
-		return r.getMimeType()!= null && r.getMimeType().toLowerCase().matches(".*(text/|/json|/javascript|/xml).*");
-	}
 	/**
 	 * @param isMd5 
 	 * @return 

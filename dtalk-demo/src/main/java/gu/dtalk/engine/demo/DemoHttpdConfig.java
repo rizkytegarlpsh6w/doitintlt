@@ -7,7 +7,7 @@ import org.apache.commons.cli.ParseException;
 
 import gu.dtalk.CommonConstant;
 import net.gdface.cli.BaseAppConfig;
-import static fi.iki.elonen.NanoHTTPD.*;
+import static org.nanohttpd.protocols.http.NanoHTTPD.*;
 /**
  * 终端命令行配置参数
  * @author guyadong

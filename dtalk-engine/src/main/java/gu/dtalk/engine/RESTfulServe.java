@@ -3,13 +3,14 @@ package gu.dtalk.engine;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.IHTTPSession;
-import fi.iki.elonen.NanoHTTPD.Response;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
 import gu.dtalk.engine.DtalkHttpServer.Body;
 
 import static gu.dtalk.engine.DtalkHttpServer.*;
+
+import org.nanohttpd.protocols.http.IHTTPSession;
+import org.nanohttpd.protocols.http.NanoHTTPD;
+import org.nanohttpd.protocols.http.response.Response;
+import org.nanohttpd.protocols.http.response.Status;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -75,7 +76,7 @@ public class RESTfulServe implements Function<IHTTPSession, Response>{
 				return makeResponse(body == null ? nullBodyInstead() :  body);
 			}else{
 				// 路径前缀不匹配则报错
-				return NanoHTTPD.newFixedLengthResponse(
+				return Response.newFixedLengthResponse(
 						Status.BAD_REQUEST, 
 						NanoHTTPD.MIME_PLAINTEXT, 
 						"MISMATCH PREFIX:" + pathPrefix);
