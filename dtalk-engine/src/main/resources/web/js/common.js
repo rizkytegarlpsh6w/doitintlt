@@ -155,7 +155,6 @@ var num = 0;    //赋值给id
 function loadMenu(data){
     var list = [];
     for(var i=0; i<data.length; i++){
-        console.log(data)
         num++;
         if(data[i].type == 'IP'){
             //转换IP地址
@@ -219,6 +218,7 @@ function loadMenu(data){
                     "catalog" : data[i].catalog,
                     "readOnly" : data[i].readOnly,
                     "regex" : data[i].regex,
+                    "required": data[i].required,
                     "state":"closed",
                     "isShow" : false,
                     "precision": data[i].type == "FLOAT" ? data[i].precision : '',
@@ -236,6 +236,7 @@ function loadMenu(data){
                         "catalog" : data[i].catalog,
                         "readOnly" : data[i].readOnly,
                         "regex" : data[i].regex,
+                        "required": data[i].required,
                         "isShow" : false,
                         "precision": data[i].type == "FLOAT" ? data[i].precision : '',
                         "options" : options,
@@ -500,8 +501,9 @@ function keep(id){
                 return;
             },
             error: function (params) {
-                if (JSON.parse(params.responseText).status == 'ERROR') {
-                    $.messager.alert('温馨提示', '操作失败', 'info');
+                var resultError = JSON.parse(params.responseText);
+                if (resultError.status == 'ERROR') {
+                    $.messager.alert('温馨提示', resultError.statusMessage, 'info');
                 }
             }
         })
@@ -586,39 +588,59 @@ function execute(id) {
         if (children && children.length > 0) {
             var childArr = [];
             for (let i = 0; i < children.length; i++) {
-                childArr.push({ "path": children[i].path, "value": children[i].value })
-            }
-            if (!isOk) {
-                $.ajax({
-                    type: "POST",
-                    url: req_prefix + '/dtalk',
-                    contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify({
-                        "path": data.path,
-                        "childs": childArr
-                    }),
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    crossDomain: true,
-                    success: function (success) {//获取设备端返回的数据
-                        var result = JSON.parse(success.value); 
-                        if (result.success) {
-                            $.messager.alert('温馨提示', '执行成功：' + result.msg, 'info');
-                        } else {
-                            $.messager.alert('温馨提示', '操作失败：' + result.msg, 'error');
-                        }
-                    },
-                    error:function(error) {
-                        var result = JSON.parse(error.responseText);
-                        $.messager.alert('温馨提示', '操作失败:' + result.statusMessage, 'error');
-                    }
-                })
+                if (children[i].required && children[i].value == null) {
+                    isOk = true;
+                    $.messager.alert('温馨提示', children[i].name + '为空,请填写必填值', 'info');
+                    childArr = [];
+                    return;
+                }
+                childArr.push({ "path": children[i].path, "value": children[i].value });
+                editing = false;   //点击修改按钮可以显示输入框
             }
         }
-        childArr = []
+        if (!isOk) {
+            $.ajax({
+                type: "POST",
+                url: req_prefix + '/dtalk',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    "path": data.path,
+                    "childs": childArr
+                }),
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                success: function (result) {//获取设备端返回的数据
+                    if (result.value != null ){
+                        if (result.valueType == 'String'){
+                            $.messager.alert('温馨提示', '设备命令成功执行完成！', 'info');
+                        } else if (result.valueType == 'byte[]'){
+                            var imgBase = 'data:image/jpg;base64,' + result.value;
+                            $('.dialog-box').show();
+                            $('.lookPic').attr('src', imgBase);
+                        }else{
+                            $.messager.alert('温馨提示', result.value.msg, 'info');
+                            result.value.msg
+                        }
+                    }
+                },
+                error: function (error) {
+                    var result = JSON.parse(error.responseText);
+                    $.messager.alert('温馨提示', result.statusMessage, 'error');
+                }
+            })
+        }
+        childArr = [];
     }
 }
+
+
+// 关掉远程查看
+$('.okBtn').click(function () { 
+    $('.dialog-box').hide();
+    $('.lookPic').attr('src', '');
+})
 
 
 // 表单的聚失焦事件
