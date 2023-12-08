@@ -12,7 +12,7 @@ import net.gdface.utils.JcifsUtil;
 
 import static com.google.common.base.Preconditions.*;
 import static gu.dtalk.activemq.ActivemqContext.HELPER;
-import static gu.dtalk.activemq.ActivemqContext.CONSTP_ROVIDER;
+import static gu.dtalk.activemq.ActivemqContext.CONST_PROVIDER;
 
 /**
  * 局域网配置
@@ -24,6 +24,7 @@ public class DefaultLocalActivemqConfigProvider extends BaseActivemqConfigProvid
 	public static final MQProperties INIT_PROPERTIES;
 	static{
 		INIT_PROPERTIES = HELPER.initParameters(null).initURI(makeLantalkURL("landtalkhost"));
+		initMqttURI(INIT_PROPERTIES,DEFAULT_MQTT_PORT);
 	}
 	public DefaultLocalActivemqConfigProvider(){
 	}
@@ -66,7 +67,7 @@ public class DefaultLocalActivemqConfigProvider extends BaseActivemqConfigProvid
 	}
 	private static String makeLantalkURL(String landtalkhost){
 		try {
-			String defaultLocation = CONSTP_ROVIDER.getDefaultMQLocation();
+			String defaultLocation = CONST_PROVIDER.getDefaultMQLocation();
 			URI uri = new URI(defaultLocation);
 			return changeHost(uri,landtalkhost).toString();
 		} catch (URISyntaxException e) {

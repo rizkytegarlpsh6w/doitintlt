@@ -10,9 +10,12 @@ import gu.simplemq.MQProperties;
  *
  */
 public class DefaultCustomActivemqConfigProvider extends BaseActivemqConfigProvider {
-	public static final MQProperties INIT_PROPERTIES ;
+	public static final MQProperties INIT_PROPERTIES;
+
 	static{
 		INIT_PROPERTIES = HELPER.makeMQProperties(null);
+		INIT_PROPERTIES.setProperty(MQ_URI, DEFAULT_AMQP_CONNECTOR);
+		initMqttURI(INIT_PROPERTIES,DEFAULT_MQTT_PORT);
 	}
 	public DefaultCustomActivemqConfigProvider() {
 	}

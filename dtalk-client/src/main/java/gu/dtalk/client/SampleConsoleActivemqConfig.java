@@ -27,7 +27,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static gu.dtalk.client.SampleConsole.run;
 import static net.gdface.utils.ConditionChecks.checkTrue;
 import static gu.dtalk.activemq.ActivemqContext.HELPER;
-import static gu.dtalk.activemq.ActivemqContext.CONSTP_ROVIDER;
+import static gu.dtalk.activemq.ActivemqContext.CONST_PROVIDER;
 
 /**
  * 终端命令行配置参数
@@ -44,10 +44,10 @@ public class SampleConsoleActivemqConfig extends BaseAppConfig implements Sample
 	private SampleConsoleActivemqConfig() {
 		super(true);
 		options.addOption(Option.builder().longOpt(AMQ_HOST_OPTION_LONG)
-				.desc(AMQ_HOST_OPTION_DESC + CONSTP_ROVIDER.getDefaultHost()).numberOfArgs(1).build());
+				.desc(AMQ_HOST_OPTION_DESC + CONST_PROVIDER.getDefaultHost()).numberOfArgs(1).build());
 
 		options.addOption(Option.builder().longOpt(AMQ_PORT_OPTION_LONG)
-				.desc(AMQ_PORT_OPTION_DESC + CONSTP_ROVIDER.getDefaultPort()).numberOfArgs(1).type(Number.class).build());
+				.desc(AMQ_PORT_OPTION_DESC + CONST_PROVIDER.getDefaultPort()).numberOfArgs(1).type(Number.class).build());
 
 		options.addOption(Option.builder().longOpt(AMQ_PWD_OPTION_LONG)
 				.desc(AMQ_PWD_OPTION_DESC).numberOfArgs(1).build());
@@ -112,7 +112,7 @@ public class SampleConsoleActivemqConfig extends BaseAppConfig implements Sample
 					// 尝试解析为端口号(整数)
 					int port = Integer.parseInt(value);
 					checkArgument(port > 0,"INVALID option %s:%s,as port ,>0 required", MQTT_OPTION_LONG, port);
-					activemqProperties.setProperty(MQ_PUBSUB_URI, String.format("mqtt://%s:%d",CONSTP_ROVIDER.getDefaultHost(), port));
+					activemqProperties.setProperty(MQ_PUBSUB_URI, String.format("mqtt://%s:%d",CONST_PROVIDER.getDefaultHost(), port));
 				} catch (NumberFormatException e) {
 					HostAndPort hostAndPort;
 					try {

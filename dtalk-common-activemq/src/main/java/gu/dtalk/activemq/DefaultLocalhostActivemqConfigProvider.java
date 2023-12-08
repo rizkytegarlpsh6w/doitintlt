@@ -4,7 +4,7 @@ import gu.simplemq.Constant;
 import gu.simplemq.MQProperties;
 
 import static gu.dtalk.activemq.ActivemqContext.HELPER;
-import static gu.dtalk.activemq.ActivemqContext.CONSTP_ROVIDER;
+import static gu.dtalk.activemq.ActivemqContext.CONST_PROVIDER;
 
 /**
  * 本机(LOCALHOST)配置默认实现(仅用于测试)
@@ -16,7 +16,8 @@ public class DefaultLocalhostActivemqConfigProvider extends BaseActivemqConfigPr
 
 	static{
 		INIT_PROPERTIES = HELPER.makeMQProperties(null);
-		INIT_PROPERTIES.setProperty(MQ_URI, CONSTP_ROVIDER.getDefaultMQLocation());
+		INIT_PROPERTIES.setProperty(MQ_URI, CONST_PROVIDER.getDefaultMQLocation());
+		initMqttURI(INIT_PROPERTIES,DEFAULT_MQTT_PORT);
 	}
 	public DefaultLocalhostActivemqConfigProvider() {
 	}
