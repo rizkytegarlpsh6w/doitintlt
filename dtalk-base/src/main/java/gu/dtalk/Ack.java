@@ -24,6 +24,7 @@ public class Ack<T> {
 	private String item;
 	private T value;
 	private String valueType;
+	private String howtodo;
 	private Status status;
 	private String statusMessage;
 	private String exception;
@@ -149,9 +150,19 @@ public class Ack<T> {
 	 * @param value 要设置的value
 	 * @return 当前对象
 	 */
-	public Ack<T> setValue(T value) {
-		this.value = value;
-		return setValueType(value != null ? TypeUtils.getTypeName(value.getClass(), false) : null);
+	@SuppressWarnings("unchecked")
+	public Ack<T> setValue(Object value) {		
+		if(value instanceof FormatedValue){
+			FormatedValue v = (FormatedValue)value;
+			this.value = (T) v.value;
+			setValueType(v.contentType);
+			setHowtodo(v.howtodo);
+			return this;
+		}else{
+			this.value = (T) value;
+			setHowtodo(null);
+			return setValueType(value != null ? TypeUtils.getTypeName(value.getClass(), false) : null);
+		}
 	}
 	
 	/**
@@ -168,6 +179,13 @@ public class Ack<T> {
 	public Ack<T> setValueType(String valueClass){
 		this.valueType = valueClass;
 		return this;
+	}
+	
+	public String getHowtodo() {
+		return howtodo;
+	}
+	public void setHowtodo(String howtodo) {
+		this.howtodo = howtodo;
 	}
 	/** 
 	 * @return 返回设备命令执行状态 
