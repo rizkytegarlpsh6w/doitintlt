@@ -52,7 +52,7 @@ ul,ol{list-style: none;}
 
 
 /* 远程查看 图片 */
-.dialog-box{position: fixed; left: 0; right: 0; text-align: center; z-index: 999; display: none;}
+.dialog-box{position: fixed; left: 0; top: 50%; margin-top: -400px; right: 0; text-align: center; z-index: 999; display: none;}
 .message-box{display: inline-block; width: 420px;padding-bottom: 10px; vertical-align: middle; background-color: #fff; border-radius: 4px; border: 1px solid #ebeef5; -webkit-box-shadow: 0 2px 12px 0 rgba(0,0,0,.1); box-shadow: 0 2px 12px 0 rgba(0,0,0,.1); text-align: left; overflow: hidden; -webkit-backface-visibility: hidden; backface-visibility: hidden; text-align: center;}
 .message-box img{width: 80%;}
 .message-box-header{padding: 15px 15px 10px; font-size: 18px;}
@@ -60,3 +60,4 @@ ul,ol{list-style: none;}
 
 
 .tree-node{min-height: 38px!important; line-height: 38px!important;}
+.datagrid-view .datagrid-row-selected { background: #eaf2ff;}   

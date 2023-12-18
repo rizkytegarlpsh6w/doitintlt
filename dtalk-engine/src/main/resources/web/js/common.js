@@ -73,7 +73,7 @@ $('.loginOut').click(function () {
 })
 
 
-// 加载表格数据
+// 显示表格数据
 $('#table').treegrid({
     idField:'id',
     treeField:'name',
@@ -96,34 +96,46 @@ $('#table').treegrid({
 
 
 // 鼠标经过单元格，显示描述
-function titleTip(value,row) {
-    if (row.comment){
-        return '<a title="描述：'+row.comment+'" class="cellTips"> '+value+' </a>'
-    }else{
-        return '<a> '+value +' </a>'
+function titleTip(name,row) {
+    if (row.required) {
+        if (row.comment){
+            return '<span style="color: red">*</span><a title="描述：' + row.comment + '" class="cellTips"> ' + name + ' </a>'
+        }else{
+            return '<span style="color: red">*</span><a> ' + name + ' </a>'
+        }
+    } else {
+        return '<a> ' + name + ' </a>'
     }
 }
 
 
 // 格式化列的数据
 function rowFormatter(value,row){
-    if(!row.readOnly){
+    if (!row.readOnly) {  // 当数据可写时
         if (row.catalog == 'CMD'){
             var html ='<button type="button" id="b_'+row.id+'" onclick="execute('+row.id+')" class="execute">执行</button>'
+        }else if (row.catalog == 'OPTION'){
+            if(row.type == 'SWITCH'){
+                if (typeof (value) == 'number'){
+                    var html = '<div id="i_' + row.id + '"><span>' + row.options[value].value + '</span><i class="icon_edit right" onclick = "editBtn(' + row.id + ')"></i></div>'
+                }
+            }else{
+                var html = '<div id="i_' + row.id + '"><span>' + row.value + '</span><i class="icon_edit right" onclick = "editBtn(' + row.id + ')"></i></div>'
+            }
         }
-        if (row.catalog == 'OPTION'){
-            var html = '<div id="i_' + row.id + '"><span>' + row.value + '</span><i class="icon_edit right" onclick = "editBtn(' + row.id + ')"></i></div>'
-        }
-        return html ;
+    }else{  //数据不可写
+        var html = '<div id="i_' + row.id + '"><span>' + row.value + '</span></div>'
     }
+
+    return html;
 }
 
 
-// 调用接口加载数据
+// 调用函数
 tableData();
 
 
-// 查询出所有内容
+// 查询出设备返回的所有内容
 function tableData(){
     $.ajax({
         type: "POST",
@@ -136,7 +148,7 @@ function tableData(){
         success: function (data) {
             var list = [];
             if(data.catalog == 'MENU'){
-                list = loadMenu(data.childs)
+                list = loadMenu(data.childs);
                 $('#table').treegrid('loadData', list);
             }
         },
@@ -150,7 +162,7 @@ function tableData(){
 }
 
 
-// 加载表格数据
+// 格式化设备返回的数据
 var num = 0;    //赋值给id
 function loadMenu(data){
     var list = [];
@@ -177,7 +189,6 @@ function loadMenu(data){
             data[i].value = tranDate(data[i].value)
         }
 
-        
 
         var options = [];
         if (data[i].options) {
@@ -191,11 +202,12 @@ function loadMenu(data){
         if (data[i].value) {
             // 当类型是SWITCH时，取option值的值为选中的值
             if (data[i].type == 'SWITCH') {
-                try {
-                    data[i].value = options[(data[i].value)[0]].value;
-                } catch (err) {
-                    data[i].value = options[data[i].value].value;
-                }
+                data[i].value = data[i].value[0];
+                // try {
+                //     data[i].value = options[(data[i].value)[0]].value;
+                // } catch (err) {
+                //     data[i].value = options[data[i].value].value;
+                // }
             }
             // 当类型是MULTICHECK时，取option值的值为选中的值
             if (data[i].type == 'MULTICHECK') {
@@ -213,6 +225,7 @@ function loadMenu(data){
                     "value": data[i].value == null ? '' : data[i].value,
                     "comment" : data[i].description,
                     "children" : data[i].path == "/cmd/time"?[]:loadMenu(data[i].childs,data[i].catalog),
+                    "disbale": data[i].disbale,
                     "path" : data[i].path,
                     "type" : data[i].type,
                     "catalog" : data[i].catalog,
@@ -231,6 +244,7 @@ function loadMenu(data){
                         // "value" : data[i].type == "BOOL" && data[i].value == null ? false : data[i].value,
                         "value": data[i].value == null ? '' : data[i].value,
                         "comment" : data[i].description,
+                        "disable": data[i].disable,
                         "path" : data[i].path,
                         "type" : data[i].type,
                         "catalog" : data[i].catalog,
@@ -255,6 +269,9 @@ function editBtn(id){
     var data = $('#table').treegrid('find',id);
     if(editing){    // 判断正在修改中，请先完成修改
         $.messager.alert('温馨提示','请先完成正在修改的内容','info');
+    }else if(data.disable){
+        $.messager.alert('温馨提示', '该项不能被修改，请选择其他设置项', 'info');
+        editing = false;
     }else{
         $("#i_"+id).hide();
         // 字符串\INTEGER数字\MAC\IP\URL\身份证IDNUM\移动号码MPHONE
@@ -348,7 +365,7 @@ function editBtn(id){
         if(data.type == 'SWITCH'){
             var opt = data.options;
             var html = '<form class="editForm" id="f_'+data.id+'">'+
-                            '<select id="selected"></select>'+
+                            '<select class="easyui-combobox" id="selected"></select>'+
                             '<button type="button" onclick="keep('+id+')" class="keep">保存</button>'+
                             '<button type="button" onclick="cancel('+id+')">取消</button>'+
                         '</form>'
@@ -402,34 +419,47 @@ function editBtn(id){
             // 找到修改按钮的父级标签，然后将标签加入
             $("#i_"+id).parent().append(html);
         }
+        editing = true;
     }
-    editing = true;
 };
 
 
 // 保存按钮
 function keep(id){
     var data = $('#table').treegrid('find',id);
+    var value = '';
     if(data.type == 'SWITCH'){
-        var value = $("#f_"+id).find('#selected option:selected').val();
+        var opted = $("#f_"+id).find('#selected option:selected').val();
+        value = opted.toString();
     }else if(data.type == 'MULTICHECK'){
-        var value = $('#checkBox').combobox('getValues').toString();
+        value = $('#checkBox').combobox('getValues').toString();
     }else if(data.type == 'DATE'){
         var currentdate = $("#f_"+id).find('input').val();
-        var value = new Date(currentdate).getTime();
+        value = new Date(currentdate).getTime();
     }else if(data.type == 'BOOL'){
-        var value = data.value = $("#f_"+id).find('input.switchbutton-value').val();
+        value = data.value = $("#f_"+id).find('input.switchbutton-value').val();
     }else if(data.type == 'IMAGE'){
-        var value = data.value;
+        value = data.value;
     }else{
-        var value = $("#f_"+id).find('input').val();
+        value = $("#f_"+id).find('input').val();
         data.value = value;
     }
+
+    
     if(data.catalog == 'OPTION'){
         var regex = data.regex;
         if(regex){
             if(!value.match(regex)){
                 $.messager.alert('温馨提示','请输入正确格式的内容','info');
+                return false;
+            }
+        }
+
+
+        // 判断是否为必填项
+        if (data.required) {
+            if (!value) {
+                $.messager.alert('温馨提示', '此项为必填项，请输入内容', 'info');
                 return false;
             }
         }
@@ -461,14 +491,14 @@ function keep(id){
             }
         }
 
-
+        console.log(value)
         $.ajax({
             type: "POST",
             url: req_prefix + '/dtalk',
             contentType:"application/json; charset=utf-8",
             data: JSON.stringify({
-                "path":data.path,
-                "value":value
+                "path": data.path,
+                "value": value
             }),
             xhrFields: {
                 withCredentials: true
@@ -479,7 +509,7 @@ function keep(id){
                 if (data.type == 'SWITCH') {
                     var text = $("#f_" + id).find('#selected option:selected').text();
                     $("#i_" + id).find('span').text(text);
-                } else if (data.type == 'MULTICHECK') {
+                }else if(data.type == 'MULTICHECK') {
                     var valueArr = $('#checkBox').combobox('getValues');
                     var checkArr = valueArr.map(Number);
                     var options = data.options;
@@ -491,6 +521,10 @@ function keep(id){
                     $("#i_" + id).find('span').text(text);
                 } else if (data.type == 'IMAGE') {
                     $("#i_" + id).find('span').text('已设置')
+                }else if(data.type == 'BOOL'){
+                    $("#i_" + id).find('span').text(value);
+                    // 调用接口加载数据
+                    tableData();
                 } else {
                     $("#i_" + id).find('span').text(value);
                 }
@@ -585,7 +619,17 @@ function execute(id) {
     }else{
         var isOk = false;
         var children = data.children;
+        if (data.path == '/cmd/time'){
+            var dateTime = new Date();
+            var str = String(dateTime).match(/GMT(\S*)/)[1];
+            dateTime.setHours(dateTime.getHours(), dateTime.getMinutes() - dateTime.getTimezoneOffset());
+            var isoTime = dateTime.toISOString().replace('Z', str);
+            var childArr = [{ 'path': '/cmd/time/timestamp', 'value': isoTime}];
+        }
+
+
         if (children && children.length > 0) {
+            console.log(children)
             var childArr = [];
             for (let i = 0; i < children.length; i++) {
                 if (children[i].required && children[i].value == null) {
@@ -598,6 +642,8 @@ function execute(id) {
                 editing = false;   //点击修改按钮可以显示输入框
             }
         }
+        
+
         if (!isOk) {
             $.ajax({
                 type: "POST",
@@ -611,17 +657,22 @@ function execute(id) {
                     withCredentials: true
                 },
                 crossDomain: true,
-                success: function (result) {//获取设备端返回的数据
+                success: function (result) {  //获取设备端返回的数据
+                    // 保存为本地文件TXT
+                    if (result.howtodo == 'SAVE' && result.valueType == 'text'){
+                        exportRaw('online.txt', result.value);
+                    }
                     if (result.value != null ){
-                        if (result.valueType == 'String'){
-                            $.messager.alert('温馨提示', '设备命令成功执行完成！', 'info');
-                        } else if (result.valueType == 'byte[]'){
+                        if (result.valueType == 'text/json'){
+                            $.messager.alert('温馨提示', result.value.msg, 'info');
+                        } else if (result.valueType == 'image/png' || result.valueType == 'image/jpg'){
                             var imgBase = 'data:image/jpg;base64,' + result.value;
                             $('.dialog-box').show();
                             $('.lookPic').attr('src', imgBase);
-                        }else{
-                            $.messager.alert('温馨提示', result.value.msg, 'info');
-                            result.value.msg
+                        }
+                    }else{
+                        if (result.status == 'OK'){
+                            $.messager.alert('温馨提示', '命令发送成功！', 'info');
                         }
                     }
                 },
@@ -633,6 +684,24 @@ function execute(id) {
         }
         childArr = [];
     }
+}
+
+
+//保存text为本地TXT
+function fakeClick(obj) {
+    var ev = document.createEvent("MouseEvents");
+    ev.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+    obj.dispatchEvent(ev);
+}
+
+
+function exportRaw(name, data) {
+    var urlObject = window.URL || window.webkitURL || window;
+    var export_blob = new Blob([data]);
+    var save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a")
+    save_link.href = urlObject.createObjectURL(export_blob);
+    save_link.download = name;
+    this.fakeClick(save_link);
 }
 
 
