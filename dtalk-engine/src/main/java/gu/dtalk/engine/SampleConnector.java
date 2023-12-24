@@ -2,6 +2,7 @@ package gu.dtalk.engine;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,13 +105,15 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	
 	/**
 	 * 将连接请求字符串解析为{@link ConnectReq}对象，通过验证密码来确定连接是否有效
-	 * @see gu.dtalk.engine.RequestValidator#validate(java.lang.String)
+	 * @see gu.dtalk.engine.RequestValidator#validate(java.lang.String, AtomicReference)
 	 */
 	@Override
-	public String validate(String connstr) throws Exception {
+	public void validate(String connstr, AtomicReference<String> clientID) throws Exception {
 		ConnectReq req = BaseJsonEncoder.getEncoder().fromJson(connstr, ConnectReq.class);
 		checkArgument(req != null,"NULL REQUEST");
-		
+		if(clientID != null){
+			clientID.set(req.mac);
+		}
 		String admPwd = checkNotNull(DEVINFO_PROVIDER.getPassword(),"admin password for device is null");
 		checkArgument(!Strings.isNullOrEmpty(req.mac),"NULL REQUEST MAC ADDRESS");
 		checkArgument(!Strings.isNullOrEmpty(req.pwd),"NULL REQUEST PASSWORD");
@@ -118,7 +121,6 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 		String pwdmd5 = BinaryUtils.getMD5String(admPwd.getBytes());
 
 		checkState(pwdmd5.equalsIgnoreCase(req.pwd),"INVALID REQUEST PASSWORD");
-		return req.mac;
 	}
 	/** 
 	 * 处理来自管理端的连接请求<br>
@@ -130,9 +132,11 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 	public void onSubscribe(String connstr) throws SmqUnsubscribeException {
 		Ack<String> ack = new Ack<String>().setStatus(Ack.Status.OK).setDeviceMac(selfMac);
 		String ackChannel = null;
+		// 请求端的MAC地址或其他唯一识别ID
+		AtomicReference<String> clientIDRef = new  AtomicReference<>();
 		try{
-			// 请求端的MAC地址或其他唯一识别ID
-			String reqMAC = requestValidator.validate(connstr);
+			requestValidator.validate(connstr, clientIDRef);
+			String reqMAC = clientIDRef.get();
 			checkState(!Strings.isNullOrEmpty(reqMAC),"VALIDATE FAIL");
 			ackChannel = getAckChannel(reqMAC);
 			checkArgument(!Strings.isNullOrEmpty(reqMAC),"the mac address of request client is null");
@@ -174,6 +178,9 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 			logger.info("REJECT REQUEST {}",connstr);
 		}catch(Exception e){
 			ack.setStatus(Ack.Status.ERROR).setStatusMessage(e.getMessage());
+		}
+		if(ackChannel == null && clientIDRef.get() != null){
+			ackChannel = getAckChannel(clientIDRef.get());
 		}
 		if(ackChannel != null){
 			// 向响应频道发送响应消息
@@ -233,7 +240,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 
 	/**
 	 * 设置连接请求验证接口实例，如果不指定，默认使用基于{@link ConnectReq}格式的请求验证
-	 * 参见 {@link #validate(String)}
+	 * 参见 {@link #validate(String, AtomicReference)}
 	 * @param requestValidator 不可为{@code null}
 	 * @return 当前对象
 	 */
