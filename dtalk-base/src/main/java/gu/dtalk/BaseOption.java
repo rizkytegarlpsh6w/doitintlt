@@ -49,6 +49,10 @@ public abstract class BaseOption<T> extends BaseItem {
 	 */
 	private boolean needReset;
 	/**
+	 * 修改此选项值后前端要不要重新获取数据
+	 */
+	private boolean needRefresh;
+	/**
 	 * 当前选项的java类型
 	 */
 	protected final Type type;
@@ -123,6 +127,20 @@ public abstract class BaseOption<T> extends BaseItem {
 	public BaseOption<T> setNeedReset(boolean needReset) {
 		this.needReset = needReset;
 		return this;
+	}
+	
+	/**
+	 * @return needRefresh
+	 */
+	public boolean isNeedRefresh() {
+		return needRefresh;
+	}
+	/**
+	 * 设置修改此选项值后前端要不要重新获取数据
+	 * @param needRefresh 要设置的 needRefresh
+	 */
+	public void setNeedRefresh(boolean needRefresh) {
+		this.needRefresh = needRefresh;
 	}
 	/**
 	 * @return regex
