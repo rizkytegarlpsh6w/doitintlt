@@ -67,7 +67,7 @@ public class ItemTest {
 			logger.info("parseUrl={}",parseUrl);
 			BaseJsonEncoder.getEncoder().fromJson("https://gitee.com/l0km/dtalk.git", URL.class);
 
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 		//BaseJsonEncoder.getEncoder().fromJson("https://gitee.com/l0km/dtalk.git", URL.class);
@@ -83,7 +83,7 @@ public class ItemTest {
 			String jsonStr = BaseJsonEncoder.getEncoder().toJsonString(img);
 			ImageOption parsed = BaseJsonEncoder.getEncoder().fromJson(jsonStr, ImageOption.class);
 			logger.info("{}",parsed.toString());
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 	}

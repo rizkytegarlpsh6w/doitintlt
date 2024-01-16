@@ -64,7 +64,7 @@ public class DemoHttpd {
 			
 			new DemoHttpd().start();
 			waitquit();
-		}catch (Exception e) {
+		}catch (Throwable e) {
 			if(DEMO_CONFIG.isTrace()){
 				e.printStackTrace();	
 			}else{

@@ -145,7 +145,7 @@ public enum ActivemqConfigType  implements IMQConnParameterSupplier{
 //			System.out.printf("try to connect %s...\n", this);
 			try{
 				connectable = ActivemqContext.HELPER.testConnect(props,timeoutMills);
-			}catch (Exception e) {
+			}catch (Throwable e) {
 			}
 //			if(connectable){
 //				System.out.println(toString() + " connect OK\n");

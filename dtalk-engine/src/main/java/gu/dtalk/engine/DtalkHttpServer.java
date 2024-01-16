@@ -599,7 +599,7 @@ public class DtalkHttpServer extends NanoWSD {
 							resetSession();
 						}
 					}
-				}catch (Exception e) {
+				}catch (Throwable e) {
 					logger.error(e.getMessage());
 				}
 			}
@@ -820,7 +820,7 @@ public class DtalkHttpServer extends NanoWSD {
 											wsSocket.send("dtalk wscocket heartbeat " + new Date());
 										}
 									}
-								}catch (Exception e) {
+								}catch (Throwable e) {
 									logger.error("{}:{}",e.getClass().getName(),e.getMessage());
 									//logger.error(e.getMessage(),e);
 								}			
@@ -904,7 +904,7 @@ public class DtalkHttpServer extends NanoWSD {
 					e.getStatus(), 
 					NanoHTTPD.MIME_PLAINTEXT, 
 					e.getMessage()));	
-    	}catch (Exception e) {    		
+    	}catch (Throwable e) {    		
     		ack.setStatus(Ack.Status.ERROR).setException(e.getClass().getName()).setStatusMessage(e.getMessage());
     	}
     	return wrapResponse(session,responseAck(ack));

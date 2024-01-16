@@ -38,7 +38,7 @@ public abstract class BaseBinary extends BaseOption<byte[]> {
 	protected <T>BaseOption<byte[]> asValue(T input) {
 		try {
 			return setValue(BinaryUtils.getBytes(input));
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}
@@ -52,7 +52,7 @@ public abstract class BaseBinary extends BaseOption<byte[]> {
 	protected <T>BaseOption<byte[]> asDefaultValue(T input) {
 		try {
 			return setDefaultValue(BinaryUtils.getBytes(input));
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}

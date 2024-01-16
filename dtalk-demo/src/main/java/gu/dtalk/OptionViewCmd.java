@@ -49,7 +49,7 @@ public class OptionViewCmd implements ICmdImmediateAdapter{
 					throw e2;
 				}catch (NumberFormatException e2) {
 					throw e;
-				}catch (Exception e2) {
+				}catch (Throwable e2) {
 					throw e;
 				}
 			}

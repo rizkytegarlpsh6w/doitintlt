@@ -134,7 +134,7 @@ public class OptionBuilder<T,O extends BaseOption<T>> {
 		checkArgument(!Modifier.isAbstract(type.getModifiers()),"%s is a abstract class",type.getName());
 		try {
 			return new OptionBuilder<T,O>(type.newInstance());
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}
@@ -144,7 +144,7 @@ public class OptionBuilder<T,O extends BaseOption<T>> {
 		Class<T> type = (Class<T>) checkNotNull(optionType,"optionType is null").optClass;
 		try {
 			return new OptionBuilder<T,O>((O)((O) type.newInstance()).setType(optionType));
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}

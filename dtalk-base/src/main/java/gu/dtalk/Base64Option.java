@@ -23,7 +23,7 @@ public class Base64Option extends BaseBinary {
 		try {
 			setValue(BinaryUtils.getBytes(input));
 			return this;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}
@@ -36,7 +36,7 @@ public class Base64Option extends BaseBinary {
 		try {
 			setValue(BinaryUtils.getBytes(input));
 			return this;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}
@@ -46,7 +46,7 @@ public class Base64Option extends BaseBinary {
 		try {
 			setDefaultValue(BinaryUtils.getBytes(input));
 			return this;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}
@@ -59,7 +59,7 @@ public class Base64Option extends BaseBinary {
 		try {
 			setDefaultValue(BinaryUtils.getBytes(input));
 			return this;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}

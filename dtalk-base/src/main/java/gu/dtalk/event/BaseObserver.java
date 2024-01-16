@@ -25,7 +25,7 @@ public abstract class BaseObserver<E extends ItemEvent<?>> implements Observer {
 		try {
 			// 通过强制类型转时是否抛出异常自动过滤不属于当前侦听器关注的对象
 			event = (E)arg;
-		} catch (Exception e) {		
+		} catch (Throwable e) {		
 			return;
 		}
 		doUpdate(event);

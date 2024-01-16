@@ -656,7 +656,7 @@ public abstract class BaseItem{
 			try{
 				// 如果name为数字则返回数字
 				return getChilds().get(Integer.valueOf(name));
-			}catch (Exception  e) {}
+			}catch (Throwable  e) {}
 		}
 		return item;
 	}

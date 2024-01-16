@@ -156,7 +156,7 @@ public abstract class BaseConsole {
 				if(validate.apply(str)){
 					return str;
 				}
-			}catch (Exception e) {
+			}catch (Throwable e) {
 				System.out.println(e.getMessage());
 			}
 		}
@@ -231,7 +231,7 @@ public abstract class BaseConsole {
 			// 没有接收端则抛出异常
 			waitResp(timestamp);
 			return true;
-		}catch(Exception e){
+		}catch(Throwable e){
 			showError(e);
 			System.exit(0);
 		}
@@ -263,7 +263,7 @@ public abstract class BaseConsole {
 				if(isImage(json,renderEngine.getCurrentLevel())){
 					try {
 						json.fluentPut(OPTION_FIELD_VALUE, BinaryUtils.getBytesNotEmpty(new File(input)));
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						Throwables.throwIfUnchecked(e);
 						throw new RuntimeException(e);
 					}
@@ -359,7 +359,7 @@ public abstract class BaseConsole {
 					default:
 						break;
 					}
-	    		}catch (Exception e) {
+	    		}catch (Throwable e) {
 	    			System.out.println(e.getMessage());
 				}
 	    	}
@@ -393,13 +393,13 @@ public abstract class BaseConsole {
 		}catch (InterruptedException e) {
 			System.out.println("TIMEOUT for response");
 			System.exit(-1);
-		}catch (Exception e) {
+		}catch (Throwable e) {
 			showError(e);
 			return ;
 		}finally{
 			try {
 				factory.close();
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 		}
@@ -445,7 +445,7 @@ public abstract class BaseConsole {
 				.asDefaultFactory();
 		try {
 			return targetClass.getConstructor(String.class,IMessageQueueFactory.class).newInstance(devmac,factory);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}

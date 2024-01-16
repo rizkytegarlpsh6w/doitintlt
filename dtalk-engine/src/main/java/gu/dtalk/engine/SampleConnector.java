@@ -95,7 +95,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 							requestChannel = null;
 						}
 					}
-				}catch (Exception e) {
+				}catch (Throwable e) {
 					logger.error(e.getMessage());
 				}
 			}
@@ -166,7 +166,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 							System.out.printf("Connect created(建立连接)for client:%s\n",connectedMAC);
 							System.out.printf("request channel %s \n"
 									                 + "ack channel       %s \n", c.name,ac);							
-						} catch (Exception e) {
+						} catch (Throwable e) {
 							logger.error(e.getMessage());
 						}
 
@@ -176,7 +176,7 @@ public class SampleConnector implements IMessageAdapter<String>, RequestValidato
 		}catch(JSONException e){
 			// 忽略无法解析成ConnectReq请求对象的数据
 			logger.info("REJECT REQUEST {}",connstr);
-		}catch(Exception e){
+		}catch(Throwable e){
 			ack.setStatus(Ack.Status.ERROR).setStatusMessage(e.getMessage());
 		}
 		if(ackChannel == null && clientIDRef.get() != null){

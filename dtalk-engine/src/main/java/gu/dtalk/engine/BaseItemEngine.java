@@ -212,7 +212,7 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 
 		} catch (InteractiveCmdStartException e) {			
 			ack.writeError(e).setStatus(e.getStatus());
-		} catch(Exception e){
+		} catch(Throwable e){
 			e.printStackTrace();			
 			ack.writeError(e);
 		} 
@@ -281,7 +281,7 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 				lastProgress = System.currentTimeMillis();
 				ack.setStatus(Status.PROGRESS).setValue(progress).setStatusMessage(statusMessage);
 				responseAck(ack);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error(e.getMessage());
 			}		
 		}
@@ -293,7 +293,7 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 				cmdLock = null;
 				ack.setStatus(Status.OK).setValue(value);
 				responseAck(ack);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error(e.getMessage());
 			}
 		}
@@ -305,7 +305,7 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 				cmdLock = null;
 				ack.setStatus(Status.CANCELED);
 				responseAck(ack);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error(e.getMessage());
 			}
 		}
@@ -327,7 +327,7 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 					ack.setStatusMessage(buffer.toString());
 				}
 				responseAck(ack);	
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error(e.getMessage());
 			}
 		}
@@ -346,7 +346,7 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 				cmdLock = null;
 				ack.setStatus(Status.TIMEOUT);
 				responseAck(ack);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error(e.getMessage());
 			}
 		}

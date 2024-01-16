@@ -59,7 +59,7 @@ public class ImageOption extends BaseBinary {
 	public BaseLazyImage imageObjUncheck(){
 		try {
 			return imageObj();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}
@@ -67,21 +67,21 @@ public class ImageOption extends BaseBinary {
 	public int getWidth(){
 		try{
 			return imageObj().getWidth();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			return 0;
 		}
 	}
 	public int getHeight(){
 		try{
 			return imageObj().getHeight();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			return 0;
 		}
 	}
 	public String getSuffix() throws ImageErrorException{
 		try{
 			return imageObj().getSuffix();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			return null;
 		}
 	}
@@ -94,7 +94,7 @@ public class ImageOption extends BaseBinary {
 		try {
 			setValue(BinaryUtils.getBytes(input));
 			return this;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}
@@ -118,7 +118,7 @@ public class ImageOption extends BaseBinary {
 		try {
 			setDefaultValue(BinaryUtils.getBytes(input));
 			return this;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}

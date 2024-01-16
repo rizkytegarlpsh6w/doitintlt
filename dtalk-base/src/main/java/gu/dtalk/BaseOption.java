@@ -178,7 +178,7 @@ public abstract class BaseOption<T> extends BaseItem {
 	public boolean validate(Object value){
 		try{
 			return valueValidator.apply((T) value);
-		}catch (Exception e) {
+		}catch (Throwable e) {
 			return false;
 		}
 	}

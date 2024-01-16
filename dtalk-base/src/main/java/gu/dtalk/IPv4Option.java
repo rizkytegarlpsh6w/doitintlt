@@ -37,7 +37,7 @@ public class IPv4Option extends BaseBinary {
 		try {
 			setValue(input.getAddress());
 			return this;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}
@@ -46,7 +46,7 @@ public class IPv4Option extends BaseBinary {
 		try {
 			setDefaultValue(input.getAddress());
 			return this;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}

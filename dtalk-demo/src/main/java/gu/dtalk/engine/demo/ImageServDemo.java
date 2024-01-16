@@ -36,7 +36,7 @@ public class ImageServDemo implements Function<String, Body> {
 					return new Body("image/jpeg", BinaryUtils.getBytes(resource));
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 		return null;

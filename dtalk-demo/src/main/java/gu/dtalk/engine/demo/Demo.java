@@ -86,7 +86,7 @@ public class Demo implements DemoConstants {
 			config.parseCommandLine(args);
 			new Demo(MessageQueueConfigManagers.getManager((MessageQueueType)config.getConstant(IMPL_TYPE))).start();
 			waitquit();
-		}catch (Exception e) {
+		}catch (Throwable e) {
 			if(config.isTrace()){
 				e.printStackTrace();
 			}else{

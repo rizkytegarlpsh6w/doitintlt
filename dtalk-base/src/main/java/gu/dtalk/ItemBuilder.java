@@ -88,7 +88,7 @@ public class ItemBuilder<T extends BaseItem> {
 		checkArgument(!Modifier.isAbstract(type.getModifiers()),"%s is a abstract class",type.getName());
 		try {
 			return new ItemBuilder<T>(type.newInstance());
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}

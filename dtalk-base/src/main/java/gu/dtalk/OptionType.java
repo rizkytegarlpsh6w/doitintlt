@@ -237,7 +237,7 @@ public enum OptionType {
 					if(parsed != null){
 						json.put(name, parsed);
 					}	
-				} catch (Exception e) {
+				} catch (Throwable e) {
 				}
 				
 			}
@@ -294,7 +294,7 @@ public enum OptionType {
 				if (targetType == null) {
 					try {
 						targetType = optClass.newInstance().type;
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						Throwables.throwIfUnchecked(e);
 						throw new RuntimeException(e);
 					}	

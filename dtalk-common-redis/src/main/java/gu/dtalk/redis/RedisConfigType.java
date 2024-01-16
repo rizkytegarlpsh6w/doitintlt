@@ -205,7 +205,7 @@ public enum RedisConfigType implements IMQConnParameterSupplier{
 							.build();
 				}
 				connectable = JedisUtils.testConnect(props);
-			}catch (Exception e) {
+			}catch (Throwable e) {
 			}
 //			if(connectable){
 //				System.out.println(toString() + " connect OK\n");

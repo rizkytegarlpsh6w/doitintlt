@@ -108,7 +108,7 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 				JSONObject itemJson = makeItemJSON(deviceInstruction);
 				getItemAdapterChecked().onSubscribe(itemJson);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// 捕获所有异常发到ack响应频道
 			logger.error(e.getMessage());
 			Ack<Object> ack = new Ack<Object>()
@@ -120,7 +120,7 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 			if(!Strings.isNullOrEmpty(ackChannel)){
 				try {
 					publisher.publish(new Channel<>(ackChannel, Ack.class), ack);
-				} catch (Exception e2) {
+				} catch (Throwable e2) {
 					logger.error(e2.getMessage());
 				}
 			}			
@@ -200,7 +200,7 @@ public abstract class BaseDispatcher implements IMessageAdapter<DeviceInstructio
 				public void run() {
 					try {
 						unregister();	
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						logger.error(e.getMessage(),e);
 					}
 					
