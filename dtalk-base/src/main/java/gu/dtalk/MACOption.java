@@ -38,7 +38,7 @@ public class MACOption extends BaseBinary {
 		try {
 			setValue(input.getHardwareAddress());
 			return this;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}
@@ -47,7 +47,7 @@ public class MACOption extends BaseBinary {
 		try {
 			setDefaultValue(input.getHardwareAddress());
 			return this;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Throwables.throwIfUnchecked(e);
 			throw new RuntimeException(e);
 		}

@@ -213,11 +213,15 @@ public abstract class BaseItemEngine implements BaseItemDriver{
 		} catch (InteractiveCmdStartException e) {			
 			ack.writeError(e).setStatus(e.getStatus());
 		} catch(Throwable e){
-			e.printStackTrace();			
+			e.printStackTrace();
 			ack.writeError(e);
 		} 
-		// 向ack频道发送返回值消息		
-		responseAck(ack);
+		try {
+			// 向ack频道发送返回值消息
+			responseAck(ack);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		} 
 		afterSubscribe();
 		if(isQuit){
 			// 取消频道订阅,中断连接
