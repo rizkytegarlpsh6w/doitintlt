@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
-		<common-java.version>1.3.20</common-java.version>
+		<common-java.version>1.4.7</common-java.version>
 		<simplemq.version>2.3.0</simplemq.version>
 		<nanohttpd.version>2.3.4</nanohttpd.version>
 		<!-- surefire 插件 跳过测试 -->
