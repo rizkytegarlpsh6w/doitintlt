@@ -28,8 +28,10 @@ public interface DemoConstants extends CommonCliConstants {
 	public static final String AMQ_HOST_OPTION_DESC = "activemq host name,default: ";
 	public static final String AMQ_PORT_OPTION_LONG = "port";
 	public static final String AMQ_PORT_OPTION_DESC = "activemq port number,default: ";
+	public static final String AMQ_USERNAME_OPTION = "u";
 	public static final String AMQ_USERNAME_OPTION_LONG = "username";
 	public static final String AMQ_USERNAME_OPTION_DESC = "username for connect activemq,default:empty";
+	public static final String AMQ_PWD_OPTION = "a";
 	public static final String AMQ_PWD_OPTION_LONG = "auth";
 	public static final String AMQ_PWD_OPTION_DESC = "password for connect activemq,default:empty";
 	public static final String AMQ_URI_OPTION_LONG = "uri";

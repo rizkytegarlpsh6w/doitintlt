@@ -44,7 +44,7 @@ public class SampleConsoleRedisConfig extends BaseAppConfig implements SampleCon
 		options.addOption(Option.builder().longOpt(REDIS_PORT_OPTION_LONG)
 				.desc(REDIS_PORT_OPTION_DESC + DEFAULT_PORT).numberOfArgs(1).type(Number.class).build());
 
-		options.addOption(Option.builder().longOpt(REDIS_PWD_OPTION_LONG)
+		options.addOption(Option.builder(REDIS_PWD_OPTION).longOpt(REDIS_PWD_OPTION_LONG)
 				.desc(REDIS_PWD_OPTION_DESC).numberOfArgs(1).build());
 
 		options.addOption(Option.builder().longOpt(REDIS_DB_OPTION_LONG)

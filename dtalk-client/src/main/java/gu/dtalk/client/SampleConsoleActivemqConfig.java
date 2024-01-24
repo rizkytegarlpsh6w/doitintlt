@@ -49,7 +49,10 @@ public class SampleConsoleActivemqConfig extends BaseAppConfig implements Sample
 		options.addOption(Option.builder().longOpt(AMQ_PORT_OPTION_LONG)
 				.desc(AMQ_PORT_OPTION_DESC + CONST_PROVIDER.getDefaultPort()).numberOfArgs(1).type(Number.class).build());
 
-		options.addOption(Option.builder().longOpt(AMQ_PWD_OPTION_LONG)
+		options.addOption(Option.builder(AMQ_USERNAME_OPTION).longOpt(AMQ_USERNAME_OPTION_LONG)
+				.desc(AMQ_USERNAME_OPTION_DESC).numberOfArgs(1).build());
+
+		options.addOption(Option.builder(AMQ_PWD_OPTION).longOpt(AMQ_PWD_OPTION_LONG)
 				.desc(AMQ_PWD_OPTION_DESC).numberOfArgs(1).build());
 
 		options.addOption(Option.builder().longOpt(AMQ_URI_OPTION_LONG)
@@ -65,6 +68,7 @@ public class SampleConsoleActivemqConfig extends BaseAppConfig implements Sample
 		
 		defaultValue.setProperty(AMQ_HOST_OPTION_LONG, activemqProperties.get(MQ_HOST));
 		defaultValue.setProperty(AMQ_PORT_OPTION_LONG, activemqProperties.get(MQ_PORT));
+		defaultValue.setProperty(AMQ_USERNAME_OPTION_DESC, activemqProperties.get(MQ_USERNAME));
 		defaultValue.setProperty(AMQ_PWD_OPTION_LONG, activemqProperties.get(MQ_PASSWORD));
 		defaultValue.setProperty(AMQ_URI_OPTION_LONG, activemqProperties.get(MQ_URI));
 		defaultValue.setProperty(AMQ_TIMEOUT_OPTION_LONG, activemqProperties.get(MQ_TIMEOUT));
@@ -80,6 +84,9 @@ public class SampleConsoleActivemqConfig extends BaseAppConfig implements Sample
 		}
 		if(hasProperty(AMQ_PORT_OPTION_LONG)){
 			activemqProperties.setProperty(MQ_PORT, (String) getProperty(AMQ_PORT_OPTION_LONG));
+		}
+		if(hasProperty(AMQ_USERNAME_OPTION_LONG)){
+			activemqProperties.setProperty(MQ_USERNAME, (String) getProperty(AMQ_USERNAME_OPTION_LONG));
 		}
 		if(hasProperty(AMQ_PWD_OPTION_LONG)){
 			activemqProperties.setProperty(MQ_PASSWORD, (String) getProperty(AMQ_PWD_OPTION_LONG));
