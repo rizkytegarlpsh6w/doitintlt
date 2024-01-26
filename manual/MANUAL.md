@@ -241,6 +241,7 @@ dtalk默认的实现方式是密码验证
 |hide|当前条目是否在用户界面中隐藏(不显示),默认值:false|Y|Y|Y|
 |childs|所有子条目,当catalog为OPTION时，恒为空|Y|Y|Y|
 |empty| 是否有子条目,即childs中元素不为0,当catalog为OPTION时,恒为0|Y|Y|Y|
+|canceled| 取消正在执行的设备命令,为true时，指示取消正在执行的设备命令,仅对支持交互的设备命令有效|||Y|
 |type|选项的类型,可选的值参见《OPTION类型说明》||Y||
 |readOnly|是否为只读的选项,当catalog为CMD时,恒为false||Y||
 |needReset|会不会导致应用重启||Y|Y|
