@@ -209,7 +209,7 @@ public abstract class BaseConsole {
 		}else{
 			BaseItem item;
 			BaseItem currentLevel = checkNotNull(renderEngine.getCurrentLevel(),"currentLevel is null");
-			if(".".equals(path)){
+			if(".".equals(path) || currentLevel.getPath().equals(path)){
 				// 如果没有根据path找到对应的item则抛出异常
 				item = currentLevel;
 				path = item.getPath();
