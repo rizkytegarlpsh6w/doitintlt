@@ -242,12 +242,20 @@ dtalk默认的实现方式是密码验证
 |childs|所有子条目,当catalog为OPTION时，恒为空|Y|Y|Y|
 |empty| 是否有子条目,即childs中元素不为0,当catalog为OPTION时,恒为0|Y|Y|Y|
 |canceled| 取消正在执行的设备命令,为true时，指示取消正在执行的设备命令,仅对支持交互的设备命令有效|||Y|
+|needReset|会不会导致应用重启||Y|Y|
+|needRefresh|修改OPTION值后前端要不要重新获取数据||Y||
 |type|选项的类型,可选的值参见《OPTION类型说明》||Y||
 |readOnly|是否为只读的选项,当catalog为CMD时,恒为false||Y||
-|needReset|会不会导致应用重启||Y|Y|
 |required|是否为必须的选项，默认值:false||Y||
 |value|选项值||Y||
 |defaultValue|选项默认值||Y||
+|regex|当前选项的字符串合法性检查正则表达式||Y||
+|fieldRequire|DATE Option设备端要求的日期类型||Y||
+|precision|FLOAT Option 显示精度:小数点位数||Y||
+|options|MULTICHECK,SWITCH 可选项列表||Y||
+|width|IMAGE Option 图像宽度||Y||
+|height|IMAGE Option 图像高度||Y||
+|suffix|IMAGE Option 图像格式||Y||
 
 
 NOTE:上表中后三列为Y，代表此字段适合该类型的菜单条目

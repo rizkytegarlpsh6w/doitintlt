@@ -710,6 +710,20 @@ document.addEventListener("DOMContentLoaded", function() {
 	<td align="left">Y</td>
 </tr>
 <tr>
+	<td align="left">needReset</td>
+	<td align="left">会不会导致应用重启</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left">Y</td>
+</tr>
+<tr>
+	<td align="left">needRefresh</td>
+	<td align="left">修改OPTION值后前端要不要重新获取数据</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left"></td>
+</tr>
+<tr>
 	<td align="left">type</td>
 	<td align="left">选项的类型,可选的值参见《OPTION类型说明》</td>
 	<td align="left"></td>
@@ -722,13 +736,6 @@ document.addEventListener("DOMContentLoaded", function() {
 	<td align="left"></td>
 	<td align="left">Y</td>
 	<td align="left"></td>
-</tr>
-<tr>
-	<td align="left">needReset</td>
-	<td align="left">会不会导致应用重启</td>
-	<td align="left"></td>
-	<td align="left">Y</td>
-	<td align="left">Y</td>
 </tr>
 <tr>
 	<td align="left">required</td>
@@ -747,6 +754,55 @@ document.addEventListener("DOMContentLoaded", function() {
 <tr>
 	<td align="left">defaultValue</td>
 	<td align="left">选项默认值</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left"></td>
+</tr>
+<tr>
+	<td align="left">regex</td>
+	<td align="left">当前选项的字符串合法性检查正则表达式</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left"></td>
+</tr>
+<tr>
+	<td align="left">fieldRequire</td>
+	<td align="left">DATE Option设备端要求的日期类型</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left"></td>
+</tr>
+<tr>
+	<td align="left">precision</td>
+	<td align="left">FLOAT Option 显示精度:小数点位数</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left"></td>
+</tr>
+<tr>
+	<td align="left">options</td>
+	<td align="left">MULTICHECK,SWITCH 可选项列表</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left"></td>
+</tr>
+<tr>
+	<td align="left">width</td>
+	<td align="left">IMAGE Option 图像宽度</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left"></td>
+</tr>
+<tr>
+	<td align="left">height</td>
+	<td align="left">IMAGE Option 图像高度</td>
+	<td align="left"></td>
+	<td align="left">Y</td>
+	<td align="left"></td>
+</tr>
+<tr>
+	<td align="left">suffix</td>
+	<td align="left">IMAGE Option 图像格式</td>
 	<td align="left"></td>
 	<td align="left">Y</td>
 	<td align="left"></td>
